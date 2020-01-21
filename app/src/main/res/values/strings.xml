@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">True Name</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="intro">True Name automatically identifies Name of caller and sms for you</string>
+    <string name="intro1">See Obove Options for Potential use of App </string>
+
+    <string name="notifications_channel_description">popup</string>
+    <string name="FACEBOOK_APP_ID">783529828667639</string>
+    <string name="ACCOUNT_KIT_CLIENT_TOKEN">29acf493801b42cccd204f52806ef974</string>
+
+    // if your Facebook App ID is 1234567, you should use ak1234567
+    <string name="ak_login_protocol_scheme">ak783529828667639</string>
+
+
+    <string name="invite">Invite 0313 4536313 to True Name to \n send instantly flash message and \n get missed call reminder </string>
+</resources>

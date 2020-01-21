@@ -1,0 +1,423 @@
+package com.magicbio.truename.activities;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.location.Address;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.CallLog;
+import android.provider.ContactsContract;
+import android.telephony.SmsManager;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.location.DetectedActivity;
+import com.google.android.gms.location.Geofence;
+import com.magicbio.truename.R;
+import com.magicbio.truename.adapters.CallDetailsAdapter;
+import com.magicbio.truename.models.CallLogModel;
+import com.magicbio.truename.services.InComingCallPop;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import io.nlopez.smartlocation.OnActivityUpdatedListener;
+import io.nlopez.smartlocation.OnGeofencingTransitionListener;
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.OnReverseGeocodingListener;
+import io.nlopez.smartlocation.SmartLocation;
+import io.nlopez.smartlocation.geofencing.model.GeofenceModel;
+import io.nlopez.smartlocation.geofencing.utils.TransitionGeofence;
+import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
+
+import static android.content.ContentValues.TAG;
+
+public class CallDetails extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
+    TextView txtName;
+    Button btnback;
+    String number;
+    String mPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+
+    ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation;
+    ProgressDialog progressDoalog;
+    RecyclerView recyclerView;
+    private TextView locationText;
+    private TextView activityText;
+    private TextView geofenceText;
+    private LocationGooglePlayServicesProvider provider;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_call_details);
+        txtName = findViewById(R.id.txtName);
+        btnMessage = findViewById(R.id.btnMessage);
+        btnCall = findViewById(R.id.btnCall);
+        btnInvite = findViewById(R.id.btnInvite);
+        btnSave = findViewById(R.id.btnSave);
+        btnback = findViewById(R.id.btnback);
+        btnLocation = findViewById(R.id.btnLocation);
+        locationText = findViewById(R.id.sample);
+        geofenceText = findViewById(R.id.sample);
+        activityText = findViewById(R.id.sample);
+        btnback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        number = getIntent().getStringExtra("number");
+        txtName.setText(getIntent().getStringExtra("name"));
+        setupClick();
+        init();
+    }
+
+    public void setupClick() {
+
+        btnMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("smsto:" + number);
+                Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("sms_body", "The SMS text");
+                startActivity(intent);
+            }
+        });
+        btnCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
+        btnInvite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                        Uri uri = Uri.parse("smsto:"+number);
+//                        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        intent.putExtra("sms_body", "Invite Text");
+//                        startActivity(intent);
+
+                final Intent i = InComingCallPop.getIntent(CallDetails.this);
+                i.putExtra("number", number);
+                i.putExtra("ptype", 2);
+                startService(i);
+
+            }
+        });
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_INSERT);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+                intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
+                startActivity(intent);
+            }
+        });
+        btnLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                try {
+                    if (ActivityCompat.checkSelfPermission(CallDetails.this, mPermission)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                        ActivityCompat.requestPermissions(CallDetails.this,
+                                new String[]{mPermission}, 99);
+
+                        // If any permission above not allowed by user, this condition will execute every time, else your else part will work
+                    } else {
+                        startLocation();
+                        showLast();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
+
+    public void init() {
+
+        if (ActivityCompat.checkSelfPermission(CallDetails.this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "giving read call log permission");
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            ActivityCompat.requestPermissions(CallDetails.this,
+                    new String[]{Manifest.permission.READ_CALL_LOG},
+                    1);
+            Log.i(TAG, "giving read call log permission 2");
+        }
+        progressDoalog = new ProgressDialog(CallDetails.this);
+        progressDoalog.setMessage("Please Wait.....");
+        progressDoalog.setCancelable(false);
+        progressDoalog.setIndeterminate(false);
+        progressDoalog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        recyclerView = findViewById(R.id.recycler_View);
+        recyclerView.setHasFixedSize(true);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CallDetails.this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setAdapter(new CallDetailsAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number")), CallDetails.this));
+
+    }
+
+    private List<CallLogModel> getCallDetails(Context context, String numbers) {
+        StringBuffer sb = new StringBuffer();
+
+        List<CallLogModel> callLogModelList = new ArrayList<>();
+        Uri contacts = CallLog.Calls.CONTENT_URI;
+        @SuppressLint("MissingPermission")
+        Cursor managedCursor = context.getContentResolver().query(contacts, null, "number=?", new String[]{numbers}, "DATE desc");
+        int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
+        int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
+        int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
+        int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
+        int sim = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID);
+        sb.append("Call Details :");
+        while (managedCursor.moveToNext()) {
+
+            HashMap rowDataCall = new HashMap<String, String>();
+            CallLogModel call = new CallLogModel();
+
+            String phNumber = managedCursor.getString(number);
+            String callType = managedCursor.getString(type);
+            String callDate = managedCursor.getString(date);
+            String callDayTime = new Date(Long.valueOf(callDate)).toString();
+            String name = managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME));
+            // long timestamp = convertDateToTimestamp(callDayTime);
+            String callDuration = managedCursor.getString(duration);
+            String simn = managedCursor.getString(sim);
+            String dir = null;
+            int dircode = Integer.parseInt(callType);
+            switch (dircode) {
+                case CallLog.Calls.OUTGOING_TYPE:
+                    dir = "OUTGOING";
+                    break;
+
+                case CallLog.Calls.INCOMING_TYPE:
+                    dir = "INCOMING";
+                    break;
+
+                case CallLog.Calls.MISSED_TYPE:
+                    dir = "MISSED";
+                    break;
+                default:
+                    dir = "OUTGOING";
+                    break;
+
+            }
+            sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
+                    + " \nname :--- " + name);
+            sb.append("\n----------------------------------");
+
+            call.setCallType(dir);
+            call.setCallDate(callDate);
+            call.setPhNumber(phNumber);
+            call.setCallDayTime(callDayTime);
+            call.setSim(simn);
+            call.setName(name);
+            int hours = Integer.valueOf(callDuration) / 3600;
+            int minutes = (Integer.valueOf(callDuration) % 3600) / 60;
+            int seconds = Integer.valueOf(callDuration) % 60;
+            call.setCallDuration(String.format("%02d:%02d", minutes, seconds));
+
+            // Uri allCalls = Uri.parse("content://call_log/calls");
+            // Cursor c = ((MainActivity)CallDetails.this).managedQuery(allCalls, null, null, null, null);
+            //String id = c.getString(c.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID));
+            //Log.d("sim",id);
+            callLogModelList.add(call);
+
+
+        }
+        managedCursor.close();
+        System.out.println(sb);
+        return callLogModelList;
+    }
+
+    private void showLast() {
+        Location lastLocation = SmartLocation.with(this).location().getLastLocation();
+        if (lastLocation != null) {
+            sendLocationSMS(number, lastLocation);
+            locationText.setText(
+                    String.format("[From Cache] Latitude %.6f, Longitude %.6f",
+                            lastLocation.getLatitude(),
+                            lastLocation.getLongitude())
+            );
+        } else {
+            Toast.makeText(getApplicationContext(), "failed ", Toast.LENGTH_LONG).show();
+        }
+
+        DetectedActivity detectedActivity = SmartLocation.with(this).activity().getLastActivity();
+        if (detectedActivity != null) {
+            activityText.setText(
+                    String.format("[From Cache] Activity %s with %d%% confidence",
+                            getNameFromType(detectedActivity),
+                            detectedActivity.getConfidence())
+            );
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (provider != null) {
+            provider.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void startLocation() {
+
+        provider = new LocationGooglePlayServicesProvider();
+        provider.setCheckLocationSettings(true);
+
+        SmartLocation smartLocation = new SmartLocation.Builder(this).logging(true).build();
+
+        smartLocation.location(provider).start(this);
+        smartLocation.activity().start(this);
+
+        // Create some geofences
+        GeofenceModel mestalla = new GeofenceModel.Builder("1").setTransition(Geofence.GEOFENCE_TRANSITION_ENTER).setLatitude(39.47453120000001).setLongitude(-0.358065799999963).setRadius(500).build();
+        smartLocation.geofencing().add(mestalla).start(this);
+    }
+
+    private void stopLocation() {
+        SmartLocation.with(this).location().stop();
+        locationText.setText("Location stopped!");
+
+        SmartLocation.with(this).activity().stop();
+        activityText.setText("Activity Recognition stopped!");
+
+        SmartLocation.with(this).geofencing().stop();
+        geofenceText.setText("Geofencing stopped!");
+    }
+
+    private void showLocation(Location location) {
+        if (location != null) {
+            final String text = String.format("Latitude %.6f, Longitude %.6f",
+                    location.getLatitude(),
+                    location.getLongitude());
+            locationText.setText(text);
+
+            // We are going to get the address for the current position
+            SmartLocation.with(this).geocoding().reverse(location, new OnReverseGeocodingListener() {
+                @Override
+                public void onAddressResolved(Location original, List<Address> results) {
+                    if (results.size() > 0) {
+                        Address result = results.get(0);
+                        StringBuilder builder = new StringBuilder(text);
+                        builder.append("\n[Reverse Geocoding] ");
+                        List<String> addressElements = new ArrayList<>();
+                        for (int i = 0; i <= result.getMaxAddressLineIndex(); i++) {
+                            addressElements.add(result.getAddressLine(i));
+                        }
+                        builder.append(TextUtils.join(", ", addressElements));
+                        locationText.setText(builder.toString());
+                    }
+                }
+            });
+        } else {
+            locationText.setText("Null location");
+        }
+    }
+
+    private void showActivity(DetectedActivity detectedActivity) {
+        if (detectedActivity != null) {
+            activityText.setText(
+                    String.format("Activity %s with %d%% confidence",
+                            getNameFromType(detectedActivity),
+                            detectedActivity.getConfidence())
+            );
+        } else {
+            activityText.setText("Null activity");
+        }
+    }
+
+    private void showGeofence(Geofence geofence, int transitionType) {
+        if (geofence != null) {
+            geofenceText.setText("Transition " + getTransitionNameFromType(transitionType) + " for Geofence with id = " + geofence.getRequestId());
+        } else {
+            geofenceText.setText("Null geofence");
+        }
+    }
+
+    @Override
+    public void onLocationUpdated(Location location) {
+        showLocation(location);
+    }
+
+    @Override
+    public void onActivityUpdated(DetectedActivity detectedActivity) {
+        showActivity(detectedActivity);
+    }
+
+    @Override
+    public void onGeofenceTransition(TransitionGeofence geofence) {
+        showGeofence(geofence.getGeofenceModel().toGeofence(), geofence.getTransitionType());
+    }
+
+    private String getNameFromType(DetectedActivity activityType) {
+        switch (activityType.getType()) {
+            case DetectedActivity.IN_VEHICLE:
+                return "in_vehicle";
+            case DetectedActivity.ON_BICYCLE:
+                return "on_bicycle";
+            case DetectedActivity.ON_FOOT:
+                return "on_foot";
+            case DetectedActivity.STILL:
+                return "still";
+            case DetectedActivity.TILTING:
+                return "tilting";
+            default:
+                return "unknown";
+        }
+    }
+
+    private String getTransitionNameFromType(int transitionType) {
+        switch (transitionType) {
+            case Geofence.GEOFENCE_TRANSITION_ENTER:
+                return "enter";
+            case Geofence.GEOFENCE_TRANSITION_EXIT:
+                return "exit";
+            default:
+                return "dwell";
+        }
+    }
+
+    public void sendLocationSMS(String phoneNumber, Location currentLocation) {
+        SmsManager smsManager = SmsManager.getDefault();
+        StringBuffer smsBody = new StringBuffer();
+        String uri = "http://maps.google.com/maps?q=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude();
+        //String uri1 = "<a href="+"http://maps.google.com/maps?q=" + currentLocation.getLatitude()+","+currentLocation.getLongitude()+">Link</a>";
+        smsBody.append(Uri.parse(uri));
+        //smsBody.append(currentLocation.getLatitude());
+        //smsBody.append(",");
+        //smsBody.append(currentLocation.getLongitude());
+        smsManager.sendTextMessage(phoneNumber, null, smsBody.toString(), null, null);
+
+        Toast.makeText(getApplicationContext(), "Your location is sucessfully shared with" + txtName.getText().toString(), Toast.LENGTH_LONG).show();
+    }
+}

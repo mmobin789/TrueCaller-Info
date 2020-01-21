@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    tools:context="com.magicbio.truename.activities.SignUpActivity">
+
+    <TextView
+        android:id="@+id/logo"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/profileImg"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/logo" />
+
+    <TextView
+        android:id="@+id/profileImg"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_above="@+id/textViews"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/profile_image" />
+
+    <LinearLayout
+        android:id="@+id/textViews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnContinune"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/txtFname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_editext_bg"
+            android:drawableStart="@drawable/name"
+            android:drawablePadding="25dp"
+            android:hint="First Name"
+            android:imeOptions="actionNext"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/txtLname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_editext_bg"
+            android:drawableStart="@drawable/name"
+            android:drawablePadding="25dp"
+            android:hint="Last Name"
+            android:imeOptions="actionNext"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/txtEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_editext_bg"
+            android:drawableStart="@drawable/email"
+            android:drawablePadding="25dp"
+            android:hint="Email"
+            android:imeOptions="actionNext"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/txtAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_editext_bg"
+            android:drawableStart="@drawable/address"
+            android:drawablePadding="25dp"
+            android:hint="Address"
+            android:imeOptions="actionNext"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/txtCity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_editext_bg"
+            android:drawableStart="@drawable/city"
+            android:drawablePadding="25dp"
+            android:hint="City"
+            android:imeOptions="actionGo"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnContinune"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_above="@+id/text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/continue_btn" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/btnFacebook"
+        android:gravity="center"
+        android:text="or sign up with"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/btnFacebook"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_above="@id/btnGoogle"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="25dp"
+        android:gravity="center"
+        android:textSize="15sp"
+
+        />
+
+    <Button
+        android:id="@+id/btnGoogle"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginBottom="40dp"
+        android:background="@drawable/google"
+        android:gravity="center"
+        android:textSize="15sp"
+
+        />
+
+
+</RelativeLayout>
