@@ -90,10 +90,11 @@
         </LinearLayout>
 
         <ImageView
-            android:layout_width="110dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/add_tag_icon" />
+            android:onClick="openWhatsAppChat"
+            android:src="@drawable/whats_app_btn1" />
     </LinearLayout>
 
     <View

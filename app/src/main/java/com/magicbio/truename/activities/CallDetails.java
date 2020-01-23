@@ -33,6 +33,7 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallDetailsAdapter;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.services.InComingCallPop;
+import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,6 +89,10 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         txtName.setText(getIntent().getStringExtra("name"));
         setupClick();
         init();
+    }
+
+    public void openWhatsAppChat(View v) {
+        ContactUtils.openWhatsAppChat(number, v.getContext());
     }
 
     public void setupClick() {

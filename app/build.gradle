@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 29
@@ -61,7 +63,12 @@ dependencies {
     implementation 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
     implementation 'io.nlopez.smartlocation:rx:3.3.3'
     implementation 'com.github.bumptech.glide:glide:4.8.0'
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
 
+}
+repositories {
+    mavenCentral()
 }
 

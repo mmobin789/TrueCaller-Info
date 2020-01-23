@@ -2,7 +2,6 @@ package com.magicbio.truename.adapters;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,9 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.provider.Contacts;
-import android.telephony.PhoneNumberUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +33,7 @@ import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.activeandroid.RecordModel;
 import com.magicbio.truename.activities.CallDetails;
 import com.magicbio.truename.models.CallLogModel;
+import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.List;
 
@@ -62,31 +60,8 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         width = displayMetrics.widthPixels;
     }
 
-    public static boolean whatsappInstalledOrNot(String uri, Context c) {
-        PackageManager pm = c.getPackageManager();
-        boolean app_installed = false;
-        try {
-            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
-            app_installed = true;
-        } catch (PackageManager.NameNotFoundException e) {
-            app_installed = false;
-        }
-        return app_installed;
-    }
 
-    public static void openWhatsApp(String number, Context c) {
-        try {
-            number = number.replace(" ", "").replace("+", "");
 
-            Intent sendIntent = new Intent("android.intent.action.MAIN");
-            sendIntent.setComponent(new ComponentName("com.whatsapp", "com.whatsapp.Conversation"));
-            sendIntent.putExtra("jid", PhoneNumberUtils.stripSeparators(number) + "@s.whatsapp.net");
-            c.startActivity(sendIntent);
-
-        } catch (Exception e) {
-            Log.e("error", "ERROR_OPEN_MESSANGER" + e.toString());
-        }
-    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -190,18 +165,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         holder.btnwa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // addContect();
-                boolean isWhatsappInstalled = whatsappInstalledOrNot("com.whatsapp", context);
-                if (isWhatsappInstalled) {
-                    openWhatsApp(model.getPhNumber(), context);
-                } else {
-                    Toast.makeText(context, "WhatsApp not Installed",
-                            Toast.LENGTH_SHORT).show();
-                    Uri uri = Uri.parse("market://details?id=com.whatsapp");
-                    Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
-                    context.startActivity(goToMarket);
-
-                }
+                ContactUtils.openWhatsAppChat(model.getPhNumber(), v.getContext());
             }
         });
 

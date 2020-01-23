@@ -1,14 +1,9 @@
 package com.magicbio.truename.adapters;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.telephony.PhoneNumberUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,31 +45,8 @@ public class HotNumbersAdapter extends RecyclerView.Adapter<HotNumbersAdapter.My
         width = displayMetrics.widthPixels;
     }
 
-    public static boolean whatsappInstalledOrNot(String uri, Context c) {
-        PackageManager pm = c.getPackageManager();
-        boolean app_installed = false;
-        try {
-            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
-            app_installed = true;
-        } catch (PackageManager.NameNotFoundException e) {
-            app_installed = false;
-        }
-        return app_installed;
-    }
 
-    public static void openWhatsApp(String number, Context c) {
-        try {
-            number = number.replace(" ", "").replace("+", "");
 
-            Intent sendIntent = new Intent("android.intent.action.MAIN");
-            sendIntent.setComponent(new ComponentName("com.whatsapp", "com.whatsapp.Conversation"));
-            sendIntent.putExtra("jid", PhoneNumberUtils.stripSeparators(number) + "@s.whatsapp.net");
-            c.startActivity(sendIntent);
-
-        } catch (Exception e) {
-            Log.e("error", "ERROR_OPEN_MESSANGER" + e.toString());
-        }
-    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
