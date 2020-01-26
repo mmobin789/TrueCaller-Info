@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.activeandroid.RecordModel;
@@ -61,8 +62,6 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     }
 
 
-
-
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
@@ -77,12 +76,12 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         holder.txtName.setText(model.getName());
         holder.txtNumber.setText(model.getPhNumber());
         holder.txtDuration.setText(model.getCallDuration());
-        final Contact contact = Contact.getRandom(CallLogModelList.get(position).getPhNumber());
-        if (contact != null) {
-            Glide.with(context).load(contact.getImage()).into(holder.img);
-        } else {
-            Glide.with(context).load(R.drawable.picture_hot_call_section).into(holder.img);
-        }
+        final Contact contact = Contact.getRandom(model.getPhNumber());
+        if (contact != null)
+            Glide.with(context).load(contact.getImage()).apply(RequestOptions.errorOf(R.drawable.logo1).placeholder(R.drawable.logo1)).into(holder.img);
+        else
+            Glide.with(context).load(R.drawable.logo1).into(holder.img);
+
         if (model.getCallType().equals("OUTGOING")) {
             holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.dialed_call1));
             if (model.getSim().equals("1")) {
@@ -173,7 +172,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
             @Override
             public void onClick(View v) {
                 if (holder.btnView.getVisibility() == View.VISIBLE) {
-                    //slidefromLeftToRight(holder.btnView,holder.main_view,position);
+                    slidefromLeftToRight(holder.btnView, holder.main_view, position);
                 } else {
                     holder.btnView.setVisibility(View.VISIBLE);
                     slidefromRightToLeft(holder.btnView, holder.main_view, position);
