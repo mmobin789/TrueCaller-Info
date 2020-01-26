@@ -31,6 +31,8 @@ public class CallLogModel extends Model {
     @Column(name = "_id")
     String _id;
 
+    public boolean areOptionsShown;
+
 
     public CallLogModel() {
         super();

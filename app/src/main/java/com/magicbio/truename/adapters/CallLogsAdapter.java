@@ -8,12 +8,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
 import android.provider.Contacts;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -50,7 +50,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     String language, user;
     RecyclerView parent;
     int height, width;
-    int prev = -1;
+    private int previousPosition = -1;
 
     public CallLogsAdapter(List<CallLogModel> CallLogModelList, Context context) {
         this.CallLogModelList = CallLogModelList;
@@ -66,7 +66,101 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.call_log_row, parent, false);
-        return new MyViewHolder(itemView);
+        final MyViewHolder myViewHolder = new MyViewHolder(itemView);
+
+        myViewHolder.main_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = myViewHolder.getAdapterPosition();
+                CallLogModel callLogModel = CallLogModelList.get(position);
+                if (previousPosition > -1) { // if previous opened close it
+                    CallLogModel callLogModelOpened = CallLogModelList.get(previousPosition);
+                    callLogModelOpened.areOptionsShown = false;
+                    notifyItemChanged(previousPosition);
+
+                }
+                // hidden so show
+                slideFromRightToLeft(myViewHolder.btnView, myViewHolder.main_view);
+
+                callLogModel.areOptionsShown = true;
+
+                previousPosition = position;
+
+
+            }
+
+        });
+
+        myViewHolder.btnHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+                Intent intent = new Intent(context, CallDetails.class);
+                intent.putExtra("name", model.getName());
+                intent.putExtra("number", model.getPhNumber());
+                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                v.getContext().startActivity(intent);
+            }
+        });
+
+        myViewHolder.btnCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(((Activity) context), new String[]{Manifest.permission.CALL_PHONE}, 99);
+                    } else {
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + model.getPhNumber()));
+                        context.startActivity(intent);
+                    }
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + model.getPhNumber()));
+                    context.startActivity(intent);
+                }
+            }
+        });
+
+        myViewHolder.rec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+                RecordModel r = RecordModel.getRandom(model.get_Id());
+                if (r != null) {
+//                    Uri path = Uri.parse(r.getPath());
+//                    String newPath = path.toString();
+//                    Intent intent = new Intent();
+//                    intent.setAction(android.content.Intent.ACTION_VIEW);
+//                    File file = new File(newPath);
+//                    intent.setDataAndType(Uri.fromFile(file), "*");
+//                    context.startActivity(intent);
+                    Toast.makeText(context, r.getPath(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(context, "recording not available", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        myViewHolder.btnSms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+                Uri uri = Uri.parse("smsto:" + model.getPhNumber());
+                Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+                intent.putExtra("sms_body", "");
+                context.startActivity(intent);
+            }
+        });
+
+        myViewHolder.btnwa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+                ContactUtils.openWhatsAppChat(model.getPhNumber(), v.getContext());
+            }
+        });
+
+        return myViewHolder;
     }
 
     @Override
@@ -76,6 +170,13 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         holder.txtName.setText(model.getName());
         holder.txtNumber.setText(model.getPhNumber());
         holder.txtDuration.setText(model.getCallDuration());
+
+        if (model.areOptionsShown)
+            holder.btnView.setVisibility(View.VISIBLE);
+        else {
+            holder.btnView.setVisibility(View.GONE);
+        }
+
         final Contact contact = Contact.getRandom(model.getPhNumber());
         if (contact != null)
             Glide.with(context).load(contact.getImage()).apply(RequestOptions.errorOf(R.drawable.logo1).placeholder(R.drawable.logo1)).into(holder.img);
@@ -104,82 +205,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
                 holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_missed_call));
             }
         }
-        holder.btnHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                Intent intent = new Intent(context, CallDetails.class);
-                intent.putExtra("name", model.getName());
-                intent.putExtra("number", model.getPhNumber());
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                v.getContext().startActivity(intent);
-            }
-        });
-        holder.btnCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(((Activity) context), new String[]{Manifest.permission.CALL_PHONE}, 99);
-                    } else {
-                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + model.getPhNumber()));
-                        context.startActivity(intent);
-                    }
-                } else {
-                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + model.getPhNumber()));
-                    context.startActivity(intent);
-                }
-            }
-        });
-
-        holder.rec.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RecordModel r = RecordModel.getRandom(model.get_Id());
-                if (r != null) {
-//                    Uri path = Uri.parse(r.getPath());
-//                    String newPath = path.toString();
-//                    Intent intent = new Intent();
-//                    intent.setAction(android.content.Intent.ACTION_VIEW);
-//                    File file = new File(newPath);
-//                    intent.setDataAndType(Uri.fromFile(file), "*");
-//                    context.startActivity(intent);
-                    Toast.makeText(context, r.getPath(), Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(context, "recording not avilable", Toast.LENGTH_LONG).show();
-                }
-
-            }
-        });
-        holder.btnSms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Uri uri = Uri.parse("smsto:" + model.getPhNumber());
-                Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-                intent.putExtra("sms_body", "");
-                context.startActivity(intent);
-            }
-        });
-
-        holder.btnwa.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.openWhatsAppChat(model.getPhNumber(), v.getContext());
-            }
-        });
-
-        holder.main_view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (holder.btnView.getVisibility() == View.VISIBLE) {
-                    slidefromLeftToRight(holder.btnView, holder.main_view, position);
-                } else {
-                    holder.btnView.setVisibility(View.VISIBLE);
-                    slidefromRightToLeft(holder.btnView, holder.main_view, position);
-
-                }
-            }
-        });
 
 //        if(position==prev&&prev!=-1)
 //        {
@@ -203,26 +229,14 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         return CallLogModelList.size();
     }
 
-    public void slidefromRightToLeft(View view, View view1, final int pos) {
-
-        TranslateAnimation animate;
-
-        animate = new TranslateAnimation(view1.getWidth(), 0, 0, 0); // View for animation
-
-
+    //show
+    private void slideFromRightToLeft(final View view, View view1) {
+        view.setVisibility(View.VISIBLE);
+        TranslateAnimation animate = new TranslateAnimation(view1.getWidth(), 0, 0, 0); // View for animation
         animate.setDuration(500);
         animate.setFillAfter(true);
         view.startAnimation(animate);
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // notifyDataSetChanged();
-//                MyViewHolder holder= (MyViewHolder) parent.findViewHolderForAdapterPosition(prev);
-//                slidefromLeftToRight(holder.btnView,holder.main_view,pos);
-            }
-        }, 500);
-        // Change visibility VISIBLE or GONE
+
     }
 
     @Override
@@ -231,24 +245,32 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public void slidefromLeftToRight(final View view, View view1, final int pos) {
+    //hide
+    private void slideFromLeftToRight(final View view, View view1) {
+        TranslateAnimation animate;
+        animate = new TranslateAnimation(0, view1.getWidth(), 0, 0); // View for animation
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        animate.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
 
-        if (view.getVisibility() == View.VISIBLE) {
-            TranslateAnimation animate;
-            animate = new TranslateAnimation(0, view1.getWidth(), 0, 0); // View for animation
-            animate.setDuration(500);
-            animate.setFillAfter(true);
-            view.startAnimation(animate);
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // Do something after 5s = 5000ms
-                    view.setVisibility(View.GONE);
-                    prev = pos;
-                }
-            }, 500);
-        }
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        view.startAnimation(animate);
+
+
         // Change visibility VISIBLE or GONE
     }
 
@@ -265,12 +287,11 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         return null;
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber, txtDuration;
         RelativeLayout main_view;
         Button rec, btnHistory, btnwa, btnSms, btnCall;
         ImageView img;
-
         LinearLayout btnView;
         ImageView CallType, sim;
 
