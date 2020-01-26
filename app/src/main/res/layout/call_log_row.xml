@@ -134,18 +134,19 @@
             <LinearLayout
                 android:id="@+id/btnView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginRight="2dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
                 android:background="@color/white"
                 android:visibility="gone"
-                android:weightSum="5">
+                android:weightSum="4">
 
                 <Button
                     android:id="@+id/rec"
                     android:layout_width="70dp"
                     android:layout_height="65dp"
                     android:layout_weight="1"
-                    android:background="@drawable/call_recording_btn" />
+                    android:background="@drawable/call_recording_btn"
+                    android:visibility="gone" />
 
                 <Button
                     android:layout_width="70dp"
