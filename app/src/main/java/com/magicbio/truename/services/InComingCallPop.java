@@ -48,8 +48,8 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
-import com.magicbio.truename.ApplicationControler;
 import com.magicbio.truename.R;
+import com.magicbio.truename.TrueName;
 import com.magicbio.truename.activeandroid.RecordModel;
 import com.magicbio.truename.activities.ComFunc;
 import com.magicbio.truename.models.CallLogModel;
@@ -288,7 +288,7 @@ public class InComingCallPop extends Service {
             ivCrumpledPaper = li.inflate(R.layout.incoming_call_pop, null, false);
             txtName = ivCrumpledPaper.findViewById(R.id.txtName);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
-            //txtLastCall.setText(ApplicationControler.getLastCall(number,getApplicationContext()));
+            //txtLastCall.setText(TrueName.getLastCall(number,getApplicationContext()));
             txtName.setText(ComFunc.getContactName(number, getApplicationContext()));
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
@@ -465,7 +465,7 @@ public class InComingCallPop extends Service {
     }
 
     public void getNumberdata(String n) {
-        Call<GetNumberResponse> call = apiInterface.getNumber("findNumber", ApplicationControler.getUserInfo(getApplicationContext()).getUser_id(), getNumber(n));
+        Call<GetNumberResponse> call = apiInterface.getNumber("findNumber", TrueName.getUserInfo(getApplicationContext()).getUser_id(), getNumber(n));
         call.enqueue(new Callback<GetNumberResponse>() {
             @Override
             public void onResponse(Call<GetNumberResponse> call, Response<GetNumberResponse> response) {

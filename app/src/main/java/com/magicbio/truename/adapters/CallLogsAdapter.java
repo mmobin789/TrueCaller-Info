@@ -66,6 +66,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.call_log_row, parent, false);
+
         final MyViewHolder myViewHolder = new MyViewHolder(itemView);
 
         myViewHolder.main_view.setOnClickListener(new View.OnClickListener() {
@@ -149,6 +150,15 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
                 Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
                 intent.putExtra("sms_body", "");
                 context.startActivity(intent);
+            }
+        });
+
+
+        myViewHolder.btnLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+                ContactUtils.shareLocationOnSms(model.getPhNumber(), model.getName());
             }
         });
 
@@ -290,12 +300,12 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber, txtDuration;
         RelativeLayout main_view;
-        Button rec, btnHistory, btnwa, btnSms, btnCall;
+        Button rec, btnHistory, btnwa, btnSms, btnCall, btnLocation;
         ImageView img;
         LinearLayout btnView;
         ImageView CallType, sim;
 
-        public MyViewHolder(View itemView) {
+        MyViewHolder(View itemView) {
             super(itemView);
 //            row_linearlayout=(RelativeLayout)itemView.findViewById(R.id.notification_row_layout);
             txtName = itemView.findViewById(R.id.txtName);
@@ -310,6 +320,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
             btnwa = itemView.findViewById(R.id.btnwa);
             btnSms = itemView.findViewById(R.id.btnSms);
             btnCall = itemView.findViewById(R.id.btnCall);
+            btnLocation = itemView.findViewById(R.id.btnLocation);
             img = itemView.findViewById(R.id.img);
 
 

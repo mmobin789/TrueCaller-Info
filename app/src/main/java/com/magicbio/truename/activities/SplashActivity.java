@@ -7,8 +7,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.magicbio.truename.ApplicationControler;
 import com.magicbio.truename.R;
+import com.magicbio.truename.TrueName;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -21,7 +21,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
         btnGetStarted = findViewById(R.id.btnGetStarted);
 
-        if (!ApplicationControler.getIslogin(getApplicationContext())) {
+        if (!TrueName.getIslogin(getApplicationContext())) {
             btnGetStarted.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

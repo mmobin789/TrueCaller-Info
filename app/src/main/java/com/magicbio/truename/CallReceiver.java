@@ -40,7 +40,7 @@ public class CallReceiver extends PhonecallReceiver {
         i.putExtra("number", number);
         i.putExtra("ptype", 1);
         startService(i, ctx);
-        ApplicationControler.setLastCall(number, start, ctx);
+        TrueName.setLastCall(number, start, ctx);
         // stopRecorder();
 
         //
@@ -64,7 +64,7 @@ public class CallReceiver extends PhonecallReceiver {
         i.putExtra("number", number);
         i.putExtra("ptype", 1);
         startService(i, ctx);
-        ApplicationControler.setLastCall(number, start, ctx);
+        TrueName.setLastCall(number, start, ctx);
         // stopRecorder();
         //
     }
@@ -76,7 +76,7 @@ public class CallReceiver extends PhonecallReceiver {
         i.putExtra("number", number);
         i.putExtra("ptype", 1);
         startService(i, ctx);
-        ApplicationControler.setLastCall(number, start, ctx);
+        TrueName.setLastCall(number, start, ctx);
         //stopRecorder();
         //
     }

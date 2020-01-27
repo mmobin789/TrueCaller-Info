@@ -22,7 +22,13 @@ import java.util.Date;
  * Created by Ahmed Bilal on 12/8/2018.
  */
 
-public class ApplicationControler extends Application {
+public class TrueName extends Application {
+
+    private static TrueName instance;
+
+    public static TrueName getInstance() {
+        return instance;
+    }
 
     public static void SaveUserInfo(Info info, Context context) {
         try {
@@ -87,6 +93,7 @@ public class ApplicationControler extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         MobileAds.initialize(this, "ca-app-pub-7945535077164107~1299784514");
         ActiveAndroid.initialize(this);
         FacebookSdk.sdkInitialize(this);

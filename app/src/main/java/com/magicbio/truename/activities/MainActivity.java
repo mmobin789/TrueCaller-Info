@@ -31,8 +31,8 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.accountkit.AccessToken;
 import com.facebook.accountkit.AccountKit;
-import com.magicbio.truename.ApplicationControler;
 import com.magicbio.truename.R;
+import com.magicbio.truename.TrueName;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnCalls.performClick();
 
-        Info info = ApplicationControler.getUserInfo(getApplicationContext());
+        Info info = TrueName.getUserInfo(getApplicationContext());
         //getCallDetails();
         CheckPerm();
 //      if(com.facebook.AccessToken.getCurrentAccessToken()==null)

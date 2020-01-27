@@ -37,8 +37,8 @@ import com.facebook.internal.ImageRequest;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.magicbio.truename.ApplicationControler;
 import com.magicbio.truename.R;
+import com.magicbio.truename.TrueName;
 import com.magicbio.truename.models.SignUpResponse;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
@@ -393,8 +393,8 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<SignUpResponse> call, Response<SignUpResponse> response) {
                 progressDoalog.dismiss();
-                ApplicationControler.setIsLogin(true, getApplicationContext());
-                ApplicationControler.SaveUserInfo(response.body().getInfo(), getApplicationContext());
+                TrueName.setIsLogin(true, getApplicationContext());
+                TrueName.SaveUserInfo(response.body().getInfo(), getApplicationContext());
                 Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), response.body().getMessage(), Snackbar.LENGTH_LONG);
                 snackbar.show();
                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);

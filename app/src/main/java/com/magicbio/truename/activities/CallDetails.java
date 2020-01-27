@@ -7,20 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.location.Address;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
-import android.telephony.SmsManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -43,11 +39,7 @@ import java.util.List;
 import io.nlopez.smartlocation.OnActivityUpdatedListener;
 import io.nlopez.smartlocation.OnGeofencingTransitionListener;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
-import io.nlopez.smartlocation.OnReverseGeocodingListener;
-import io.nlopez.smartlocation.SmartLocation;
-import io.nlopez.smartlocation.geofencing.model.GeofenceModel;
 import io.nlopez.smartlocation.geofencing.utils.TransitionGeofence;
-import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
 
 import static android.content.ContentValues.TAG;
 
@@ -60,10 +52,9 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
     ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation;
     ProgressDialog progressDoalog;
     RecyclerView recyclerView;
-    private TextView locationText;
-    private TextView activityText;
-    private TextView geofenceText;
-    private LocationGooglePlayServicesProvider provider;
+    /*   private TextView locationText;
+       private TextView activityText;
+       private TextView geofenceText;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +67,9 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         btnSave = findViewById(R.id.btnSave);
         btnback = findViewById(R.id.btnback);
         btnLocation = findViewById(R.id.btnLocation);
-        locationText = findViewById(R.id.sample);
+      /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
-        activityText = findViewById(R.id.sample);
+        activityText = findViewById(R.id.sample);*/
         btnback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -154,8 +145,7 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
 
                         // If any permission above not allowed by user, this condition will execute every time, else your else part will work
                     } else {
-                        startLocation();
-                        showLast();
+                        ContactUtils.shareLocationOnSms(number, txtName.getText().toString());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -263,53 +253,17 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         return callLogModelList;
     }
 
-    private void showLast() {
-        Location lastLocation = SmartLocation.with(this).location().getLastLocation();
-        if (lastLocation != null) {
-            sendLocationSMS(number, lastLocation);
-            locationText.setText(
-                    String.format("[From Cache] Latitude %.6f, Longitude %.6f",
-                            lastLocation.getLatitude(),
-                            lastLocation.getLongitude())
-            );
-        } else {
-            Toast.makeText(getApplicationContext(), "failed ", Toast.LENGTH_LONG).show();
-        }
 
-        DetectedActivity detectedActivity = SmartLocation.with(this).activity().getLastActivity();
-        if (detectedActivity != null) {
-            activityText.setText(
-                    String.format("[From Cache] Activity %s with %d%% confidence",
-                            getNameFromType(detectedActivity),
-                            detectedActivity.getConfidence())
-            );
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (provider != null) {
-            provider.onActivityResult(requestCode, resultCode, data);
-        }
+        ContactUtils.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void startLocation() {
 
-        provider = new LocationGooglePlayServicesProvider();
-        provider.setCheckLocationSettings(true);
 
-        SmartLocation smartLocation = new SmartLocation.Builder(this).logging(true).build();
-
-        smartLocation.location(provider).start(this);
-        smartLocation.activity().start(this);
-
-        // Create some geofences
-        GeofenceModel mestalla = new GeofenceModel.Builder("1").setTransition(Geofence.GEOFENCE_TRANSITION_ENTER).setLatitude(39.47453120000001).setLongitude(-0.358065799999963).setRadius(500).build();
-        smartLocation.geofencing().add(mestalla).start(this);
-    }
-
-    private void stopLocation() {
+  /*  private void stopLocation() {
         SmartLocation.with(this).location().stop();
         locationText.setText("Location stopped!");
 
@@ -318,9 +272,9 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
 
         SmartLocation.with(this).geofencing().stop();
         geofenceText.setText("Geofencing stopped!");
-    }
+    }*/
 
-    private void showLocation(Location location) {
+   /* private void showLocation(Location location) {
         if (location != null) {
             final String text = String.format("Latitude %.6f, Longitude %.6f",
                     location.getLatitude(),
@@ -347,9 +301,9 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         } else {
             locationText.setText("Null location");
         }
-    }
+    }*/
 
-    private void showActivity(DetectedActivity detectedActivity) {
+ /*   private void showActivity(DetectedActivity detectedActivity) {
         if (detectedActivity != null) {
             activityText.setText(
                     String.format("Activity %s with %d%% confidence",
@@ -359,29 +313,29 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         } else {
             activityText.setText("Null activity");
         }
-    }
+    }*/
 
-    private void showGeofence(Geofence geofence, int transitionType) {
+   /* private void showGeofence(Geofence geofence, int transitionType) {
         if (geofence != null) {
             geofenceText.setText("Transition " + getTransitionNameFromType(transitionType) + " for Geofence with id = " + geofence.getRequestId());
         } else {
             geofenceText.setText("Null geofence");
         }
-    }
+    }*/
 
     @Override
     public void onLocationUpdated(Location location) {
-        showLocation(location);
+        //  showLocation(location);
     }
 
     @Override
     public void onActivityUpdated(DetectedActivity detectedActivity) {
-        showActivity(detectedActivity);
+        //showActivity(detectedActivity);
     }
 
     @Override
     public void onGeofenceTransition(TransitionGeofence geofence) {
-        showGeofence(geofence.getGeofenceModel().toGeofence(), geofence.getTransitionType());
+        //showGeofence(geofence.getGeofenceModel().toGeofence(), geofence.getTransitionType());
     }
 
     private String getNameFromType(DetectedActivity activityType) {
@@ -412,17 +366,5 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         }
     }
 
-    public void sendLocationSMS(String phoneNumber, Location currentLocation) {
-        SmsManager smsManager = SmsManager.getDefault();
-        StringBuffer smsBody = new StringBuffer();
-        String uri = "http://maps.google.com/maps?q=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude();
-        //String uri1 = "<a href="+"http://maps.google.com/maps?q=" + currentLocation.getLatitude()+","+currentLocation.getLongitude()+">Link</a>";
-        smsBody.append(Uri.parse(uri));
-        //smsBody.append(currentLocation.getLatitude());
-        //smsBody.append(",");
-        //smsBody.append(currentLocation.getLongitude());
-        smsManager.sendTextMessage(phoneNumber, null, smsBody.toString(), null, null);
 
-        Toast.makeText(getApplicationContext(), "Your location is sucessfully shared with" + txtName.getText().toString(), Toast.LENGTH_LONG).show();
-    }
 }
