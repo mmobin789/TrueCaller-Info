@@ -19,7 +19,6 @@ import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.adapters.ContactsAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,7 +35,7 @@ public class ContactsFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     RecyclerView recyclerView;
-    List<Contact> contactModels = new ArrayList<>();
+    private ContactsAdapter contactsAdapter;
     ProgressDialog progressDoalog;
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -124,6 +123,10 @@ public class ContactsFragment extends Fragment {
                 .execute();
     }
 
+    public void search(String newText) {
+        contactsAdapter.search(newText.toLowerCase(), null);
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -160,7 +163,8 @@ public class ContactsFragment extends Fragment {
         protected void onPostExecute(String result) {
 
             progressDoalog.dismiss();
-            recyclerView.setAdapter(new ContactsAdapter(Contact.getAll(), getActivity()));
+            contactsAdapter = new ContactsAdapter(Contact.getAll(), getActivity());
+            recyclerView.setAdapter(contactsAdapter);
             // txt.setText(result);
             // might want to change "executed" for the returned string passed
             // into onPostExecute() but that is upto you

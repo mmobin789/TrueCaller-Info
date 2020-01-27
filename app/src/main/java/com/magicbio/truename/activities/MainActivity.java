@@ -14,18 +14,18 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.activeandroid.ActiveAndroid;
-import com.facebook.CallbackManager;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
@@ -44,20 +44,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private static final int REQUEST_SEND_SMS = 9;
     private static final int REQUEST_MICROPHONE = 10;
     Button btnCalls, btnMasseges, btnContacts;
-    Fragment callfragment = new CallLogFragment();
-    Fragment messagesFragment = new MessagesFragment();
-    Fragment contactsFragment = new ContactsFragment();
+    CallLogFragment callfragment = new CallLogFragment();
+    MessagesFragment messagesFragment = new MessagesFragment();
+    ContactsFragment contactsFragment = new ContactsFragment();
     FragmentManager manager = getSupportFragmentManager();
     FragmentTransaction transaction;
     RelativeLayout v1, v2, v3;
     View l1, l2, l3;
-
-    CallbackManager callbackManager;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +72,27 @@ public class MainActivity extends AppCompatActivity {
         v1 = findViewById(R.id.v1);
         v2 = findViewById(R.id.v2);
         v3 = findViewById(R.id.v3);
+        final ImageView logoView = findViewById(R.id.logoView);
+
+        searchView = findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(this);
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                logoView.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
+
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                logoView.setVisibility(View.GONE);
+
+            }
+        });
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -94,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         btnCalls.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                searchView.setVisibility(View.VISIBLE);
                 transaction = manager.beginTransaction();
                 transaction.replace(R.id.main_layout, callfragment, "call");
                 transaction.commit();
@@ -110,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
         btnMasseges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                searchView.setIconified(true);
+                searchView.setVisibility(View.GONE);
                 transaction = manager.beginTransaction();
                 transaction.replace(R.id.main_layout, messagesFragment, "message");
                 transaction.commit();
@@ -126,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         btnContacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                searchView.setVisibility(View.VISIBLE);
                 transaction = manager.beginTransaction();
                 transaction.replace(R.id.main_layout, contactsFragment, "contacts");
                 transaction.commit();
@@ -305,6 +329,27 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        search(newText);
+        return true;
+    }
+
+
+    private void search(String newText) {
+        if (callfragment.isVisible()) {
+            callfragment.search(newText);
+        } else if (contactsFragment.isVisible()) {
+            contactsFragment.search(newText);
+        }
     }
 
     private class LongOperation extends AsyncTask<String, Void, String> {

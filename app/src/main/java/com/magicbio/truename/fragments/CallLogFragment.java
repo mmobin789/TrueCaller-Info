@@ -52,9 +52,15 @@ public class CallLogFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private OnFragmentInteractionListener mListener;
+    private CallLogsAdapter callLogsAdapter;
 
     public CallLogFragment() {
         // Required empty public constructor
+    }
+
+    public void search(String newText) {
+
+        callLogsAdapter.search(newText.toLowerCase(), null);
     }
 
     /**
@@ -112,7 +118,7 @@ public class CallLogFragment extends Fragment {
         mListener = null;
     }
 
-    public void init(View v) {
+    private void init(View v) {
 
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "giving read call log permission");
@@ -133,7 +139,8 @@ public class CallLogFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setAdapter(new CallLogsAdapter(getCallDetails(getContext()), getContext()));
+        callLogsAdapter = new CallLogsAdapter(getCallDetails(getContext()), getContext());
+        recyclerView.setAdapter(callLogsAdapter);
         new LongOperation().execute("");
 
 
@@ -367,7 +374,8 @@ public class CallLogFragment extends Fragment {
         protected void onPostExecute(String result) {
 
             progressDoalog.dismiss();
-            recyclerView.setAdapter(new CallLogsAdapter(list, getContext()));
+            callLogsAdapter = new CallLogsAdapter(list, getContext());
+            recyclerView.setAdapter(callLogsAdapter);
             // txt.setText(result);
             // might want to change "executed" for the returned string passed
             // into onPostExecute() but that is upto you

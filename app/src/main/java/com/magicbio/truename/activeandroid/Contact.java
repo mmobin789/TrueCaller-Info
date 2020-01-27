@@ -4,6 +4,9 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.magicbio.truename.adapters.DynamicSearchAdapter;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -12,7 +15,7 @@ import java.util.List;
  */
 
 @Table(name = "Contacts")
-public class Contact extends Model {
+public class Contact extends Model implements DynamicSearchAdapter.Searchable {
     @Column(name = "Name")
     public String name;
 
@@ -66,5 +69,24 @@ public class Contact extends Model {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    private static boolean searchByName = true;
+
+    public static void setSearchByNumber() {
+        searchByName = false;
+    }
+
+    public static void setSearchByName() {
+        searchByName = true;
+    }
+
+    @NotNull
+    @Override
+    public String getSearchCriteria() {
+        if (searchByName && name != null)
+            return name.toLowerCase();
+
+        return number;
     }
 }

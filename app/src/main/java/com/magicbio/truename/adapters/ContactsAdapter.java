@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,20 +19,26 @@ import com.bumptech.glide.Glide;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 
 /**
  * Created by Bilal on 12/5/2017.
  */
 
-public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyViewHolder> {
+public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
     List<Contact> CallLogModelList;
     Context context;
     String language, user;
 
     public ContactsAdapter(List<Contact> CallLogModelList, Context context) {
+        super(CallLogModelList);
         this.CallLogModelList = CallLogModelList;
         this.context = context;
         //Toast.makeText(context,""+CallLogModelList.size(),Toast.LENGTH_LONG).show();
@@ -45,7 +52,17 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
+    public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
+        if (s != null && s.matches(Patterns.PHONE.pattern()))
+            Contact.setSearchByNumber();
+        else Contact.setSearchByName();
+
+        super.search(s, onNothingFound);
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder vh, final int position) {
+        MyViewHolder holder = (MyViewHolder) vh;
         holder.txtName.setText(CallLogModelList.get(position).getName());
         holder.txtNumber.setText(CallLogModelList.get(position).getNumber());
         holder.btnCall.setOnClickListener(new View.OnClickListener() {

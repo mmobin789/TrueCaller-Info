@@ -3,12 +3,15 @@ package com.magicbio.truename.models;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.magicbio.truename.adapters.DynamicSearchAdapter;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by Ahmed Bilal on 12/14/2018.
  */
 @Table(name = "CallLog")
-public class CallLogModel extends Model {
+public class CallLogModel extends Model implements DynamicSearchAdapter.Searchable {
 
     @Column(name = "Name")
     String name;
@@ -116,5 +119,24 @@ public class CallLogModel extends Model {
 
     public void setCallDuration(String callDuration) {
         this.callDuration = callDuration;
+    }
+
+    private static boolean searchByName = true;
+
+    public static void setSearchByNumber() {
+        searchByName = false;
+    }
+
+    public static void setSearchByName() {
+        searchByName = true;
+    }
+
+    @NotNull
+    @Override
+    public String getSearchCriteria() {
+        if (searchByName && name != null)
+            return name.toLowerCase();
+
+        return phNumber;
     }
 }

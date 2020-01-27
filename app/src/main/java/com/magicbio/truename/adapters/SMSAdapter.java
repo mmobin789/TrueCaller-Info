@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,23 +22,37 @@ import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.activities.SmsConversation;
 import com.magicbio.truename.models.Sms;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 
 /**
  * Created by Bilal on 12/5/2017.
  */
 
-public class SMSAdapter extends RecyclerView.Adapter<SMSAdapter.MyViewHolder> {
+public class SMSAdapter extends DynamicSearchAdapter<Sms> {
 
     List<Sms> CallLogModelList;
     Context context;
     String language, user;
 
     public SMSAdapter(List<Sms> CallLogModelList, Context context) {
+        super(CallLogModelList);
         this.CallLogModelList = CallLogModelList;
         this.context = context;
         //Toast.makeText(context,""+CallLogModelList.size(),Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
+        if (s != null && s.matches(Patterns.PHONE.pattern()))
+            Sms.setSearchByNumber();
+        else Sms.setSearchByName();
+        super.search(s, onNothingFound);
     }
 
     @Override
@@ -48,7 +63,8 @@ public class SMSAdapter extends RecyclerView.Adapter<SMSAdapter.MyViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
+        MyViewHolder holder = (MyViewHolder) viewHolder;
         final Contact contact = Contact.getRandom(CallLogModelList.get(position).getAddress());
         Sms sms = CallLogModelList.get(position);
         //sms.setReadState(String.valueOf(getNumberOfUnreadMessages(context,sms.getId())));

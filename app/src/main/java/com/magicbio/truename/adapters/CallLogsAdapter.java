@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Contacts;
 import android.util.DisplayMetrics;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,14 +37,19 @@ import com.magicbio.truename.activities.CallDetails;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.ContactUtils;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 
 /**
  * Created by Bilal on 12/5/2017.
  */
 
-public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyViewHolder> {
+public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
     List<CallLogModel> CallLogModelList;
     Context context;
@@ -53,14 +59,25 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     private int previousPosition = -1;
 
     public CallLogsAdapter(List<CallLogModel> CallLogModelList, Context context) {
+        super(CallLogModelList);
         this.CallLogModelList = CallLogModelList;
         this.context = context;
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
+
     }
 
+    @Override
+    public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
+
+        if (s != null && s.matches(Patterns.PHONE.pattern()))
+            CallLogModel.setSearchByNumber();
+        else CallLogModel.setSearchByName();
+
+        super.search(s, onNothingFound);
+    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -173,8 +190,10 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         return myViewHolder;
     }
 
+
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
+        MyViewHolder holder = (MyViewHolder) viewHolder;
         final CallLogModel model = CallLogModelList.get(position);
         holder.btnView.setVisibility(View.GONE);
         holder.txtName.setText(model.getName());
