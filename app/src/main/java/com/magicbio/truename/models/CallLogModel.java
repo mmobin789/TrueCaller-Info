@@ -36,6 +36,8 @@ public class CallLogModel extends Model implements DynamicSearchAdapter.Searchab
 
     public boolean areOptionsShown;
 
+    public boolean showAd;
+
 
     public CallLogModel() {
         super();

@@ -51,6 +51,7 @@ public class CallLogFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private boolean adShown;
     private OnFragmentInteractionListener mListener;
     private CallLogsAdapter callLogsAdapter;
 
@@ -141,7 +142,7 @@ public class CallLogFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         callLogsAdapter = new CallLogsAdapter(getCallDetails(getContext()), getContext());
         recyclerView.setAdapter(callLogsAdapter);
-        new LongOperation().execute("");
+        new LongOperation().execute();
 
 
         HotNumbersAdapter itemListDataAdapter = new HotNumbersAdapter(getHotCalls(getContext()), getContext());
@@ -376,6 +377,9 @@ public class CallLogFragment extends Fragment {
             progressDoalog.dismiss();
             callLogsAdapter = new CallLogsAdapter(list, getContext());
             recyclerView.setAdapter(callLogsAdapter);
+            if (!adShown)
+                callLogsAdapter.showAd();
+            adShown = true;
             // txt.setText(result);
             // might want to change "executed" for the returned string passed
             // into onPostExecute() but that is upto you

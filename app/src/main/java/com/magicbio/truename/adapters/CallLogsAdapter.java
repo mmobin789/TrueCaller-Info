@@ -30,11 +30,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.activeandroid.RecordModel;
 import com.magicbio.truename.activities.CallDetails;
 import com.magicbio.truename.models.CallLogModel;
+import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.Nullable;
@@ -68,6 +70,13 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         width = displayMetrics.widthPixels;
 
     }
+
+    public void showAd() {
+        int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
+        CallLogModelList.get(adPosition).showAd = true;
+        notifyItemChanged(adPosition);
+    }
+
 
     @Override
     public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
@@ -206,6 +215,11 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
             holder.btnView.setVisibility(View.GONE);
         }
 
+        if (model.showAd)
+            holder.adView.setVisibility(View.VISIBLE);
+        else holder.adView.setVisibility(View.GONE);
+
+
         final Contact contact = Contact.getRandom(model.getPhNumber());
         if (contact != null)
             Glide.with(context).load(contact.getImage()).apply(RequestOptions.errorOf(R.drawable.logo1).placeholder(R.drawable.logo1)).into(holder.img);
@@ -322,6 +336,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         Button rec, btnHistory, btnwa, btnSms, btnCall, btnLocation;
         ImageView img;
         LinearLayout btnView;
+        AdView adView;
         ImageView CallType, sim;
 
         MyViewHolder(View itemView) {
@@ -341,6 +356,8 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
             btnCall = itemView.findViewById(R.id.btnCall);
             btnLocation = itemView.findViewById(R.id.btnLocation);
             img = itemView.findViewById(R.id.img);
+            adView = itemView.findViewById(R.id.adView);
+            AdUtils.loadBannerAd(adView);
 
 
 //            ViewGroup.LayoutParams lp=btnView.getLayoutParams();

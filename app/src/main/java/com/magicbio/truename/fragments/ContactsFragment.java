@@ -40,6 +40,7 @@ public class ContactsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private boolean adShown;
     private OnFragmentInteractionListener mListener;
 
     public ContactsFragment() {
@@ -112,7 +113,7 @@ public class ContactsFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        new LongOperation().execute("");
+        new LongOperation().execute();
 
     }
 
@@ -165,6 +166,10 @@ public class ContactsFragment extends Fragment {
             progressDoalog.dismiss();
             contactsAdapter = new ContactsAdapter(Contact.getAll(), getActivity());
             recyclerView.setAdapter(contactsAdapter);
+            if (!adShown)
+                contactsAdapter.showAd();
+
+            adShown = true;
             // txt.setText(result);
             // might want to change "executed" for the returned string passed
             // into onPostExecute() but that is upto you

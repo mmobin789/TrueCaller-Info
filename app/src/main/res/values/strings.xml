@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">True Name</string>
-
+    <string name="adMob_ID">ca-app-pub-2746915348369141~3037530958</string>
+    <string name="adUnit1_id">ca-app-pub-2746915348369141/3974088546</string>
+    <string name="test_banner_id">ca-app-pub-3940256099942544/6300978111</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="intro">True Name automatically identifies Name of caller and sms for you</string>

@@ -52,13 +52,12 @@ dependencies {
     implementation 'com.facebook.android:account-kit-sdk:4.+'
     compile 'com.snappydb:snappydb-lib:0.5.2'
     compile 'com.esotericsoftware.kryo:kryo:2.24.0'
-    implementation 'com.google.android.gms:play-services-ads:11.8.0'
-    implementation 'com.google.android.gms:play-services-location:11.8.0'
+    implementation 'com.google.android.gms:play-services-ads:18.3.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.0'
     implementation 'com.facebook.android:facebook-android-sdk:4.0.0'
-//    //ADMob
-//    implementation 'com.google.firebase:firebase-core:11.8.0'
-//    implementation 'com.google.firebase:firebase-ads:11.8.0'
+
+
 
     implementation 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
     implementation 'io.nlopez.smartlocation:rx:3.3.3'
