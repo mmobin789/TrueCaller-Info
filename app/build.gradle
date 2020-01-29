@@ -6,7 +6,7 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.magicbio.truename"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -43,12 +43,11 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
-
-    implementation 'com.facebook.android:account-kit-sdk:4.+'
+    implementation 'com.facebook.android:account-kit-sdk:5.4.0'
     compile 'com.snappydb:snappydb-lib:0.5.2'
     compile 'com.esotericsoftware.kryo:kryo:2.24.0'
     implementation 'com.google.android.gms:play-services-ads:18.3.0'

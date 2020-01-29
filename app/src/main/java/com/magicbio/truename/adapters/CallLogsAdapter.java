@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Contacts;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -226,7 +227,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         else
             Glide.with(context).load(R.drawable.logo1).into(holder.img);
 
-        if (contact == null || contact.getName() == null)
+        if (TextUtils.isEmpty(model.getName()))
             holder.btnLocation.setVisibility(View.GONE);
         else holder.btnLocation.setVisibility(View.VISIBLE);
 

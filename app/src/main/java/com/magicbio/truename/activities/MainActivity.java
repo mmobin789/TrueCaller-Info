@@ -1,14 +1,11 @@
 package com.magicbio.truename.activities;
 
-import android.Manifest;
 import android.content.ContentResolver;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -16,12 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -32,13 +26,11 @@ import com.facebook.HttpMethod;
 import com.facebook.accountkit.AccessToken;
 import com.facebook.accountkit.AccountKit;
 import com.magicbio.truename.R;
-import com.magicbio.truename.TrueName;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
 import com.magicbio.truename.fragments.MessagesFragment;
 import com.magicbio.truename.models.ContactModel;
-import com.magicbio.truename.models.Info;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,8 +38,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
-    private static final int REQUEST_SEND_SMS = 9;
-    private static final int REQUEST_MICROPHONE = 10;
+
     Button btnCalls, btnMasseges, btnContacts;
     CallLogFragment callfragment = new CallLogFragment();
     MessagesFragment messagesFragment = new MessagesFragment();
@@ -94,21 +85,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
 
-
-                if (ContextCompat.checkSelfPermission(MainActivity.this,
-                        Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-
-                    ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.RECORD_AUDIO},
-                            REQUEST_MICROPHONE);
-
-                }
-            }
-        }, 1000);
 
 
         btnCalls.setOnClickListener(new View.OnClickListener() {
@@ -166,9 +143,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         btnCalls.performClick();
 
-        Info info = TrueName.getUserInfo(getApplicationContext());
+        //   Info info = TrueName.getUserInfo(getApplicationContext());
         //getCallDetails();
-        CheckPerm();
+
 //      if(com.facebook.AccessToken.getCurrentAccessToken()==null)
 //      {
 //          startActivity(facebookActivity.getIntent());
@@ -230,14 +207,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Log.e("Agil value --- ", sb.toString());
     }
 
-    public void CheckPerm() {
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS,}, REQUEST_SEND_SMS);
-        } else {
-            //TODO
-        }
-    }
 
     private void displayMessages() {
         ContentResolver cr = this.getContentResolver();
@@ -309,27 +278,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         return contactModels;
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_SEND_SMS:
-                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                } else {
-                    Toast.makeText(this, "Phone permission denied", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case REQUEST_MICROPHONE:
-                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                } else {
-                    Toast.makeText(this, "Microphone permission denied", Toast.LENGTH_SHORT).show();
-                }
-                break;
 
-            default:
-                break;
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
