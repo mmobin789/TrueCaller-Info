@@ -138,8 +138,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="2dp"
                 android:background="@color/white"
-                android:visibility="gone"
-                android:weightSum="4">
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/rec"

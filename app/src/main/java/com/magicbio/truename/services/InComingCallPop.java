@@ -57,6 +57,7 @@ import com.magicbio.truename.models.GetNumberResponse;
 import com.magicbio.truename.models.Record;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
+import com.magicbio.truename.utils.AdUtils;
 
 import java.io.File;
 import java.text.Format;
@@ -132,7 +133,6 @@ public class InComingCallPop extends Service {
             }
         }
     }
-
 
 
     public static String getLastCall(CallLogModel callLogModel, Context context) {
@@ -263,6 +263,8 @@ public class InComingCallPop extends Service {
         if (ptype == 0) {
             ivCrumpledPaper = li.inflate(R.layout.incoming_call_pop, null, false);
             txtName = ivCrumpledPaper.findViewById(R.id.txtName);
+            AdView adView = ivCrumpledPaper.findViewById(R.id.adView);
+            AdUtils.loadBannerAd(adView);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
             //txtLastCall.setText(TrueName.getLastCall(number,getApplicationContext()));
             txtName.setText(ComFunc.getContactName(number, getApplicationContext()));
@@ -274,6 +276,8 @@ public class InComingCallPop extends Service {
         } else if (ptype == 1) {
 
             ivCrumpledPaper = li.inflate(R.layout.after_call_pop, null, false);
+            AdView adView = ivCrumpledPaper.findViewById(R.id.adView);
+            AdUtils.loadBannerAd(adView);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
             btnMessage = ivCrumpledPaper.findViewById(R.id.btnMessage);
             btnCall = ivCrumpledPaper.findViewById(R.id.btnCall);

@@ -226,27 +226,36 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         else
             Glide.with(context).load(R.drawable.logo1).into(holder.img);
 
-        if (model.getCallType().equals("OUTGOING")) {
-            holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.dialed_call1));
-            if (model.getSim().equals("1")) {
-                holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_dialed_call));
-            } else if (model.getSim().equals("0")) {
-                holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_dialed_call));
-            }
-        } else if (model.getCallType().equals("INCOMING")) {
-            holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.recieve_call1));
-            if (model.getSim().equals("1")) {
-                holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_recieve_call));
-            } else if (model.getSim().equals("0")) {
-                holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_recieve_call));
-            }
-        } else if (model.getCallType().equals("MISSED")) {
-            holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.missed_call1));
-            if (model.getSim().equals("1")) {
-                holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_missed_call));
-            } else if (model.getSim().equals("0")) {
-                holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_missed_call));
-            }
+        if (contact == null || contact.getName() == null)
+            holder.btnLocation.setVisibility(View.GONE);
+        else holder.btnLocation.setVisibility(View.VISIBLE);
+
+
+        switch (model.getCallType()) {
+            case "OUTGOING":
+                holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.dialed_call1));
+                if (model.getSim().equals("1")) {
+                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_dialed_call));
+                } else if (model.getSim().equals("0")) {
+                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_dialed_call));
+                }
+                break;
+            case "INCOMING":
+                holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.recieve_call1));
+                if (model.getSim().equals("1")) {
+                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_recieve_call));
+                } else if (model.getSim().equals("0")) {
+                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_recieve_call));
+                }
+                break;
+            case "MISSED":
+                holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.missed_call1));
+                if (model.getSim().equals("1")) {
+                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_missed_call));
+                } else if (model.getSim().equals("0")) {
+                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_missed_call));
+                }
+                break;
         }
 
 

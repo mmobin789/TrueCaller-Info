@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="350dp"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -88,7 +89,8 @@
                         android:layout_width="100dp"
                         android:layout_height="30dp"
                         android:layout_marginTop="4dp"
-                        android:src="@drawable/shopping_btn" />
+                        android:src="@drawable/shopping_btn"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -157,7 +159,8 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="10dp"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -180,6 +183,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:background="@drawable/ad1" />
+
+            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                ads:adSize="BANNER"
+                ads:adUnitId="@string/test_banner_id"
+                tools:visibility="visible" />
         </LinearLayout>
 
         <ImageView

@@ -89,6 +89,7 @@
                     <ImageView
                         android:layout_width="100dp"
                         android:layout_height="30dp"
+                        android:visibility="gone"
                         android:layout_marginTop="4dp"
                         android:src="@drawable/shopping_btn" />
                 </LinearLayout>
@@ -158,6 +159,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_marginLeft="10dp"
+                    android:visibility="gone"
                     android:layout_marginTop="10dp"
                     android:gravity="center"
                     android:orientation="horizontal">
