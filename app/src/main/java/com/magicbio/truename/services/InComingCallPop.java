@@ -58,6 +58,7 @@ import com.magicbio.truename.models.Record;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
 import com.magicbio.truename.utils.AdUtils;
+import com.magicbio.truename.utils.ContactUtils;
 
 import java.io.File;
 import java.text.Format;
@@ -288,6 +289,15 @@ public class InComingCallPop extends Service {
             txtName.setText(ComFunc.getContactName(number, getApplicationContext()));
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
+            ImageView ivWhatsApp = ivCrumpledPaper.findViewById(R.id.ivWta);
+
+            ivWhatsApp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ContactUtils.openWhatsAppChat(number, view.getContext());
+                }
+            });
+
             txtLastCall.setText("Last Call " + getDate(Long.parseLong(getCalllast(getApplicationContext(), number).getCallDate()), "dd/MM/yyyy hh:mm:ss"));
             getNumberdata(number);
 

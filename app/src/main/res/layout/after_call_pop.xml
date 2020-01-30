@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="350dp"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -89,9 +90,9 @@
                     <ImageView
                         android:layout_width="100dp"
                         android:layout_height="30dp"
-                        android:visibility="gone"
                         android:layout_marginTop="4dp"
-                        android:src="@drawable/shopping_btn" />
+                        android:src="@drawable/shopping_btn"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -110,12 +111,12 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp">
+                    android:layout_marginStart="8dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
                         android:gravity="center"
                         android:orientation="horizontal">
 
@@ -135,6 +136,21 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
+                    <Button
+                        android:id="@+id/ivLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="8dp"
+                        android:background="@color/app_green"
+                        android:drawableStart="@drawable/ic_location_white"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="@string/share_my_location"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white" />
+
                     <TextView
                         android:id="@+id/txtNetwork"
                         android:layout_width="wrap_content"
@@ -142,14 +158,15 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
                         android:layout_marginEnd="10dp"
-                        android:background="@drawable/carrier_background"
+                        android:background="@color/app_green"
                         android:paddingLeft="8dp"
                         android:paddingTop="3dp"
                         android:paddingRight="8dp"
                         android:paddingBottom="3dp"
-                        android:text="telenor"
                         android:textColor="@color/white"
-                        android:textSize="15sp" />
+                        android:textSize="15sp"
+                        android:visibility="gone"
+                        tools:text="telenor" />
 
 
                 </RelativeLayout>
@@ -159,10 +176,10 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_marginLeft="10dp"
-                    android:visibility="gone"
                     android:layout_marginTop="10dp"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -190,61 +207,64 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginBottom="5dp">
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp">
 
                 <ImageView
                     android:id="@+id/btnCall"
-                    android:layout_width="60dp"
+                    android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:background="@drawable/call_btn_back"
-                    android:padding="5dp" />
+                    android:layout_weight="1"
+                    android:background="@drawable/call_btn_back" />
 
                 <ImageView
                     android:id="@+id/btnMessage"
-                    android:layout_width="60dp"
+                    android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_marginLeft="4dp"
-                    android:background="@drawable/msg_btn_back"
-                    android:padding="5dp" />
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/msg_btn_back" />
 
                 <ImageView
                     android:id="@+id/btnInvite"
-                    android:layout_width="60dp"
+                    android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_marginLeft="4dp"
-                    android:background="@drawable/invite_btn_back"
-                    android:padding="5dp" />
+                    android:layout_weight="1"
+                    android:background="@drawable/invite_btn_back" />
 
                 <ImageView
                     android:id="@+id/btnSave"
-                    android:layout_width="60dp"
+                    android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_marginLeft="4dp"
-                    android:background="@drawable/save_btn_back"
-                    android:padding="5dp" />
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/save_btn_back" />
+
 
                 <ImageView
-                    android:layout_width="60dp"
+                    android:id="@+id/ivWta"
+                    android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_marginLeft="4dp"
-                    android:background="@drawable/block_unclick"
-                    android:padding="5dp" />
+                    android:layout_weight="1" />
+
 
             </LinearLayout>
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
-                android:background="@drawable/ad1" />
+                android:background="@drawable/ad_2"
+                android:tint="@color/app_green"
+                android:tintMode="screen" />
 
             <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/adView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                ads:adSize="BANNER"
+                ads:adSize="LARGE_BANNER"
                 ads:adUnitId="@string/test_banner_id" />
 
         </LinearLayout>
@@ -255,7 +275,7 @@
             android:layout_height="30dp"
             android:layout_alignParentRight="true"
             android:layout_marginTop="15dp"
-            android:src="@drawable/pop_close" />
+            android:src="@drawable/pop_close_green" />
     </RelativeLayout>
 
 </LinearLayout>
