@@ -90,11 +90,11 @@
         </LinearLayout>
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginTop="10dp"
-            android:onClick="openWhatsAppChat"
-            android:src="@drawable/whats_app_btn1" />
+            android:background="@drawable/wta_btn_back"
+            android:onClick="openWhatsAppChat" />
     </LinearLayout>
 
     <View
@@ -186,6 +186,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbarSize="5dp"
+            tools:listitem="@layout/call_details_row"
             android:scrollbarThumbVertical="@android:color/darker_gray"
             android:scrollbars="vertical" />
 
