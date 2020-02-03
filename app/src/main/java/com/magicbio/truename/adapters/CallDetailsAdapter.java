@@ -95,7 +95,7 @@ public class CallDetailsAdapter extends RecyclerView.Adapter<CallDetailsAdapter.
 
     @Override
     public int getItemCount() {
-        return CallLogModelList.size();
+        return 2;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {

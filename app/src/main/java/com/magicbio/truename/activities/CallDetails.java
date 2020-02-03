@@ -14,7 +14,6 @@ import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,7 +44,6 @@ import static android.content.ContentValues.TAG;
 
 public class CallDetails extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
     TextView txtName;
-    Button btnback;
     String number;
     String mPermission = Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -65,21 +63,25 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         btnCall = findViewById(R.id.btnCall);
         btnInvite = findViewById(R.id.btnInvite);
         btnSave = findViewById(R.id.btnSave);
-        btnback = findViewById(R.id.btnback);
         btnLocation = findViewById(R.id.btnLocation);
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
-        btnback.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
         number = getIntent().getStringExtra("number");
         txtName.setText(getIntent().getStringExtra("name"));
+        TextView tvWTAMessage = findViewById(R.id.tvMessageWhatsApp);
+        TextView tvWTAAudio = findViewById(R.id.tvAudioWhatsApp);
+        TextView tvWTAVideo = findViewById(R.id.tvVideoWhatsApp);
+        tvWTAMessage.setText(String.format("Message %s", number));
+        tvWTAAudio.setText(String.format("Voice %s", number));
+        tvWTAVideo.setText(String.format("Video %s", number));
+
         setupClick();
         init();
+    }
+
+    public void openFullCallHistory(View v) {
+
     }
 
     public void openWhatsAppChat(View v) {
@@ -252,7 +254,6 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         System.out.println(sb);
         return callLogModelList;
     }
-
 
 
     @Override

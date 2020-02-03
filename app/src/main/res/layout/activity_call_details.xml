@@ -15,36 +15,16 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-
+            android:background="@color/dark_gray"
             android:padding="5dp">
 
-            <LinearLayout
+            <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentLeft="true"
-                android:gravity="center_vertical">
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:padding="8dp"
+                android:src="@drawable/logo_w" />
 
-                <Button
-                    android:id="@+id/btnback"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:background="@drawable/back_arrow" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="10dp"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="7dp"
-                    android:layout_height="25dp"
-                    android:layout_marginLeft="10dp"
-                    android:src="@drawable/con_menu" />
-            </LinearLayout>
         </RelativeLayout>
     </LinearLayout>
 
@@ -55,8 +35,8 @@
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/profile_image_1" />
 
@@ -64,11 +44,11 @@
             android:id="@+id/txtName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:gravity="center"
+            android:layout_marginTop="8dp"
             android:text="Ahmed Bial"
             android:textColor="@color/black"
-            android:textSize="25sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -94,7 +74,8 @@
             android:layout_height="50dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/wta_btn_back"
-            android:onClick="openWhatsAppChat" />
+            android:onClick="openWhatsAppChat"
+            android:visibility="gone" />
     </LinearLayout>
 
     <View
@@ -174,26 +155,345 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#1FA2DC"
+            android:background="@color/browser_actions_divider_color"
             android:paddingLeft="10dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="Call History"
-            android:textColor="@color/white" />
+            android:text="@string/in_your_contacts"
+            android:textColor="@color/black" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_View"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbarSize="5dp"
-            tools:listitem="@layout/call_details_row"
-            android:scrollbarThumbVertical="@android:color/darker_gray"
-            android:scrollbars="vertical" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
 
-        <TextView
-            android:id="@+id/sample"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_View"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbarSize="5dp"
+                    android:scrollbarThumbVertical="@android:color/darker_gray"
+                    android:scrollbars="vertical"
+                    tools:listitem="@layout/call_details_row" />
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/view_call_history"
+                    android:onClick="openFullCallHistory">
+
+                    <ImageView
+                        android:id="@+id/icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/history_icon" />
+
+                    <TextView
+                        android:id="@+id/tvVh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@+id/icon"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:text="View call history"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvVh"
+                        android:layout_toEndOf="@+id/icon"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/duration_of_last_call"
+                        android:textColor="@color/white" />
+                </RelativeLayout>
+
+                <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/adView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    ads:adSize="LARGE_BANNER"
+                    ads:adUnitId="@string/test_banner_id"
+                    tools:visibility="visible" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:drawableStart="@drawable/ic_email_black_24dp"
+                    android:drawablePadding="16dp"
+                    android:padding="16dp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    tools:text="email@email.com" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:drawableStart="@drawable/ic_location_dark_grey"
+                    android:drawablePadding="16dp"
+                    android:drawableTint="@color/dark_gray"
+                    android:padding="16dp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    tools:text="email@email.com" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="openWhatsAppChat"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/whatsapp" />
+
+                        <TextView
+                            android:id="@+id/tvMessageWhatsApp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/black"
+                            android:textStyle="bold"
+                            tools:text="Message" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@color/browser_actions_divider_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/whatsapp" />
+
+                        <TextView
+                            android:id="@+id/tvAudioWhatsApp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/black"
+                            android:textStyle="bold"
+                            tools:text="Voice" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@color/browser_actions_divider_color" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/whatsapp" />
+
+                        <TextView
+                            android:id="@+id/tvVideoWhatsApp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/black"
+                            android:textStyle="bold"
+                            tools:text="Video" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/facebook_blue" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/facebook"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/instagaram" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/instagram"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/skype" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/skype"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/twitter" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/twitter"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/linkedin" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/linkedIn"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/dark_grey_border"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/viber" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/viber"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
 

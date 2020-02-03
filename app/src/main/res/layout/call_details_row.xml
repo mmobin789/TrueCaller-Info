@@ -1,33 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/notification_row_layout"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="horizontal"
     android:padding="7dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-
-        android:layout_marginLeft="0dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@drawable/image_contact"
-            android:visibility="gone" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/call_dark" />
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
-            android:orientation="vertical"
-            android:paddingTop="0dp">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -38,17 +35,12 @@
                     android:id="@+id/txtNumber"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ahmed Bilal"
                     android:textColor="@color/black"
                     android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="0300 1234567" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:background="@drawable/true_icon"
-                    android:visibility="gone" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -61,14 +53,16 @@
                     android:id="@+id/callType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/recieved_call_icon" />
+                    android:background="@drawable/recieved_call_icon"
+                    android:visibility="gone" />
 
                 <ImageView
                     android:id="@+id/sim"
                     android:layout_width="10dp"
                     android:layout_height="12dp"
                     android:layout_marginLeft="5dp"
-                    android:background="@drawable/sim_1" />
+                    android:background="@drawable/sim_1"
+                    android:visibility="gone" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -89,7 +83,8 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center">
+                android:gravity="center"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/txtDate"
@@ -104,15 +99,16 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/header"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:gravity="center">
 
         <Button
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/save_recording"
             android:visibility="gone" />
 
@@ -123,17 +119,29 @@
             android:background="@drawable/recording"
             android:visibility="gone" />
 
-        <Button
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/messege" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/call_green" />
 
-        <Button
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="@drawable/detail" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/detail"
+            android:src="@drawable/message" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/header"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/browser_actions_divider_color" />
 
 
 </RelativeLayout>
