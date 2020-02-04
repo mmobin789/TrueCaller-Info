@@ -290,11 +290,19 @@ public class InComingCallPop extends Service {
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
             ImageView ivWhatsApp = ivCrumpledPaper.findViewById(R.id.ivWta);
+            ImageView ivLoc = ivCrumpledPaper.findViewById(R.id.ivLocation);
 
             ivWhatsApp.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ContactUtils.openWhatsAppChat(number, view.getContext());
+                }
+            });
+
+            ivLoc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ContactUtils.shareLocationOnSms(number, txtName.getText().toString());
                 }
             });
 

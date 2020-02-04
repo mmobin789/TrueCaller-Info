@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
 import android.telephony.SmsManager
+import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.location.Geofence
 import com.magicbio.truename.TrueName
@@ -53,10 +54,24 @@ object ContactUtils {
 
         lastLocation.apply {
             if (this == null) {
-                Toast.makeText(context, "Failed", Toast.LENGTH_LONG).show()
-                return
-            }
-            sendLocationSMS(phoneNumber, name, this)
+                Log.e(javaClass.simpleName, "Failed 1st time try again")
+
+                val simpleCountDownTimer = SimpleCountDownTimer(0, 1, object : SimpleCountDownTimer.OnCountDownListener {
+                    override fun onCountDownActive(time: String) {
+
+                    }
+
+                    override fun onCountDownFinished() {
+                        shareLocationOnSms(phoneNumber, name)
+                    }
+                })
+                simpleCountDownTimer.runOnBackgroundThread()
+
+                simpleCountDownTimer.start()
+
+
+            } else
+                sendLocationSMS(phoneNumber, name, this)
 
         }
     }

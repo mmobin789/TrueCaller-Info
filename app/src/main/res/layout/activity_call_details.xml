@@ -258,7 +258,7 @@
                     android:padding="16dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    tools:text="email@email.com" />
+                    android:text="@string/pakistan" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
