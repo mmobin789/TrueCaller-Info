@@ -22,12 +22,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.Geofence;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallDetailsAdapter;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.services.InComingCallPop;
+import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
@@ -75,7 +77,7 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         tvWTAMessage.setText(String.format("Message %s", number));
         tvWTAAudio.setText(String.format("Voice %s", number));
         tvWTAVideo.setText(String.format("Video %s", number));
-
+        AdUtils.loadBannerAd((AdView) findViewById(R.id.adView));
         setupClick();
         init();
     }
