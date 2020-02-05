@@ -5,6 +5,7 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
@@ -61,17 +63,40 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         holder.btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContactUtils.openDialer(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
+                ContactUtils.callNumber(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
             }
         });
         holder.btnSms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContactUtils.openDialer(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
+                ContactUtils.openSmsApp(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
             }
         });
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.btnLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Contact model = CallLogModelList.get(holder.getAdapterPosition());
+                ContactUtils.shareLocationOnSms(model.getNumber(), model.getName());
+            }
+        });
+
+        holder.btnwa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Contact model = CallLogModelList.get(holder.getAdapterPosition());
+                ContactUtils.openWhatsAppChat(model.getNumber());
+            }
+        });
+        holder.btnHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Contact model = CallLogModelList.get(holder.getAdapterPosition());
+                ContactUtils.openCallHistoryActivity(model.getName(), model.getNumber());
+            }
+        });
+
+        holder.rl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int position = holder.getAdapterPosition();
@@ -100,6 +125,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             Contact.setSearchByNumber();
         else Contact.setSearchByName();
 
+
         super.search(s, onNothingFound);
     }
 
@@ -111,16 +137,16 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         holder.txtNumber.setText(contact.getNumber());
 
         if (contact.areOptionsShown)
-            holder.btnCall.setVisibility(View.VISIBLE);
+            holder.btnView.setVisibility(View.VISIBLE);
         else {
-            holder.btnCall.setVisibility(View.GONE);
+            holder.btnView.setVisibility(View.GONE);
         }
 
         if (contact.showAd)
             holder.adView.setVisibility(View.VISIBLE);
         else holder.adView.setVisibility(View.GONE);
 
-        Glide.with(context).load(CallLogModelList.get(position).getImage()).into(holder.img);
+        Glide.with(context).load(CallLogModelList.get(position).getImage()).apply(RequestOptions.errorOf(R.drawable.no_image)).into(holder.img);
 //        Glide.with(context)
 //                .load(CallLogModelList.get(position).getImage())
 //                .centerCrop()
@@ -153,19 +179,23 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         context.startActivity(intentInsertEdit);
     }*/
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber;
-        ImageView btnCall, btnSms;
+        ImageView btnCall;
         ImageView img;
         AdView adView;
         RelativeLayout rl;
         LinearLayout btnView;
+        Button btnSms, btnLocation, btnHistory, btnwa;
 
         MyViewHolder(View itemView) {
             super(itemView);
             txtName = itemView.findViewById(R.id.txtName);
             btnCall = itemView.findViewById(R.id.btnCall);
             btnSms = itemView.findViewById(R.id.btnSms);
+            btnLocation = itemView.findViewById(R.id.btnLocation);
+            btnHistory = itemView.findViewById(R.id.btnHistory);
+            btnwa = itemView.findViewById(R.id.btnwa);
             txtNumber = itemView.findViewById(R.id.txtNumber);
             img = itemView.findViewById(R.id.img);
             adView = itemView.findViewById(R.id.adView);

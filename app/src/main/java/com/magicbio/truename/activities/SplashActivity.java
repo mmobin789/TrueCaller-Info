@@ -3,7 +3,6 @@ package com.magicbio.truename.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -85,10 +84,9 @@ public class SplashActivity extends AppCompatActivity {
             permissions.add(Manifest.permission.RECORD_AUDIO);
         }
 
-        if (notHasPermission(Manifest.permission.READ_PHONE_NUMBERS)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                permissions.add(Manifest.permission.READ_PHONE_NUMBERS);
-            }
+        if (notHasPermission(Manifest.permission.CALL_PHONE)) {
+            permissions.add(Manifest.permission.CALL_PHONE);
+
         }
 
         if (permissions.isEmpty())

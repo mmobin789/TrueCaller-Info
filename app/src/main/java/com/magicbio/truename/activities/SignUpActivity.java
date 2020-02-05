@@ -1,11 +1,8 @@
 package com.magicbio.truename.activities;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -390,13 +387,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    @SuppressLint("MissingPermission")
-    private String getMyPhoneNumber() {
-        TelephonyManager mTelephonyMgr;
-        mTelephonyMgr = (TelephonyManager)
-                getSystemService(Context.TELEPHONY_SERVICE);
-        return mTelephonyMgr.getLine1Number();
-    }
+
 
     public void login(String phone) {
         progressDoalog.show();
@@ -426,8 +417,8 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-    public String EtoStr(EditText e) {
-        return "";
+    private String EtoStr(EditText e) {
+        return e.getText().toString();
     }
 
 

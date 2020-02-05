@@ -87,7 +87,7 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
     }
 
     public void openWhatsAppChat(View v) {
-        ContactUtils.openWhatsAppChat(number, v.getContext());
+        ContactUtils.openWhatsAppChat(number);
     }
 
     public void setupClick() {

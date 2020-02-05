@@ -66,7 +66,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -272,7 +271,7 @@ public class InComingCallPop extends Service {
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
             recordCall(number);
-            txtLastCall.setText("Last Call " + getDate(Long.parseLong(getCalllast(getApplicationContext(), number).getCallDate()), "dd/MM/yyyy hh:mm:ss"));
+            txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(getCallLast(getApplicationContext(), number).getCallDate()), "dd/MM/yyyy hh:mm:ss")));
             getNumberdata(number);
         } else if (ptype == 1) {
 
@@ -295,7 +294,7 @@ public class InComingCallPop extends Service {
             ivWhatsApp.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ContactUtils.openWhatsAppChat(number, view.getContext());
+                    ContactUtils.openWhatsAppChat(number);
                 }
             });
 
@@ -306,7 +305,7 @@ public class InComingCallPop extends Service {
                 }
             });
 
-            txtLastCall.setText("Last Call " + getDate(Long.parseLong(getCalllast(getApplicationContext(), number).getCallDate()), "dd/MM/yyyy hh:mm:ss"));
+            txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(getCallLast(getApplicationContext(), number).getCallDate()), "dd/MM/yyyy hh:mm:ss")));
             getNumberdata(number);
 
             setupClick();
@@ -492,7 +491,7 @@ public class InComingCallPop extends Service {
         if (recorder != null) {
             RecordModel r = new RecordModel();
             r.setPath(filepath);
-            CallLogModel c = getCalllast(getApplicationContext(), number);
+            CallLogModel c = getCallLast(getApplicationContext(), number);
             r.setRid(c.get_Id());
             r.save();
             recorder.stop();
@@ -566,80 +565,86 @@ public class InComingCallPop extends Service {
         Toast.makeText(getApplicationContext(), "Invite SMS Sent", Toast.LENGTH_LONG).show();
     }
 
-    private CallLogModel getCalllast(Context context, String numbers) {
-        StringBuffer sb = new StringBuffer();
+    private CallLogModel getCallLast(Context context, String numbers) {
+        try {
+            StringBuffer sb = new StringBuffer();
 
-        String selection = CallLog.Calls.NUMBER + " = " + numbers;
+            //  String selection = CallLog.Calls.NUMBER + " = " + numbers;
 
-        String[] strNumber = {numbers};
-        CallLogModel callLogModelList = new CallLogModel();
-        Uri contacts = CallLog.Calls.CONTENT_URI;
-        @SuppressLint("MissingPermission")
-        Cursor managedCursor = context.getContentResolver().query(contacts, null, CallLog.Calls.NUMBER + " = ? ", strNumber, "date asc");
-        int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
-        int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
-        int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
-        int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
-        int sim = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID);
-        int id = managedCursor.getColumnIndex(CallLog.Calls._ID);
-        sb.append("Call Details :");
-        while (managedCursor.moveToNext()) {
+            String[] strNumber = {numbers};
+            CallLogModel callLogModelList = new CallLogModel();
+            Uri contacts = CallLog.Calls.CONTENT_URI;
+            @SuppressLint("MissingPermission")
+            Cursor managedCursor = context.getContentResolver().query(contacts, null, CallLog.Calls.NUMBER + " = ? ", strNumber, "date asc");
+            int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
+            int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
+            int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
+            int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
+            int sim = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID);
+            int id = managedCursor.getColumnIndex(CallLog.Calls._ID);
+            sb.append("Call Details :");
+            while (managedCursor.moveToNext()) {
 
-            HashMap rowDataCall = new HashMap<String, String>();
-            CallLogModel call = new CallLogModel();
+                //   HashMap rowDataCall = new HashMap<String, String>();
+                CallLogModel call = new CallLogModel();
 
-            String phNumber = managedCursor.getString(number);
-            String callType = managedCursor.getString(type);
-            String callDate = managedCursor.getString(date);
-            String callDayTime = new Date(Long.valueOf(callDate)).toString();
-            // long timestamp = convertDateToTimestamp(callDayTime);
-            String callDuration = managedCursor.getString(duration);
-            String simn = managedCursor.getString(sim);
-            String sid = managedCursor.getString(id);
-            String dir = null;
-            int dircode = Integer.parseInt(callType);
-            switch (dircode) {
-                case CallLog.Calls.OUTGOING_TYPE:
-                    dir = "OUTGOING";
-                    break;
+                String phNumber = managedCursor.getString(number);
+                String callType = managedCursor.getString(type);
+                String callDate = managedCursor.getString(date);
+                String callDayTime = new Date(Long.valueOf(callDate)).toString();
+                // long timestamp = convertDateToTimestamp(callDayTime);
+                String callDuration = managedCursor.getString(duration);
+                String simn = managedCursor.getString(sim);
+                String sid = managedCursor.getString(id);
+                String dir = null;
+                int dircode = Integer.parseInt(callType);
+                switch (dircode) {
+                    case CallLog.Calls.OUTGOING_TYPE:
+                        dir = "OUTGOING";
+                        break;
 
-                case CallLog.Calls.INCOMING_TYPE:
-                    dir = "INCOMING";
-                    break;
+                    case CallLog.Calls.INCOMING_TYPE:
+                        dir = "INCOMING";
+                        break;
 
-                case CallLog.Calls.MISSED_TYPE:
-                    dir = "MISSED";
-                    break;
-                default:
-                    dir = "OUTGOING";
-                    break;
+                    case CallLog.Calls.MISSED_TYPE:
+                        dir = "MISSED";
+                        break;
+                    default:
+                        dir = "OUTGOING";
+                        break;
+
+                }
+                sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration);
+                sb.append("\n----------------------------------");
+
+                call.setCallType(dir);
+                call.setCallDate(callDate);
+                call.setPhNumber(phNumber);
+                call.setCallDayTime(callDayTime);
+                call.setSim(simn);
+                call.set_Id(sid);
+                int hours = Integer.valueOf(callDuration) / 3600;
+                int minutes = (Integer.valueOf(callDuration) % 3600) / 60;
+                int seconds = Integer.valueOf(callDuration) % 60;
+                call.setCallDuration(String.format("%02d:%02d", minutes, seconds));
+
+                // Uri allCalls = Uri.parse("content://call_log/calls");
+                // Cursor c = ((MainActivity)getActivity()).managedQuery(allCalls, null, null, null, null);
+                //String id = c.getString(c.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID));
+                //Log.d("sim",id);
+                callLogModelList = call;
+
 
             }
-            sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration);
-            sb.append("\n----------------------------------");
-
-            call.setCallType(dir);
-            call.setCallDate(callDate);
-            call.setPhNumber(phNumber);
-            call.setCallDayTime(callDayTime);
-            call.setSim(simn);
-            call.set_Id(sid);
-            int hours = Integer.valueOf(callDuration) / 3600;
-            int minutes = (Integer.valueOf(callDuration) % 3600) / 60;
-            int seconds = Integer.valueOf(callDuration) % 60;
-            call.setCallDuration(String.format("%02d:%02d", minutes, seconds));
-
-            // Uri allCalls = Uri.parse("content://call_log/calls");
-            // Cursor c = ((MainActivity)getActivity()).managedQuery(allCalls, null, null, null, null);
-            //String id = c.getString(c.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID));
-            //Log.d("sim",id);
-            callLogModelList = call;
-
-
+            managedCursor.close();
+            System.out.println(sb);
+            return callLogModelList;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        managedCursor.close();
-        System.out.println(sb);
-        return callLogModelList;
+
+        return null;
     }
 
     public void recordCall(String Number) {

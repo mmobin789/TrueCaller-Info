@@ -1,5 +1,6 @@
 package com.magicbio.truename.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,12 +11,29 @@ import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.location.Geofence
 import com.magicbio.truename.TrueName
+import com.magicbio.truename.activities.CallDetails
 import io.nlopez.smartlocation.SmartLocation
 import io.nlopez.smartlocation.geofencing.model.GeofenceModel
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider
 
 object ContactUtils {
     private val context = TrueName.getInstance()
+
+    @JvmStatic
+    fun openCallHistoryActivity(name: String?, number: String) {
+        val intent = Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra("name", name)
+        intent.putExtra("number", number)
+        context.startActivity(intent)
+    }
+
+    @JvmStatic
+    @SuppressLint("MissingPermission")
+    fun callNumber(number: String) {
+        val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number")).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+
+    }
 
     @JvmStatic
     fun openDialer(number: String) {
@@ -34,15 +52,15 @@ object ContactUtils {
     }
 
     @JvmStatic
-    fun openWhatsAppChat(number: String, c: Context) {
+    fun openWhatsAppChat(number: String) {
 
         val whatsAppPackage = "com.whatsapp"
 
-        if (!isAppInstalled(whatsAppPackage, c)) {
-            Toast.makeText(c, "WhatsApp not Installed.", Toast.LENGTH_SHORT).show()
+        if (!isAppInstalled(whatsAppPackage, context)) {
+            Toast.makeText(context, "WhatsApp not Installed.", Toast.LENGTH_SHORT).show()
             val uri = Uri.parse("market://details?id=$whatsAppPackage")
             val goToMarket = Intent(Intent.ACTION_VIEW, uri)
-            c.startActivity(goToMarket)
+            context.startActivity(goToMarket)
             return
         }
 
@@ -52,10 +70,10 @@ object ContactUtils {
             var fixedNumber = numberWithCountryCodeNoPlus
             if (!numberWithCountryCodeNoPlus.startsWith("92"))
                 fixedNumber = "92${numberWithCountryCodeNoPlus.substring(1)}"
-            val sendIntent = Intent("$whatsAppPackage.Conversation")
+            val sendIntent = Intent("$whatsAppPackage.Conversation").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             //  sendIntent.component = ComponentName("com.whatsapp", "com.whatsapp.Conversation")
             sendIntent.putExtra("jid", "$fixedNumber@s.whatsapp.net")
-            c.startActivity(sendIntent)
+            context.startActivity(sendIntent)
         } catch (e: Exception) {
             e.printStackTrace()
         }

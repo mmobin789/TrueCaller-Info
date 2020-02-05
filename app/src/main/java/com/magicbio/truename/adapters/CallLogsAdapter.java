@@ -1,13 +1,10 @@
 package com.magicbio.truename.adapters;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.Contacts;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -23,8 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -33,7 +28,6 @@ import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.activeandroid.RecordModel;
-import com.magicbio.truename.activities.CallDetails;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
@@ -54,12 +48,31 @@ import static com.magicbio.truename.utils.CommonAnimationUtils.slideFromRightToL
 
 public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
-    List<CallLogModel> CallLogModelList;
+    private volatile List<CallLogModel> CallLogModelList;
     Context context;
-    String language, user;
-    RecyclerView parent;
     int height, width;
     private int previousPosition = -1;
+    private RecyclerView recyclerView;
+    /*private SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
+        @Override
+        public void onCountDownActive(@NotNull String time) {
+
+        }
+
+        @Override
+        public void onCountDownFinished() {
+            setOptionsClosed();
+
+            recyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
+
+
+        }
+    }, 1);*/
 
     public CallLogsAdapter(List<CallLogModel> CallLogModelList, Context context) {
         super(CallLogModelList);
@@ -69,8 +82,15 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
+        //  simpleCountDownTimer.runOnBackgroundThread();
 
     }
+
+  /*  private void setOptionsClosed() {
+        for (CallLogModel callLog : CallLogModelList) {
+            callLog.areOptionsShown = false;
+        }
+    }*/
 
     public void showAd() {
         int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
@@ -82,11 +102,21 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     @Override
     public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
 
+
         if (s != null && s.matches(Patterns.PHONE.pattern()))
             CallLogModel.setSearchByNumber();
         else CallLogModel.setSearchByName();
 
+        assert s != null;
+
+      /*  if (previousPosition > -1 && (s.length() == 0 || s.length() == 1)) {
+            previousPosition = -1;
+            simpleCountDownTimer.start(false);
+        }*/
+
         super.search(s, onNothingFound);
+
+
     }
 
     @Override
@@ -123,11 +153,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
             @Override
             public void onClick(View v) {
                 CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                Intent intent = new Intent(context, CallDetails.class);
-                intent.putExtra("name", model.getName());
-                intent.putExtra("number", model.getPhNumber());
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                v.getContext().startActivity(intent);
+                ContactUtils.openCallHistoryActivity(model.getName(), model.getPhNumber());
             }
         });
 
@@ -135,17 +161,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
             @Override
             public void onClick(View v) {
                 CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(((Activity) context), new String[]{Manifest.permission.CALL_PHONE}, 99);
-                    } else {
-                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + model.getPhNumber()));
-                        context.startActivity(intent);
-                    }
-                } else {
-                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + model.getPhNumber()));
-                    context.startActivity(intent);
-                }
+                ContactUtils.callNumber(model.getPhNumber());
             }
         });
 
@@ -193,7 +209,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
             @Override
             public void onClick(View v) {
                 CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                ContactUtils.openWhatsAppChat(model.getPhNumber(), v.getContext());
+                ContactUtils.openWhatsAppChat(model.getPhNumber());
             }
         });
 
@@ -283,13 +299,11 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     }
 
 
-
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        parent = recyclerView;
-        super.onAttachedToRecyclerView(recyclerView);
-    }
+        this.recyclerView = recyclerView;
 
+    }
 
 
     private String getContactIdFromNumber(String number) {
