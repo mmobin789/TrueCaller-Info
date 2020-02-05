@@ -64,15 +64,15 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/main_layout"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/vp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/belowPanel"
         android:layout_below="@id/topPanel"
         android:orientation="horizontal">
 
-    </LinearLayout>
+    </androidx.viewpager.widget.ViewPager>
 
 
     <LinearLayout
@@ -81,94 +81,77 @@
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="0dp">
+        android:baselineAligned="false">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/v1"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:orientation="horizontal">
+            android:layout_marginBottom="1dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-            <RelativeLayout
-                android:id="@+id/v1"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_marginLeft="5dp"
-                android:orientation="vertical">
+            <View
+                android:id="@+id/l1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#0DBA82" />
 
-                <View
-                    android:id="@+id/l1"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_gravity="top"
-                    android:layout_marginBottom="2dp"
-                    android:background="#0DBA82" />
-
-                <Button
-                    android:id="@+id/btnMessages"
-                    android:layout_width="50dp"
-                    android:layout_height="37dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerInParent="true"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/messege_btn_unclick1" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/v2"
-                android:layout_width="70dp"
+            <ImageView
+                android:id="@+id/btnMessages"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:clickable="true">
+                android:padding="2dp"
+                android:src="@drawable/messege_btn_unclick1" />
+        </LinearLayout>
 
-                <View
-                    android:id="@+id/l2"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginBottom="2dp"
-                    android:background="#0DBA82" />
+        <LinearLayout
+            android:id="@+id/v2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/btnCalls"
-                    android:layout_width="30dp"
-                    android:layout_height="37dp"
+            <View
+                android:id="@+id/l2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#0DBA82" />
 
-                    android:layout_centerInParent="true"
-                    android:background="@drawable/call_btn_click1" />
-            </RelativeLayout>
+            <ImageView
+                android:id="@+id/btnCalls"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="2dp"
+                android:src="@drawable/call_btn_click1" />
+        </LinearLayout>
 
-            <RelativeLayout
-                android:id="@+id/v3"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:clickable="true"
-                android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/v3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-                <View
-                    android:id="@+id/l3"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_gravity="top"
-                    android:layout_marginBottom="2dp"
-                    android:background="#0DBA82" />
+            <View
+                android:id="@+id/l3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#0DBA82" />
 
-                <Button
-                    android:id="@+id/btnContacts"
-                    android:layout_width="50dp"
-                    android:layout_height="37dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerInParent="true"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/contact_unclick1" />
-            </RelativeLayout>
-
-
-        </RelativeLayout>
-
+            <ImageView
+                android:id="@+id/btnContacts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/app_name"
+                android:padding="2dp"
+                android:src="@drawable/contact_unclick1" />
+        </LinearLayout>
     </LinearLayout>
+
+
 </RelativeLayout>
+
+

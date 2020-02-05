@@ -16,6 +16,23 @@ import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProv
 
 object ContactUtils {
     private val context = TrueName.getInstance()
+
+    @JvmStatic
+    fun openDialer(number: String) {
+        val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null))
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(intent)
+    }
+
+    @JvmStatic
+    fun openSmsApp(number: String) {
+        val uri = Uri.parse("smsto:$number")
+        val intent = Intent(Intent.ACTION_SENDTO, uri)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra("sms_body", "")
+        context.startActivity(intent)
+    }
+
     @JvmStatic
     fun openWhatsAppChat(number: String, c: Context) {
 

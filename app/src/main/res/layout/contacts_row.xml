@@ -4,26 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <ImageView
+        android:id="@+id/imgE"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/no_image"
+        android:visibility="invisible" />
+
     <RelativeLayout
         android:id="@+id/rl"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/btnCall">
 
         <ImageView
             android:id="@+id/img"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/image_contact"
-            android:contentDescription="@string/app_name" />
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/no_image" />
 
         <TextView
             android:id="@+id/txtName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_toEndOf="@id/img"
             android:contentDescription="@string/app_name"
@@ -46,24 +53,62 @@
             android:textColor="@color/black"
             tools:text="0300 1234567" />
 
-        <ImageView
-            android:id="@+id/btnCall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="16dp"
-            android:layout_toStartOf="@+id/btnSms"
-            android:src="@drawable/ic_call_black_24dp" />
 
-        <ImageView
-            android:id="@+id/btnSms"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="16dp"
-            android:src="@drawable/ic_sms_black_24dp" />
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/btnView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/btnCall"
+        android:layout_toEndOf="@id/imgE"
+        android:background="@color/white"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/rec"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@drawable/call_recording_btn"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnLocation"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@drawable/location_btn" />
+
+        <Button
+            android:id="@+id/btnHistory"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@drawable/history_btn1" />
+
+        <Button
+            android:id="@+id/btnwa"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@drawable/whats_app_btn1" />
+
+        <Button
+            android:id="@+id/btnSms"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@drawable/sms_btn1" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/btnCall"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/call_1" />
 
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
@@ -72,6 +117,7 @@
         android:layout_below="@+id/rl"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:visibility="gone"
         ads:adSize="BANNER"
         ads:adUnitId="@string/test_banner_id"
@@ -81,7 +127,6 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_below="@+id/adView"
-        android:layout_marginTop="16dp"
         android:background="#D4D4D4" />
 
 

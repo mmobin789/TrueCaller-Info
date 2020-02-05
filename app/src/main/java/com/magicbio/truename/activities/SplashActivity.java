@@ -3,6 +3,7 @@ package com.magicbio.truename.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -49,7 +50,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void takePermissions() {
-        ArrayList<String> permissions = new ArrayList<>(8);
+        ArrayList<String> permissions = new ArrayList<>(9);
 
         if (notHasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
             permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -82,6 +83,12 @@ public class SplashActivity extends AppCompatActivity {
 
         if (notHasPermission(Manifest.permission.RECORD_AUDIO)) {
             permissions.add(Manifest.permission.RECORD_AUDIO);
+        }
+
+        if (notHasPermission(Manifest.permission.READ_PHONE_NUMBERS)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                permissions.add(Manifest.permission.READ_PHONE_NUMBERS);
+            }
         }
 
         if (permissions.isEmpty())

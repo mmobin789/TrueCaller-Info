@@ -15,8 +15,6 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -46,6 +44,8 @@ import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
+
+import static com.magicbio.truename.utils.CommonAnimationUtils.slideFromRightToLeft;
 
 
 /**
@@ -108,7 +108,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
                 }
                 // hidden so show
-                slideFromRightToLeft(myViewHolder.btnView, myViewHolder.main_view);
+                slideFromRightToLeft(myViewHolder.btnView, myViewHolder.main_view.getWidth());
 
                 callLogModel.areOptionsShown = true;
 
@@ -205,7 +205,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
         MyViewHolder holder = (MyViewHolder) viewHolder;
         final CallLogModel model = CallLogModelList.get(position);
-        holder.btnView.setVisibility(View.GONE);
+
         holder.txtName.setText(model.getName());
         holder.txtNumber.setText(model.getPhNumber());
         holder.txtDuration.setText(model.getCallDuration());
@@ -282,15 +282,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         return CallLogModelList.size();
     }
 
-    //show
-    private void slideFromRightToLeft(final View view, View view1) {
-        view.setVisibility(View.VISIBLE);
-        TranslateAnimation animate = new TranslateAnimation(view1.getWidth(), 0, 0, 0); // View for animation
-        animate.setDuration(500);
-        animate.setFillAfter(true);
-        view.startAnimation(animate);
 
-    }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -298,34 +290,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    //hide
-    private void slideFromLeftToRight(final View view, View view1) {
-        TranslateAnimation animate;
-        animate = new TranslateAnimation(0, view1.getWidth(), 0, 0); // View for animation
-        animate.setDuration(500);
-        animate.setFillAfter(true);
-        animate.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
 
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                view.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        view.startAnimation(animate);
-
-
-        // Change visibility VISIBLE or GONE
-    }
 
     private String getContactIdFromNumber(String number) {
         String[] projection = new String[]{Contacts.Phones._ID};

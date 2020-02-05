@@ -2,18 +2,17 @@ package com.magicbio.truename.fragments;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.CallLog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -24,6 +23,10 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallLogsAdapter;
 import com.magicbio.truename.adapters.HotNumbersAdapter;
 import com.magicbio.truename.models.CallLogModel;
+import com.magicbio.truename.utils.CommonAnimationUtils;
+import com.magicbio.truename.utils.SimpleCountDownTimer;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,8 +37,7 @@ import static android.content.ContentValues.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link CallLogFragment.OnFragmentInteractionListener} interface
+ * Activities that contain this fragment must implement an interface
  * to handle interaction events.
  * Use the {@link CallLogFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -45,14 +47,9 @@ public class CallLogFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    List<CallLogModel> list;
-    ProgressDialog progressDoalog;
-    RecyclerView recyclerView, hotNumbers;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private List<CallLogModel> list;
+    private RecyclerView recyclerView;
     private boolean adShown;
-    private OnFragmentInteractionListener mListener;
     private CallLogsAdapter callLogsAdapter;
 
     public CallLogFragment() {
@@ -82,14 +79,6 @@ public class CallLogFragment extends Fragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -100,24 +89,6 @@ public class CallLogFragment extends Fragment {
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 
     private void init(View v) {
 
@@ -130,22 +101,46 @@ public class CallLogFragment extends Fragment {
                     1);
             Log.i(TAG, "giving read call log permission 2");
         }
-        progressDoalog = new ProgressDialog(getContext());
-        progressDoalog.setMessage("Please Wait.....");
-        progressDoalog.setCancelable(false);
-        progressDoalog.setIndeterminate(false);
-        progressDoalog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         recyclerView = v.findViewById(R.id.recycler_View);
-        hotNumbers = v.findViewById(R.id.hotNumbers);
+        RecyclerView hotNumbers = v.findViewById(R.id.hotNumbers);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        callLogsAdapter = new CallLogsAdapter(getCallDetails(getContext()), getContext());
-        recyclerView.setAdapter(callLogsAdapter);
-        new LongOperation().execute();
+        final TextView tvLoading = v.findViewById(R.id.tvLoading);
+        CommonAnimationUtils.applyFadeInFadeOut(tvLoading);
 
 
-        HotNumbersAdapter itemListDataAdapter = new HotNumbersAdapter(getHotCalls(getContext()), getContext());
+        SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
+            @Override
+            public void onCountDownActive(@NotNull String time) {
+                list = getCallDetails(recyclerView.getContext());
+            }
+
+            @Override
+            public void onCountDownFinished() {
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvLoading.setVisibility(View.GONE);
+                        tvLoading.clearAnimation();
+                        callLogsAdapter = new CallLogsAdapter(list, recyclerView.getContext());
+                        recyclerView.setAdapter(callLogsAdapter);
+
+                        if (!adShown) {
+                            adShown = true;
+                            callLogsAdapter.showAd();
+                        }
+                    }
+                });
+            }
+        }, 1);
+
+        simpleCountDownTimer.runOnBackgroundThread();
+
+        simpleCountDownTimer.start(false);
+
+
+        HotNumbersAdapter itemListDataAdapter = new HotNumbersAdapter(getHotCalls(recyclerView.getContext()), getContext());
 
         hotNumbers.setHasFixedSize(true);
         hotNumbers.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -155,7 +150,7 @@ public class CallLogFragment extends Fragment {
     }
 
     private List<CallLogModel> getCallDetails(Context context) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         List<CallLogModel> callLogModelList = new ArrayList<>();
         Uri contacts = CallLog.Calls.CONTENT_URI;
@@ -233,11 +228,11 @@ public class CallLogFragment extends Fragment {
     }
 
     private List<CallLogModel> getHotCalls(Context context) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
-        List<CallLogModel> callLogModelList = new ArrayList<>();
+        List<CallLogModel> callLogModelList = new ArrayList<>(10);
         Uri contacts = CallLog.Calls.CONTENT_URI;
-        String[] projection = {"top 10", "number", "MAX(date) as date", "name", "type"};
+        //   String[] projection = {"top 10", "number", "MAX(date) as date", "name", "type"};
         @SuppressLint("MissingPermission")
         Cursor managedCursor = context.getContentResolver().query(contacts, null, null, null, "DATE desc limit 10");
         int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
@@ -246,7 +241,7 @@ public class CallLogFragment extends Fragment {
         sb.append("Call Details :");
         while (managedCursor.moveToNext()) {
 
-            HashMap rowDataCall = new HashMap<String, String>();
+            //  HashMap rowDataCall = new HashMap<String, String>();
             CallLogModel call = new CallLogModel();
 
             String phNumber = managedCursor.getString(number);
@@ -257,8 +252,8 @@ public class CallLogFragment extends Fragment {
             // long timestamp = convertDateToTimestamp(callDayTime);
             call.setCallDate(callDate);
             call.setPhNumber(phNumber);
+            call.setCallType(callType);
             call.setCallDayTime(callDayTime);
-
             call.setName(name);
 
 
@@ -275,7 +270,7 @@ public class CallLogFragment extends Fragment {
         return callLogModelList;
     }
 
-    private CallLogModel getCalllast(Context context) {
+ /*   private CallLogModel getCalllast(Context context) {
         StringBuffer sb = new StringBuffer();
         String selection = CallLog.Calls.NUMBER + " =03066855423";
         CallLogModel callLogModelList = new CallLogModel();
@@ -290,7 +285,7 @@ public class CallLogFragment extends Fragment {
         sb.append("Call Details :");
         while (managedCursor.moveToNext()) {
 
-            HashMap rowDataCall = new HashMap<String, String>();
+          //  HashMap rowDataCall = new HashMap<String, String>();
             CallLogModel call = new CallLogModel();
 
             String phNumber = managedCursor.getString(number);
@@ -346,24 +341,11 @@ public class CallLogFragment extends Fragment {
         managedCursor.close();
         System.out.println(sb);
         return callLogModelList;
-    }
+    }*/
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 
-    private class LongOperation extends AsyncTask<String, Void, String> {
+
+/*    private class LongOperation extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -387,13 +369,13 @@ public class CallLogFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            progressDoalog.show();
+
         }
 
         @Override
         protected void onProgressUpdate(Void... values) {
         }
-    }
+    }*/
 
 
 }

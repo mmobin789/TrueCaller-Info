@@ -1,13 +1,13 @@
 package com.magicbio.truename.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +17,8 @@ import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.utils.AdUtils;
+import com.magicbio.truename.utils.CommonAnimationUtils;
+import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -32,8 +34,9 @@ import kotlin.jvm.functions.Function0;
 
 public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
-    List<Contact> CallLogModelList;
-    Context context;
+    private List<Contact> CallLogModelList;
+    private Context context;
+    private int previousPosition = -1;
 
     public ContactsAdapter(List<Contact> CallLogModelList, Context context) {
         super(CallLogModelList);
@@ -58,22 +61,35 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         holder.btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", CallLogModelList.get(holder.getAdapterPosition()).getNumber(), null));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                v.getContext().startActivity(intent);
+                ContactUtils.openDialer(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
             }
         });
         holder.btnSms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri uri = Uri.parse("smsto:" + CallLogModelList.get(holder.getAdapterPosition()).getNumber());
-                Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra("sms_body", "");
-                v.getContext().startActivity(intent);
+                ContactUtils.openDialer(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
             }
         });
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int position = holder.getAdapterPosition();
+                Contact contact = CallLogModelList.get(position);
+                if (previousPosition > -1) { // if previous opened close it
+                    Contact contactOpened = CallLogModelList.get(previousPosition);
+                    contactOpened.areOptionsShown = false;
+                    notifyItemChanged(previousPosition);
+
+                }
+                // hidden so show
+                CommonAnimationUtils.slideFromRightToLeft(holder.btnView, holder.rl.getWidth() - holder.img.getWidth());
+
+                contact.areOptionsShown = true;
+
+                previousPosition = position;
+            }
+        });
         return holder;
     }
 
@@ -93,6 +109,12 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         Contact contact = CallLogModelList.get(position);
         holder.txtName.setText(contact.getName());
         holder.txtNumber.setText(contact.getNumber());
+
+        if (contact.areOptionsShown)
+            holder.btnCall.setVisibility(View.VISIBLE);
+        else {
+            holder.btnCall.setVisibility(View.GONE);
+        }
 
         if (contact.showAd)
             holder.adView.setVisibility(View.VISIBLE);
@@ -136,6 +158,8 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         ImageView btnCall, btnSms;
         ImageView img;
         AdView adView;
+        RelativeLayout rl;
+        LinearLayout btnView;
 
         MyViewHolder(View itemView) {
             super(itemView);
@@ -145,6 +169,8 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             txtNumber = itemView.findViewById(R.id.txtNumber);
             img = itemView.findViewById(R.id.img);
             adView = itemView.findViewById(R.id.adView);
+            rl = itemView.findViewById(R.id.rl);
+            btnView = itemView.findViewById(R.id.btnView);
             AdUtils.loadBannerAd(adView);
             // txtTimeAndN=itemView.findViewById(R.id.txtNumber);
         }

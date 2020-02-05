@@ -28,6 +28,8 @@ public class Contact extends Model implements DynamicSearchAdapter.Searchable {
 
     public boolean showAd;
 
+    public boolean areOptionsShown;
+
     public Contact() {
         super();
     }

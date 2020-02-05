@@ -3,21 +3,16 @@ package com.magicbio.truename.activities;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager.widget.ViewPager;
 
 import com.activeandroid.ActiveAndroid;
 import com.facebook.GraphRequest;
@@ -27,27 +22,23 @@ import com.facebook.accountkit.AccessToken;
 import com.facebook.accountkit.AccountKit;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
+import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
-import com.magicbio.truename.fragments.MessagesFragment;
 import com.magicbio.truename.models.ContactModel;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
 
-    Button btnCalls, btnMasseges, btnContacts;
-    CallLogFragment callfragment = new CallLogFragment();
-    MessagesFragment messagesFragment = new MessagesFragment();
-    ContactsFragment contactsFragment = new ContactsFragment();
-    FragmentManager manager = getSupportFragmentManager();
-    FragmentTransaction transaction;
-    RelativeLayout v1, v2, v3;
-    View l1, l2, l3;
-    SearchView searchView;
+    private ImageView btnCalls, btnMasseges, btnContacts;
+    private CallLogFragment callLogFragment = new CallLogFragment();
+    private ContactsFragment contactsFragment = new ContactsFragment();
+    private View l1, l2, l3;
+    private ViewPager viewPager;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,12 +48,16 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         btnCalls = findViewById(R.id.btnCalls);
         btnContacts = findViewById(R.id.btnContacts);
         btnMasseges = findViewById(R.id.btnMessages);
+        viewPager = findViewById(R.id.vp);
+        viewPager.setOffscreenPageLimit(2);
+        viewPager.setAdapter(new MainPagerAdapter(callLogFragment, contactsFragment, getSupportFragmentManager()));
+
         l1 = findViewById(R.id.l1);
         l2 = findViewById(R.id.l2);
         l3 = findViewById(R.id.l3);
-        v1 = findViewById(R.id.v1);
-        v2 = findViewById(R.id.v2);
-        v3 = findViewById(R.id.v3);
+        LinearLayout v1 = findViewById(R.id.v1);
+        LinearLayout v2 = findViewById(R.id.v2);
+        LinearLayout v3 = findViewById(R.id.v3);
         final ImageView logoView = findViewById(R.id.logoView);
 
         searchView = findViewById(R.id.searchView);
@@ -85,63 +80,55 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-
-
-
-        btnCalls.setOnClickListener(new View.OnClickListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onClick(View v) {
-                searchView.setVisibility(View.VISIBLE);
-                transaction = manager.beginTransaction();
-                transaction.replace(R.id.main_layout, callfragment, "call");
-                transaction.commit();
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-                btnCalls.setBackground(getResources().getDrawable(R.drawable.call_btn_click1));
-                btnMasseges.setBackground(getResources().getDrawable(R.drawable.messege_btn_unclick1));
-                btnContacts.setBackground(getResources().getDrawable(R.drawable.contact_unclick1));
-                l1.setVisibility(View.GONE);
-                l2.setVisibility(View.VISIBLE);
-                l3.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                if (position == 0)
+                    tab1();
+                else if (position == 1)
+                    tab2();
+                else tab3();
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
 
-        btnMasseges.setOnClickListener(new View.OnClickListener() {
+
+        v2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                searchView.setIconified(true);
-                searchView.setVisibility(View.GONE);
-                transaction = manager.beginTransaction();
-                transaction.replace(R.id.main_layout, messagesFragment, "message");
-                transaction.commit();
-
-                btnCalls.setBackground(getResources().getDrawable(R.drawable.call_btn_unclick1));
-                btnMasseges.setBackground(getResources().getDrawable(R.drawable.messege_btn_click1));
-                btnContacts.setBackground(getResources().getDrawable(R.drawable.contact_unclick1));
-                l1.setVisibility(View.VISIBLE);
-                l2.setVisibility(View.GONE);
-                l3.setVisibility(View.GONE);
+                tab2();
+                viewPager.setCurrentItem(1);
             }
         });
 
-        btnContacts.setOnClickListener(new View.OnClickListener() {
+        v1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                searchView.setVisibility(View.VISIBLE);
-                transaction = manager.beginTransaction();
-                transaction.replace(R.id.main_layout, contactsFragment, "contacts");
-                transaction.commit();
-
-                btnCalls.setBackground(getResources().getDrawable(R.drawable.call_btn_unclick1));
-                btnMasseges.setBackground(getResources().getDrawable(R.drawable.messege_btn_unclick1));
-                btnContacts.setBackground(getResources().getDrawable(R.drawable.contact_click1));
-
-                l1.setVisibility(View.GONE);
-                l2.setVisibility(View.GONE);
-                l3.setVisibility(View.VISIBLE);
+                tab1();
+                viewPager.setCurrentItem(0);
             }
         });
 
-        btnCalls.performClick();
+        v3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tab3();
+                viewPager.setCurrentItem(2);
+            }
+        });
+
+        v1.performClick();
 
         //   Info info = TrueName.getUserInfo(getApplicationContext());
         //getCallDetails();
@@ -170,7 +157,39 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     }
 
-    private void getCallDetails() {
+    private void tab1() {
+        searchView.setIconified(true);
+        searchView.setVisibility(View.GONE);
+        btnCalls.setImageResource(R.drawable.call_btn_unclick1);
+        btnMasseges.setImageResource(R.drawable.messege_btn_click1);
+        btnContacts.setImageResource(R.drawable.contact_unclick1);
+        l1.setVisibility(View.VISIBLE);
+        l2.setVisibility(View.GONE);
+        l3.setVisibility(View.GONE);
+
+    }
+
+    private void tab2() {
+        searchView.setVisibility(View.VISIBLE);
+        btnCalls.setImageResource(R.drawable.call_btn_click1);
+        btnMasseges.setImageResource(R.drawable.messege_btn_unclick1);
+        btnContacts.setImageResource(R.drawable.contact_unclick1);
+        l1.setVisibility(View.GONE);
+        l2.setVisibility(View.VISIBLE);
+        l3.setVisibility(View.GONE);
+    }
+
+    private void tab3() {
+        searchView.setVisibility(View.VISIBLE);
+        btnCalls.setImageResource(R.drawable.call_btn_unclick1);
+        btnMasseges.setImageResource(R.drawable.messege_btn_unclick1);
+        btnContacts.setImageResource(R.drawable.contact_click1);
+        l1.setVisibility(View.GONE);
+        l2.setVisibility(View.GONE);
+        l3.setVisibility(View.VISIBLE);
+    }
+
+/*    private void getCallDetails() {
 
         StringBuffer sb = new StringBuffer();
         Cursor managedCursor = managedQuery(CallLog.Calls.CONTENT_URI, null, null, null, null);
@@ -224,9 +243,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    public List<ContactModel> getContactList() {
+    public void getContactList() {
         List<ContactModel> contactModels = new ArrayList<>();
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
@@ -235,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         ActiveAndroid.beginTransaction();
 
         if ((cur != null ? cur.getCount() : 0) > 0) {
-            while (cur != null && cur.moveToNext()) {
+            while (cur.moveToNext()) {
                 ContactModel contactModel = new ContactModel();
                 Contact contact = new Contact();
                 String id = cur.getString(
@@ -275,9 +294,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
         ActiveAndroid.setTransactionSuccessful();
         ActiveAndroid.endTransaction();
-        return contactModels;
+        // return contactModels;
     }
-
 
 
     @Override
@@ -294,38 +312,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
     private void search(String newText) {
-        if (callfragment.isVisible()) {
-            callfragment.search(newText);
-        } else if (contactsFragment.isVisible()) {
+        if (viewPager.getCurrentItem() == 1) {
+            callLogFragment.search(newText);
+        } else if (viewPager.getCurrentItem() == 2) {
             contactsFragment.search(newText);
         }
     }
 
-    private class LongOperation extends AsyncTask<String, Void, String> {
 
-        @Override
-        protected String doInBackground(String... params) {
-
-            getContactList();
-
-
-            return "Executed";
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            // txt.setText(result);
-            // might want to change "executed" for the returned string passed
-            // into onPostExecute() but that is upto you
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
 }
