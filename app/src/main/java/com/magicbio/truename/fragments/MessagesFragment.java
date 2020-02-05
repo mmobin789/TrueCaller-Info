@@ -88,6 +88,7 @@ public class MessagesFragment extends Fragment {
             @Override
             public void onRefresh() {
                 simpleCountDownTimer.start(false);
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
