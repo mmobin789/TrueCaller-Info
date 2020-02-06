@@ -88,7 +88,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.SignUpActivity" />
         <activity android:name=".activities.PhoneConfirmActivity" />
 
         <!-- This part is inside the application -->

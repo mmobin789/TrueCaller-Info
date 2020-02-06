@@ -1,10 +1,6 @@
 package com.magicbio.truename.activities;
 
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,31 +10,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.activeandroid.ActiveAndroid;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.accountkit.AccessToken;
 import com.facebook.accountkit.AccountKit;
 import com.magicbio.truename.R;
-import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
-import com.magicbio.truename.models.ContactModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
-
     private ImageView btnCalls, btnMasseges, btnContacts;
     private CallLogFragment callLogFragment = new CallLogFragment();
+    //  private MessagesFragment messagesFragment = new MessagesFragment();
     private ContactsFragment contactsFragment = new ContactsFragment();
     private View l1, l2, l3;
-    private ViewPager viewPager;
     private SearchView searchView;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +39,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         btnContacts = findViewById(R.id.btnContacts);
         btnMasseges = findViewById(R.id.btnMessages);
         viewPager = findViewById(R.id.vp);
-        viewPager.setOffscreenPageLimit(2);
         viewPager.setAdapter(new MainPagerAdapter(callLogFragment, contactsFragment, getSupportFragmentManager()));
-
+        viewPager.setOffscreenPageLimit(2);
         l1 = findViewById(R.id.l1);
         l2 = findViewById(R.id.l2);
         l3 = findViewById(R.id.l3);
@@ -103,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-
         v2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-        v1.performClick();
+        viewPager.setCurrentItem(1);
 
         //   Info info = TrueName.getUserInfo(getApplicationContext());
         //getCallDetails();
@@ -166,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         l1.setVisibility(View.VISIBLE);
         l2.setVisibility(View.GONE);
         l3.setVisibility(View.GONE);
+        //      getSupportFragmentManager().beginTransaction().replace(R.id.fL, messagesFragment).commitNow();
 
     }
 
@@ -177,6 +166,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         l1.setVisibility(View.GONE);
         l2.setVisibility(View.VISIBLE);
         l3.setVisibility(View.GONE);
+        //  FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.fL, callLogFragment);
+      /*  if (commitNow)
+            fragmentTransaction.commitNow();
+        else fragmentTransaction.commit();*/
     }
 
     private void tab3() {
@@ -187,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         l1.setVisibility(View.GONE);
         l2.setVisibility(View.GONE);
         l3.setVisibility(View.VISIBLE);
+        //   getSupportFragmentManager().beginTransaction().replace(R.id.fL, contactsFragment).commitNow();
     }
 
 /*    private void getCallDetails() {
@@ -244,58 +238,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             e.printStackTrace();
         }
     }*/
-
-    public void getContactList() {
-        List<ContactModel> contactModels = new ArrayList<>();
-        ContentResolver cr = getContentResolver();
-        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
-                null, null, null, null);
-        DatabaseUtils.dumpCursor(cur);
-        ActiveAndroid.beginTransaction();
-
-        if ((cur != null ? cur.getCount() : 0) > 0) {
-            while (cur.moveToNext()) {
-                ContactModel contactModel = new ContactModel();
-                Contact contact = new Contact();
-                String id = cur.getString(
-                        cur.getColumnIndex(ContactsContract.Contacts._ID));
-                String name = cur.getString(cur.getColumnIndex(
-                        ContactsContract.Contacts.DISPLAY_NAME));
-
-                if (cur.getInt(cur.getColumnIndex(
-                        ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
-                    Cursor pCur = cr.query(
-                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                            new String[]{id}, null);
-                    while (pCur.moveToNext()) {
-                        String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        String image = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
-                        contactModel.setName(name);
-                        contactModel.setImage(image);
-                        contactModel.setNumber(phoneNo);
-                        try {
-                            contact.setName(name);
-                            contact.setNumber(phoneNo);
-                            contact.setImage(image);
-                            contact.save();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                        contactModels.add(contactModel);
-                    }
-                    pCur.close();
-                }
-            }
-        }
-        if (cur != null) {
-            cur.close();
-        }
-        ActiveAndroid.setTransactionSuccessful();
-        ActiveAndroid.endTransaction();
-        // return contactModels;
-    }
 
 
     @Override

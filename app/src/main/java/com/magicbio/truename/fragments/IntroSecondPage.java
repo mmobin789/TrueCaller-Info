@@ -1,7 +1,6 @@
 package com.magicbio.truename.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,7 +11,7 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.magicbio.truename.R;
-import com.magicbio.truename.activities.SignUpActivity;
+import com.magicbio.truename.activities.IntroActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -73,13 +72,13 @@ public class IntroSecondPage extends Fragment {
         btnGoIt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), SignUpActivity.class);
-                startActivity(intent);
-                getActivity().finish();
+                IntroActivity introActivity = (IntroActivity) getActivity();
+                introActivity.accountKitLogin();
             }
         });
         return view;
     }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

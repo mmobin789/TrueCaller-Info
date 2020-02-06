@@ -1,10 +1,7 @@
 package com.magicbio.truename.adapters;
 
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,15 +33,12 @@ import kotlin.jvm.functions.Function0;
 
 public class SMSAdapter extends DynamicSearchAdapter<Sms> {
 
-    List<Sms> CallLogModelList;
-    Context context;
-    String language, user;
+    private List<Sms> smsList;
 
-    public SMSAdapter(List<Sms> CallLogModelList, Context context) {
-        super(CallLogModelList);
-        this.CallLogModelList = CallLogModelList;
-        this.context = context;
-        //Toast.makeText(context,""+CallLogModelList.size(),Toast.LENGTH_LONG).show();
+    public SMSAdapter(List<Sms> smsList) {
+        super(smsList);
+        this.smsList = smsList;
+        //Toast.makeText(context,""+smsList.size(),Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -59,66 +53,64 @@ public class SMSAdapter extends DynamicSearchAdapter<Sms> {
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.sms_row, parent, false);
-        return new MyViewHolder(itemView);
+        final MyViewHolder myViewHolder = new MyViewHolder(itemView);
+
+        myViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = myViewHolder.getAdapterPosition();
+                final Contact contact = Contact.getRandom(smsList.get(position).getAddress());
+                if (smsList.get(position).getReadState().equals("1")) {
+                    smsList.get(position).setReadState("0");
+                    //notifyDataSetChanged();
+                    //ContentValues values = new ContentValues();
+                    // values.put("read", true);
+                    //context.getContentResolver().update(Uri.parse("content://sms/inbox"), values, "thread_id=?" ,new String[] {smsList.get(position).getId()});
+                }
+                Intent intent = new Intent(v.getContext(), SmsConversation.class);
+
+                if (contact != null) {
+                    intent.putExtra("name", contact.getName());
+                } else {
+                    intent.putExtra("name", smsList.get(position).getAddress());
+
+                }
+                intent.putExtra("thread_id", smsList.get(position).getId());
+                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                v.getContext().startActivity(intent);
+            }
+        });
+
+        return myViewHolder;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
         MyViewHolder holder = (MyViewHolder) viewHolder;
-        final Contact contact = Contact.getRandom(CallLogModelList.get(position).getAddress());
-        Sms sms = CallLogModelList.get(position);
+        final Contact contact = Contact.getRandom(smsList.get(position).getAddress());
+        Sms sms = smsList.get(position);
         //sms.setReadState(String.valueOf(getNumberOfUnreadMessages(context,sms.getId())));
 
         if (contact != null) {
-            Glide.with(context).load(contact.getImage()).into(holder.img);
+            Glide.with(viewHolder.itemView).load(contact.getImage()).into(holder.img);
             if (Integer.valueOf(sms.getReadState()) >= 1) {
                 holder.txtName.setText(contact.getName() + "(" + sms.getReadState() + ")");
             } else {
                 holder.txtName.setText(contact.getName());
             }
         } else {
-            Glide.with(context).load(R.drawable.image_contact).into(holder.img);
+            Glide.with(viewHolder.itemView).load(R.drawable.image_contact).into(holder.img);
             if (Integer.valueOf(sms.getReadState()) >= 1) {
-                holder.txtName.setText(CallLogModelList.get(position).getAddress() + "(" + sms.getReadState() + ")");
+                holder.txtName.setText(smsList.get(position).getAddress() + "(" + sms.getReadState() + ")");
             } else {
-                holder.txtName.setText(CallLogModelList.get(position).getAddress());
+                holder.txtName.setText(smsList.get(position).getAddress());
             }
 
         }
-        holder.txtNumber.setText(CallLogModelList.get(position).getMsg());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (CallLogModelList.get(position).getReadState().equals("1")) {
-                    CallLogModelList.get(position).setReadState("0");
-                    //notifyDataSetChanged();
-                    //ContentValues values = new ContentValues();
-                    // values.put("read", true);
-                    //context.getContentResolver().update(Uri.parse("content://sms/inbox"), values, "thread_id=?" ,new String[] {CallLogModelList.get(position).getId()});
-                }
-                Intent intent = new Intent(context, SmsConversation.class);
-                if (contact != null) {
-                    intent.putExtra("name", contact.getName());
-                } else {
-                    intent.putExtra("name", CallLogModelList.get(position).getAddress());
+        holder.txtNumber.setText(smsList.get(position).getMsg());
 
-                }
-                intent.putExtra("thread_id", CallLogModelList.get(position).getId());
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                v.getContext().startActivity(intent);
-            }
-        });
-        holder.btnSms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Uri uri = Uri.parse("smsto:"+CallLogModelList.get(position).getNumber());
-                //Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                // intent.putExtra("sms_body", "");
-                //v.getContext().startActivity(intent);
-            }
-        });
-        //holder.txtTimeAndN.setText(CallLogModelList.get(position).getNumber());
+
+        //holder.txtTimeAndN.setText(smsList.get(position).getNumber());
 
         if (Integer.valueOf(sms.getReadState()) >= 1) {
             holder.row_linearlayout.setBackgroundColor(Color.parseColor("#E8E8E8"));
@@ -130,33 +122,33 @@ public class SMSAdapter extends DynamicSearchAdapter<Sms> {
 
     @Override
     public int getItemCount() {
-        return CallLogModelList.size();
+        return smsList.size();
     }
 
-    public void editSms(String number) {
+  /*  public void editSms(String number) {
         Intent intentInsertEdit = new Intent(Intent.ACTION_INSERT_OR_EDIT, Uri.fromParts("tel", number, null));
         // Sets the MIME type
         //intentInsertEdit.setType(SmssContract.Smss.CONTENT_ITEM_TYPE);
         // Add code here to insert extended data, if desired
         // Sends the Intent with an request ID
         context.startActivity(intentInsertEdit);
-    }
+    }*/
 
-    public int getNumberOfUnreadMessages(Context context, String three) {
+   /* public int getNumberOfUnreadMessages(Context context, String three) {
         final Uri SMS_INBOX_URI = Uri.parse("content://sms/inbox");
         Cursor inboxCursor = context.getContentResolver().query(SMS_INBOX_URI, null, "read = 0 and thread_id =" + three, null, null);
         int unreadMessagesCount = inboxCursor.getCount();
         inboxCursor.close();
         return unreadMessagesCount;
-    }
+    }*/
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber;
         Button btnCall, btnSms;
         RelativeLayout row_linearlayout;
         ImageView img;
 
-        public MyViewHolder(View itemView) {
+        MyViewHolder(View itemView) {
             super(itemView);
             row_linearlayout = itemView.findViewById(R.id.notification_row_layout);
             txtName = itemView.findViewById(R.id.txtName);

@@ -50,9 +50,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
     private volatile List<CallLogModel> CallLogModelList;
     Context context;
-    int height, width;
     private int previousPosition = -1;
-    private RecyclerView recyclerView;
     /*private SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
         @Override
         public void onCountDownActive(@NotNull String time) {
@@ -80,14 +78,14 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         this.context = context;
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        height = displayMetrics.heightPixels;
-        width = displayMetrics.widthPixels;
+        //   height = displayMetrics.heightPixels;
+        //  width = displayMetrics.widthPixels;
         //  simpleCountDownTimer.runOnBackgroundThread();
 
     }
 
   /*  private void setOptionsClosed() {
-        for (CallLogModel callLog : CallLogModelList) {
+        for (CallLogModel callLog : smsList) {
             callLog.areOptionsShown = false;
         }
     }*/
@@ -299,11 +297,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     }
 
 
-    @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
 
-    }
 
 
     private String getContactIdFromNumber(String number) {

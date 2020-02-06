@@ -1,7 +1,6 @@
 package com.magicbio.truename.activities;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -13,17 +12,34 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.facebook.accountkit.Account;
+import com.facebook.accountkit.AccountKit;
+import com.facebook.accountkit.AccountKitCallback;
+import com.facebook.accountkit.AccountKitError;
+import com.facebook.accountkit.AccountKitLoginResult;
+import com.facebook.accountkit.PhoneNumber;
+import com.facebook.accountkit.ui.AccountKitActivity;
+import com.facebook.accountkit.ui.AccountKitConfiguration;
+import com.facebook.accountkit.ui.LoginType;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.magicbio.truename.R;
+import com.magicbio.truename.TrueName;
 import com.magicbio.truename.adapters.ViewPagerAdapter;
+import com.magicbio.truename.models.SignUpResponse;
+import com.magicbio.truename.retrofit.ApiClient;
+import com.magicbio.truename.retrofit.ApiInterface;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class IntroActivity extends AppCompatActivity {
 
@@ -42,13 +58,6 @@ public class IntroActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager, true);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
 
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
-
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE,}, REQUEST_READ_PHONE_STATE);
-        } else {
-            //TODO
-        }
 
         if (android.os.Build.VERSION.SDK_INT >= 23) {
             // only for gingerbread and newer versions
@@ -57,15 +66,126 @@ public class IntroActivity extends AppCompatActivity {
                 startActivityForResult(intent, 0);
             }
         }
-        printHashKey(getApplicationContext());
+        printHashKey();
 
 
         //TabLayout tabLayout = findViewById(R.id.tab_layout);
         //tabLayout.setUpWithViewPager(viewPager);
     }
 
+    public void accountKitLogin() {
+        final Intent intent = new Intent(this, AccountKitActivity.class);
+        AccountKitConfiguration.AccountKitConfigurationBuilder configurationBuilder =
+                new AccountKitConfiguration.AccountKitConfigurationBuilder(
+                        LoginType.PHONE,
+                        AccountKitActivity.ResponseType.TOKEN); // or .ResponseType.TOKEN
+        // ... perform additional configuration ...
+        intent.putExtra(
+                AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION,
+                configurationBuilder.build());
+        startActivityForResult(intent, 33);
+    }
+
+    private void handleAccountKitResponse(int requestCode, Intent data) {
+        if (requestCode != 33) {
+            return;
+        }
+
+        AccountKitLoginResult loginResult = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
+        String toastMessage;
+        if (loginResult.getError() != null) {
+            toastMessage = loginResult.getError().getErrorType().getMessage();
+            //// showErrorActivity(loginResult.getError());
+        } else if (loginResult.wasCancelled()) {
+            toastMessage = "Login Cancelled";
+        } else {
+            if (loginResult.getAccessToken() != null) {
+                toastMessage = "Success:" + loginResult.getAccessToken().getAccountId();
+            } else {
+                toastMessage = String.format(
+                        "Success:%s...",
+                        loginResult.getAuthorizationCode().substring(0, 10));
+            }
+
+            AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
+                @Override
+                public void onSuccess(final Account account) {
+                    // String accountKitId = account.getId();
+                    PhoneNumber phoneNumber = account.getPhoneNumber();
+                    //Toast.makeText(getApplicationContext(),phoneNumber.toString(),Toast.LENGTH_LONG).show();
+                    String phoneNumberString = phoneNumber.toString().substring(1);
+                    login(phoneNumberString);
+                    Toast.makeText(getApplicationContext(), phoneNumberString, Toast.LENGTH_LONG).show();
+
+
+                }
+
+                @Override
+                public void onError(final AccountKitError error) {
+                    Log.e("AccountKitError", error.toString());
+                }
+            });
+
+            // If you have an authorization code, retrieve it from
+            // loginResult.getAuthorizationCode()
+            // and pass it to your server and exchange it for an access token.
+
+            // Success! Start your next activity...
+            //goToMyLoggedInActivity();
+        }
+
+        // Surface the result to your user in an appropriate way.
+        Toast.makeText(
+                this,
+                toastMessage,
+                Toast.LENGTH_LONG)
+                .show();
+    }
+
+    private void login(String phone) {
+        Toast.makeText(
+                this,
+                "Logging in...",
+                Toast.LENGTH_LONG)
+                .show();
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+
+
+        Call<SignUpResponse> call = apiInterface.signup("signup", "N/A", "na@email.com", "N/A", "N/A", "Pakistan", phone);
+        call.enqueue(new Callback<SignUpResponse>() {
+            @Override
+            public void onResponse(Call<SignUpResponse> call, Response<SignUpResponse> response) {
+                TrueName.setIsLogin(true, getApplicationContext());
+                TrueName.SaveUserInfo(response.body().getInfo(), getApplicationContext());
+                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), response.body().getMessage(), Snackbar.LENGTH_LONG);
+                snackbar.show();
+                Intent intent = new Intent(IntroActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+
+
+            }
+
+            @Override
+            public void onFailure(Call<SignUpResponse> call, Throwable t) {
+                t.printStackTrace();
+                Toast.makeText(IntroActivity.this, t.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        handleAccountKitResponse(requestCode, data);
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
         switch (requestCode) {
             case REQUEST_READ_PHONE_STATE:
                 if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
@@ -119,7 +239,7 @@ public class IntroActivity extends AppCompatActivity {
         }
     }
 
-    public void printHashKey(Context pContext) {
+    private void printHashKey() {
         try {
             PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
             for (Signature signature : info.signatures) {
@@ -128,8 +248,6 @@ public class IntroActivity extends AppCompatActivity {
                 String hashKey = new String(Base64.encode(md.digest(), 0));
                 Log.i("hashKey", "printHashKey() Hash Key: " + hashKey);
             }
-        } catch (NoSuchAlgorithmException e) {
-            Log.e("hashKey", "printHashKey()", e);
         } catch (Exception e) {
             Log.e("hashKey", "printHashKey()", e);
         }

@@ -11,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
-import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.adapters.ContactsAdapter;
-import com.magicbio.truename.utils.SimpleCountDownTimer;
-
-import org.jetbrains.annotations.NotNull;
+import com.magicbio.truename.fragments.background.FetchContacts;
 
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,7 +28,6 @@ public class ContactsFragment extends Fragment {
     private RecyclerView recyclerView;
     private ContactsAdapter contactsAdapter;
     private boolean adShown;
-    private List<Contact> contactList;
 
     public ContactsFragment() {
         // Required empty public constructor
@@ -49,42 +48,39 @@ public class ContactsFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
+        setContactsAdapter();
 
-        SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
+
+    }
+
+    private void setContactsAdapter() {
+
+
+        FetchContacts fetchContacts = new FetchContacts();
+        fetchContacts.setOnComplete(new Function1<List<Contact>, Unit>() {
             @Override
-            public void onCountDownActive(@NotNull String time) {
-                ((MainActivity) getActivity()).getContactList();
-                contactList = Contact.getAll();
+            public Unit invoke(List<Contact> contacts) {
+                setAdapter(contacts);
+                return Unit.INSTANCE;
             }
+        });
 
-            @Override
-            public void onCountDownFinished() {
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        contactsAdapter = new ContactsAdapter(contactList, getActivity());
-                        recyclerView.setAdapter(contactsAdapter);
-                        if (!adShown)
-                            contactsAdapter.showAd();
+        fetchContacts.execute(getContext());
+    }
 
-                        adShown = true;
-                    }
-                });
-            }
-        }, 1);
-
-        simpleCountDownTimer.runOnBackgroundThread();
-
-        simpleCountDownTimer.start(false);
-
-
+    private void setAdapter(List<Contact> contacts) {
+        contactsAdapter = new ContactsAdapter(contacts);
+        recyclerView.setAdapter(contactsAdapter);
+        if (!adShown) {
+            contactsAdapter.showAd();
+            adShown = true;
+        }
     }
 
 
     public void search(String newText) {
         contactsAdapter.search(newText.toLowerCase(), null);
     }
-
 
 
 }

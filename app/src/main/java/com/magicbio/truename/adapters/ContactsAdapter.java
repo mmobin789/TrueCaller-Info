@@ -1,6 +1,5 @@
 package com.magicbio.truename.adapters;
 
-import android.content.Context;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,14 +36,12 @@ import kotlin.jvm.functions.Function0;
 public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
     private List<Contact> CallLogModelList;
-    private Context context;
-    private int previousPosition = -1;
+    private static int previousPosition = -1;
 
-    public ContactsAdapter(List<Contact> CallLogModelList, Context context) {
+    public ContactsAdapter(List<Contact> CallLogModelList) {
         super(CallLogModelList);
         this.CallLogModelList = CallLogModelList;
-        this.context = context;
-        //Toast.makeText(context,""+CallLogModelList.size(),Toast.LENGTH_LONG).show();
+        //Toast.makeText(context,""+smsList.size(),Toast.LENGTH_LONG).show();
     }
 
     public void showAd() {
@@ -146,13 +143,13 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             holder.adView.setVisibility(View.VISIBLE);
         else holder.adView.setVisibility(View.GONE);
 
-        Glide.with(context).load(CallLogModelList.get(position).getImage()).apply(RequestOptions.errorOf(R.drawable.no_image)).into(holder.img);
+        Glide.with(holder.img).load(CallLogModelList.get(position).getImage()).apply(RequestOptions.errorOf(R.drawable.no_image)).into(holder.img);
 //        Glide.with(context)
-//                .load(CallLogModelList.get(position).getImage())
+//                .load(smsList.get(position).getImage())
 //                .centerCrop()
 //                .into(holder.img);
 
-        //holder.txtTimeAndN.setText(CallLogModelList.get(position).getNumber());
+        //holder.txtTimeAndN.setText(smsList.get(position).getNumber());
 
 //        if(position%2==0)
 //        {

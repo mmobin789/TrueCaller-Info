@@ -44,7 +44,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
-        //Toast.makeText(context,""+CallLogModelList.size(),Toast.LENGTH_LONG).show();
+        //Toast.makeText(context,""+smsList.size(),Toast.LENGTH_LONG).show();
     }
 
     public static String getDate(long milliSeconds, String dateFormat) {
@@ -93,9 +93,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             holder.imgSim.setBackground(context.getResources().getDrawable(R.drawable.sim_1));
         }
 
-        //holder.txtTimeAndN.setText(CallLogModelList.get(position).getNumber());
+        //holder.txtTimeAndN.setText(smsList.get(position).getNumber());
 //
-//        if(CallLogModelList.get(position).getReadState().equals("1"))
+//        if(smsList.get(position).getReadState().equals("1"))
 //        {
 //            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#E8E8E8"));
 //        }

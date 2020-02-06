@@ -22,16 +22,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallLogsAdapter;
 import com.magicbio.truename.adapters.HotNumbersAdapter;
+import com.magicbio.truename.fragments.background.FetchCallLogs;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.CommonAnimationUtils;
-import com.magicbio.truename.utils.SimpleCountDownTimer;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 import static android.content.ContentValues.TAG;
 
@@ -39,18 +39,14 @@ import static android.content.ContentValues.TAG;
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement an interface
  * to handle interaction events.
- * Use the {@link CallLogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class CallLogFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private List<CallLogModel> list;
-    private RecyclerView recyclerView;
+    private static List<CallLogModel> callLogModelList;
     private boolean adShown;
+    private RecyclerView recyclerView, hotNumbers;
     private CallLogsAdapter callLogsAdapter;
+    private TextView tvLoading;
 
     public CallLogFragment() {
         // Required empty public constructor
@@ -59,24 +55,6 @@ public class CallLogFragment extends Fragment {
     public void search(String newText) {
 
         callLogsAdapter.search(newText.toLowerCase(), null);
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CallLogFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CallLogFragment newInstance(String param1, String param2) {
-        CallLogFragment fragment = new CallLogFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
 
@@ -88,7 +66,6 @@ public class CallLogFragment extends Fragment {
         init(v);
         return v;
     }
-
 
     private void init(View v) {
 
@@ -102,54 +79,58 @@ public class CallLogFragment extends Fragment {
             Log.i(TAG, "giving read call log permission 2");
         }
         recyclerView = v.findViewById(R.id.recycler_View);
-        RecyclerView hotNumbers = v.findViewById(R.id.hotNumbers);
+        hotNumbers = v.findViewById(R.id.hotNumbers);
+        tvLoading = v.findViewById(R.id.tvLoading);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        final TextView tvLoading = v.findViewById(R.id.tvLoading);
         CommonAnimationUtils.applyFadeInFadeOut(tvLoading);
-
-
-        SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
-            @Override
-            public void onCountDownActive(@NotNull String time) {
-                list = getCallDetails(recyclerView.getContext());
-            }
-
-            @Override
-            public void onCountDownFinished() {
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvLoading.setVisibility(View.GONE);
-                        tvLoading.clearAnimation();
-                        callLogsAdapter = new CallLogsAdapter(list, recyclerView.getContext());
-                        recyclerView.setAdapter(callLogsAdapter);
-
-                        if (!adShown) {
-                            adShown = true;
-                            callLogsAdapter.showAd();
-                        }
-                    }
-                });
-            }
-        }, 1);
-
-        simpleCountDownTimer.runOnBackgroundThread();
-
-        simpleCountDownTimer.start(false);
-
 
         HotNumbersAdapter itemListDataAdapter = new HotNumbersAdapter(getHotCalls(recyclerView.getContext()), getContext());
 
         hotNumbers.setHasFixedSize(true);
         hotNumbers.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         hotNumbers.setAdapter(itemListDataAdapter);
+        setCallLogsAdapter();
+
         // hotNumbers.setRecycledViewPool(viewPool);
+
 
     }
 
-    private List<CallLogModel> getCallDetails(Context context) {
+
+    private void setCallLogsAdapter() {
+        if (callLogModelList != null) {
+            setCallLogsAdapter(callLogModelList);
+            return;
+        }
+
+        FetchCallLogs fetchCallLogs = new FetchCallLogs();
+        fetchCallLogs.setOnComplete(new Function1<ArrayList<CallLogModel>, Unit>() {
+            @Override
+            public Unit invoke(ArrayList<CallLogModel> callLogModels) {
+                callLogModelList = callLogModels;
+                setCallLogsAdapter(callLogModels);
+                return Unit.INSTANCE;
+            }
+        });
+
+        fetchCallLogs.execute(getContext());
+    }
+
+    private void setCallLogsAdapter(List<CallLogModel> list) {
+        callLogsAdapter = new CallLogsAdapter(list, recyclerView.getContext());
+        recyclerView.setAdapter(callLogsAdapter);
+
+        if (!adShown) {
+            adShown = true;
+            callLogsAdapter.showAd();
+        }
+
+        tvLoading.clearAnimation();
+        tvLoading.setVisibility(View.GONE);
+    }
+    /*private List<CallLogModel> getCallDetails(Context context) {
         StringBuilder sb = new StringBuilder();
 
         List<CallLogModel> callLogModelList = new ArrayList<>();
@@ -165,7 +146,7 @@ public class CallLogFragment extends Fragment {
         sb.append("Call Details :");
         while (managedCursor.moveToNext()) {
 
-            HashMap rowDataCall = new HashMap<String, String>();
+          //  HashMap rowDataCall = new HashMap<String, String>();
             CallLogModel call = new CallLogModel();
 
             String phNumber = managedCursor.getString(number);
@@ -225,7 +206,7 @@ public class CallLogFragment extends Fragment {
         managedCursor.close();
         //System.out.println(sb);
         return callLogModelList;
-    }
+    }*/
 
     private List<CallLogModel> getHotCalls(Context context) {
         StringBuilder sb = new StringBuilder();
@@ -341,40 +322,6 @@ public class CallLogFragment extends Fragment {
         managedCursor.close();
         System.out.println(sb);
         return callLogModelList;
-    }*/
-
-
-
-/*    private class LongOperation extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            list = getCallDetails(getContext());
-            return "Executed";
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            progressDoalog.dismiss();
-            callLogsAdapter = new CallLogsAdapter(list, getContext());
-            recyclerView.setAdapter(callLogsAdapter);
-            if (!adShown)
-                callLogsAdapter.showAd();
-            adShown = true;
-            // txt.setText(result);
-            // might want to change "executed" for the returned string passed
-            // into onPostExecute() but that is upto you
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
     }*/
 
 

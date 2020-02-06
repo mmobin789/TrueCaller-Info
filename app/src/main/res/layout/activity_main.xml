@@ -69,8 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/belowPanel"
-        android:layout_below="@id/topPanel"
-        android:orientation="horizontal">
+        android:layout_below="@id/topPanel">
 
     </androidx.viewpager.widget.ViewPager>
 
