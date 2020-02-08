@@ -1,95 +1,100 @@
 package com.magicbio.truename.adapters;
 
-import android.content.Context;
-import android.graphics.Color;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
-import com.magicbio.truename.models.CallLogModel;
+import com.magicbio.truename.activeandroid.Contact;
+import com.magicbio.truename.utils.ContactUtils;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 
 /**
  * Created by Bilal on 12/5/2017.
  */
 
-public class CallDetailsAdapter extends RecyclerView.Adapter<CallDetailsAdapter.MyViewHolder> {
+public class CallDetailsAdapter extends DynamicSearchAdapter<Contact> {
 
-    List<CallLogModel> CallLogModelList;
-    Context context;
-    String language, user;
+    private ArrayList<Contact> CallLogModelList;
 
-    public CallDetailsAdapter(List<CallLogModel> CallLogModelList, Context context) {
+    public CallDetailsAdapter(ArrayList<Contact> CallLogModelList) {
+        super(CallLogModelList);
         this.CallLogModelList = CallLogModelList;
-        this.context = context;
+        //Toast.makeText(context,""+smsList.size(),Toast.LENGTH_LONG).show();
     }
 
-    public static String getDate(long milliSeconds) {
-        // Create a DateFormatter object for displaying date in specified format.
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-
-        // Create a calendar object that will convert the date and time value in milliseconds to date.
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(milliSeconds);
-        return formatter.format(calendar.getTime());
-    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.call_details_row, parent, false);
-        return new MyViewHolder(itemView);
+                .inflate(R.layout.contacts_row_call_history, parent, false);
+
+        final MyViewHolder holder = new MyViewHolder(itemView);
+
+        holder.btnCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContactUtils.callNumber(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
+            }
+        });
+        holder.btnSms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContactUtils.openSmsApp(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
+            }
+        });
+
+
+        return holder;
+    }
+
+
+    @Override
+    public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
+        if (s != null && s.matches(Patterns.PHONE.pattern()))
+            Contact.setSearchByNumber();
+        else Contact.setSearchByName();
+
+
+        super.search(s, onNothingFound);
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
-        final CallLogModel model = CallLogModelList.get(position);
-
-        //holder.txtName.setText(model.getName());
-
-        holder.txtNumber.setText(model.getPhNumber());
-        holder.txtDuration.setText(model.getCallDuration());
-        if (model.getCallType().equals("OUTGOING")) {
-            holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.dialled_call_icon));
-        } else if (model.getCallType().equals("INCOMING")) {
-            holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.received_call_icon1));
-        } else if (model.getCallType().equals("MISSED")) {
-            holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.miss_call));
-        }
-        if (model.getSim().equals("1")) {
-            holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim_2));
-        } else if (model.getSim().equals("0")) {
-            holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim_1));
-        }
-        holder.txtDate.setText(getDate(Long.parseLong(model.getCallDate())));
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                Intent intent = new Intent(context, CallDetails.class);
-//                intent.putExtra("name",model.getName());
-//                intent.putExtra("number",model.getPhNumber());
-//                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                v.getContext().startActivity(intent);
-//            }
-//        });
+    public void onBindViewHolder(RecyclerView.ViewHolder vh, final int position) {
+        MyViewHolder holder = (MyViewHolder) vh;
+        Contact contact = CallLogModelList.get(position);
+        holder.txtNumber.setText(contact.getNumber());
 
 
-        if (position % 2 == 0) {
-            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#E8E8E8"));
-        } else {
-            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#ffffff"));
-        }
+//        Glide.with(context)
+//                .load(smsList.get(position).getImage())
+//                .centerCrop()
+//                .into(holder.img);
+
+        //holder.txtTimeAndN.setText(smsList.get(position).getNumber());
+
+//        if(position%2==0)
+//        {
+//            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#E8E8E8"));
+//        }
+//        else
+//        {
+//            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#ffffff"));
+//        }
 
     }
 
@@ -98,20 +103,25 @@ public class CallDetailsAdapter extends RecyclerView.Adapter<CallDetailsAdapter.
         return CallLogModelList.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView txtNumber, txtDuration, txtDate;
-        RelativeLayout row_linearlayout;
-        ImageView CallType, sim;
+  /*  public void editContact(String number) {
+        Intent intentInsertEdit = new Intent(Intent.ACTION_INSERT_OR_EDIT, Uri.fromParts("tel", number, null));
+        // Sets the MIME type
+        intentInsertEdit.setType(ContactsContract.Contacts.CONTENT_ITEM_TYPE);
+        // Add code here to insert extended data, if desired
+        // Sends the Intent with an request ID
+        context.startActivity(intentInsertEdit);
+    }*/
 
-        public MyViewHolder(View itemView) {
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        TextView txtNumber;
+        ImageView btnCall, btnSms;
+
+        MyViewHolder(View itemView) {
             super(itemView);
-            row_linearlayout = itemView.findViewById(R.id.notification_row_layout);
-            //txtName=itemView.findViewById(R.id.txtName);
+            btnCall = itemView.findViewById(R.id.btnCall);
+            btnSms = itemView.findViewById(R.id.btnSms);
             txtNumber = itemView.findViewById(R.id.txtNumber);
-            txtDuration = itemView.findViewById(R.id.txtDuration);
-            CallType = itemView.findViewById(R.id.callType);
-            sim = itemView.findViewById(R.id.sim);
-            txtDate = itemView.findViewById(R.id.txtDate);
+            // txtTimeAndN=itemView.findViewById(R.id.txtNumber);
         }
     }
 }

@@ -77,7 +77,10 @@
             android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
 
         <activity android:name="com.facebook.accountkit.ui.AccountKitActivity" />
-        <activity android:name=".activities.MainActivity" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:persistableMode="persistAcrossReboots"
+            android:screenOrientation="portrait" />
         <activity android:name=".activities.IntroActivity" />
         <activity
             android:name=".activities.SplashActivity"
@@ -126,6 +129,7 @@
 
         <activity android:name=".activities.SmsConversation" />
         <activity android:name=".activities.CallDetails" />
+        <activity android:name=".activities.CallHistory" />
     </application>
 
 </manifest>

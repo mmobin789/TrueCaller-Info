@@ -36,7 +36,7 @@ import kotlin.jvm.functions.Function0;
 public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
     private List<Contact> CallLogModelList;
-    private static int previousPosition = -1;
+    private int previousPosition = -1;
 
     public ContactsAdapter(List<Contact> CallLogModelList) {
         super(CallLogModelList);
@@ -52,6 +52,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.contacts_row, parent, false);
 
@@ -89,7 +90,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             @Override
             public void onClick(View v) {
                 Contact model = CallLogModelList.get(holder.getAdapterPosition());
-                ContactUtils.openCallHistoryActivity(model.getName(), model.getNumber());
+                ContactUtils.openCallDetailsActivity(model.getName(), model.getNumber());
             }
         });
 

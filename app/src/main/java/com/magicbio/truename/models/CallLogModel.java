@@ -100,6 +100,8 @@ public class CallLogModel extends Model implements DynamicSearchAdapter.Searchab
     }
 
     public String getCallDate() {
+        if (callDate == null)
+            return "";
         return callDate;
     }
 

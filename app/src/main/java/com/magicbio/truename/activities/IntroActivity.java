@@ -1,6 +1,7 @@
 package com.magicbio.truename.activities;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -26,7 +27,6 @@ import com.facebook.accountkit.PhoneNumber;
 import com.facebook.accountkit.ui.AccountKitActivity;
 import com.facebook.accountkit.ui.AccountKitConfiguration;
 import com.facebook.accountkit.ui.LoginType;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
@@ -148,6 +148,13 @@ public class IntroActivity extends AppCompatActivity {
                 "Logging in...",
                 Toast.LENGTH_LONG)
                 .show();
+
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.com_facebook_loading));
+        progressDialog.setIndeterminate(false);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
 
@@ -157,8 +164,9 @@ public class IntroActivity extends AppCompatActivity {
             public void onResponse(Call<SignUpResponse> call, Response<SignUpResponse> response) {
                 TrueName.setIsLogin(true, getApplicationContext());
                 TrueName.SaveUserInfo(response.body().getInfo(), getApplicationContext());
-                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), response.body().getMessage(), Snackbar.LENGTH_LONG);
-                snackbar.show();
+                // Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), response.body().getMessage(), Snackbar.LENGTH_LONG);
+                // snackbar.show();
+                progressDialog.dismiss();
                 Intent intent = new Intent(IntroActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -168,6 +176,7 @@ public class IntroActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<SignUpResponse> call, Throwable t) {
+                progressDialog.dismiss();
                 t.printStackTrace();
                 Toast.makeText(IntroActivity.this, t.toString(), Toast.LENGTH_LONG).show();
             }

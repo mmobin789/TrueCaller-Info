@@ -12,7 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -22,9 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallLogsAdapter;
 import com.magicbio.truename.adapters.HotNumbersAdapter;
-import com.magicbio.truename.fragments.background.FetchCallLogs;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
-import com.magicbio.truename.utils.CommonAnimationUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,11 +41,10 @@ import static android.content.ContentValues.TAG;
  * create an instance of this fragment.
  */
 public class CallLogFragment extends Fragment {
-    private static List<CallLogModel> callLogModelList;
     private boolean adShown;
     private RecyclerView recyclerView, hotNumbers;
     private CallLogsAdapter callLogsAdapter;
-    private TextView tvLoading;
+    private ProgressBar progressBar;
 
     public CallLogFragment() {
         // Required empty public constructor
@@ -80,11 +78,10 @@ public class CallLogFragment extends Fragment {
         }
         recyclerView = v.findViewById(R.id.recycler_View);
         hotNumbers = v.findViewById(R.id.hotNumbers);
-        tvLoading = v.findViewById(R.id.tvLoading);
+        progressBar = v.findViewById(R.id.progressBar);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        CommonAnimationUtils.applyFadeInFadeOut(tvLoading);
 
         HotNumbersAdapter itemListDataAdapter = new HotNumbersAdapter(getHotCalls(recyclerView.getContext()), getContext());
 
@@ -100,22 +97,15 @@ public class CallLogFragment extends Fragment {
 
 
     private void setCallLogsAdapter() {
-        if (callLogModelList != null) {
-            setCallLogsAdapter(callLogModelList);
-            return;
-        }
-
-        FetchCallLogs fetchCallLogs = new FetchCallLogs();
-        fetchCallLogs.setOnComplete(new Function1<ArrayList<CallLogModel>, Unit>() {
+        AppAsyncWorker.fetchCallLog(new Function1<ArrayList<CallLogModel>, Unit>() {
             @Override
             public Unit invoke(ArrayList<CallLogModel> callLogModels) {
-                callLogModelList = callLogModels;
                 setCallLogsAdapter(callLogModels);
                 return Unit.INSTANCE;
             }
         });
 
-        fetchCallLogs.execute(getContext());
+
     }
 
     private void setCallLogsAdapter(List<CallLogModel> list) {
@@ -127,8 +117,7 @@ public class CallLogFragment extends Fragment {
             callLogsAdapter.showAd();
         }
 
-        tvLoading.clearAnimation();
-        tvLoading.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
     }
     /*private List<CallLogModel> getCallDetails(Context context) {
         StringBuilder sb = new StringBuilder();

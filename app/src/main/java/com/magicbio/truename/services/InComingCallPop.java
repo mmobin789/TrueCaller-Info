@@ -10,7 +10,6 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -85,7 +84,6 @@ public class InComingCallPop extends Service {
     long startClickTime;
     AdView mAdView;
     InterstitialAd interstitialAd;
-    ProgressDialog pd;
     String filepath;
     // variables
     private WindowManager mWindowManager;

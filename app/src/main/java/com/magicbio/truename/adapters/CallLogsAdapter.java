@@ -151,7 +151,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
             @Override
             public void onClick(View v) {
                 CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                ContactUtils.openCallHistoryActivity(model.getName(), model.getPhNumber());
+                ContactUtils.openCallDetailsActivity(model.getName(), model.getPhNumber());
             }
         });
 

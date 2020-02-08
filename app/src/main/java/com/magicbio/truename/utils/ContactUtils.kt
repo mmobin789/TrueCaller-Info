@@ -19,8 +19,9 @@ import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProv
 object ContactUtils {
     private val context = TrueName.getInstance()
 
+
     @JvmStatic
-    fun openCallHistoryActivity(name: String?, number: String) {
+    fun openCallDetailsActivity(name: String?, number: String) {
         val intent = Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra("name", name)
         intent.putExtra("number", number)
@@ -77,6 +78,12 @@ object ContactUtils {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    @JvmStatic
+    fun formatNumberToLocal(number: String): String {
+        val numberFormatted = number.replace(" ", "").removePrefix("+92").removePrefix("92")
+        return "0$numberFormatted"
     }
 
     private var provider: LocationGooglePlayServicesProvider? = null

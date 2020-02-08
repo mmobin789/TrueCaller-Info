@@ -12,7 +12,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.SMSAdapter;
-import com.magicbio.truename.fragments.background.FetchAllSms;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.Sms;
 
 import java.util.ArrayList;
@@ -42,24 +42,23 @@ public class MessagesFragment extends Fragment {
 
         init(v);
 
-        setSmsAdapter();
+        setSmsAdapter(false);
 
         return v;
     }
 
 
-    private void setSmsAdapter() {
-        FetchAllSms fetchAllSms = new FetchAllSms();
-        fetchAllSms.setOnComplete(new Function1<ArrayList<Sms>, Unit>() {
+    private void setSmsAdapter(boolean refresh) {
+
+        AppAsyncWorker.fetchAllMessages(new Function1<ArrayList<Sms>, Unit>() {
             @Override
             public Unit invoke(ArrayList<Sms> sms) {
                 recyclerView.setAdapter(new SMSAdapter(sms));
                 return Unit.INSTANCE;
             }
-        });
+        }, refresh);
 
 
-        fetchAllSms.execute(getContext());
     }
 
 
@@ -74,7 +73,7 @@ public class MessagesFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                setSmsAdapter();
+                setSmsAdapter(true);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });

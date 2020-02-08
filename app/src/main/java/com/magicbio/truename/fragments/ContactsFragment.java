@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.adapters.ContactsAdapter;
-import com.magicbio.truename.fragments.background.FetchContacts;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 
 import java.util.List;
 
@@ -55,9 +55,7 @@ public class ContactsFragment extends Fragment {
 
     private void setContactsAdapter() {
 
-
-        FetchContacts fetchContacts = new FetchContacts();
-        fetchContacts.setOnComplete(new Function1<List<Contact>, Unit>() {
+        AppAsyncWorker.fetchContacts(new Function1<List<Contact>, Unit>() {
             @Override
             public Unit invoke(List<Contact> contacts) {
                 setAdapter(contacts);
@@ -65,7 +63,7 @@ public class ContactsFragment extends Fragment {
             }
         });
 
-        fetchContacts.execute(getContext());
+
     }
 
     private void setAdapter(List<Contact> contacts) {

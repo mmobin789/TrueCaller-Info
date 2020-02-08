@@ -28,4 +28,6 @@
     <string name="in_your_contacts">In Your Contacts</string>
     <string name="pakistan">Pakistan</string>
     <string name="hot_numbers">Hot Numbers</string>
+    <string name="mobile">Mobile</string>
+    <string name="in_your_call_history">In your call history</string>
 </resources>
