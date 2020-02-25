@@ -46,6 +46,7 @@ import com.magicbio.truename.retrofit.ApiInterface;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -391,7 +392,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     public void login(String phone) {
         progressDoalog.show();
-        Call<SignUpResponse> call = apiInterface.signup("signup", EtoStr(txtFname) + " " + EtoStr(txtLname), EtoStr(txtEmail), EtoStr(txtAddress), EtoStr(txtCity), "Pakistan", phone);
+        Call<SignUpResponse> call = apiInterface.signup("signup", EtoStr(txtFname) + " " + EtoStr(txtLname), EtoStr(txtEmail), Objects.requireNonNull(AccountKit.getCurrentAccessToken()).getAccountId(), EtoStr(txtCity), "Pakistan", phone);
         call.enqueue(new Callback<SignUpResponse>() {
             @Override
             public void onResponse(Call<SignUpResponse> call, Response<SignUpResponse> response) {

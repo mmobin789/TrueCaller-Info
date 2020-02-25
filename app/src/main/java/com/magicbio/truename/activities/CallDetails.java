@@ -35,7 +35,7 @@ import kotlin.jvm.functions.Function1;
 
 public class CallDetails extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
     TextView txtName;
-    String number, name;
+    private String number, name;
 
     ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation;
     ProgressDialog progressDoalog;
@@ -60,13 +60,25 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         number = getIntent().getStringExtra("number");
         name = getIntent().getStringExtra("name");
         txtName.setText(name);
+
+
         TextView tvWTAMessage = findViewById(R.id.tvMessageWhatsApp);
         TextView tvWTAAudio = findViewById(R.id.tvAudioWhatsApp);
         TextView tvWTAVideo = findViewById(R.id.tvVideoWhatsApp);
+        TextView tvEmail = findViewById(R.id.tvEmail);
         tvWTAMessage.setText(String.format("Message %s", number));
         tvWTAAudio.setText(String.format("Voice %s", number));
         tvWTAVideo.setText(String.format("Video %s", number));
         AdUtils.loadBannerAd((AdView) findViewById(R.id.adView));
+        String email = getIntent().getStringExtra("email");
+        tvEmail.setText(email);
+
+        if (email == null)
+            tvEmail.setVisibility(View.GONE);
+
+        if (!name.replace(" ", "").isEmpty())
+            btnSave.setVisibility(View.GONE);
+
         setupClick();
         init();
     }
@@ -132,7 +144,7 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
 
     }
 
-    public void init() {
+    private void init() {
         progressDoalog = new ProgressDialog(CallDetails.this);
         progressDoalog.setMessage("Please Wait.....");
         progressDoalog.setCancelable(false);

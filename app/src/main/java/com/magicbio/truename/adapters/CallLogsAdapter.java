@@ -22,12 +22,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.activeandroid.RecordModel;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
@@ -38,6 +37,7 @@ import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 import static com.magicbio.truename.utils.CommonAnimationUtils.slideFromRightToLeft;
 
@@ -150,8 +150,15 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         myViewHolder.btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                ContactUtils.openCallDetailsActivity(model.getName(), model.getPhNumber());
+                final CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+                AppAsyncWorker.getContactByNumber(model.getPhNumber(), new Function1<Contact, Unit>() {
+                    @Override
+                    public Unit invoke(Contact contact) {
+                        ContactUtils.openCallDetailsActivity(model.getName(), model.getPhNumber(), contact);
+                        return Unit.INSTANCE;
+                    }
+                });
+
             }
         });
 
@@ -235,12 +242,6 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         else holder.adView.setVisibility(View.GONE);
 
 
-        final Contact contact = Contact.getRandom(model.getPhNumber());
-        if (contact != null)
-            Glide.with(context).load(contact.getImage()).apply(RequestOptions.errorOf(R.drawable.logo1).placeholder(R.drawable.logo1)).into(holder.img);
-        else
-            Glide.with(context).load(R.drawable.logo1).into(holder.img);
-
         if (TextUtils.isEmpty(model.getName()))
             holder.btnLocation.setVisibility(View.GONE);
         else holder.btnLocation.setVisibility(View.VISIBLE);
@@ -295,9 +296,6 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     public int getItemCount() {
         return CallLogModelList.size();
     }
-
-
-
 
 
     private String getContactIdFromNumber(String number) {

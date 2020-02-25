@@ -26,6 +26,9 @@ public class Contact extends Model implements DynamicSearchAdapter.Searchable {
     @Column(name = "Image")
     public String Image;
 
+    @Column(name = "email")
+    public String email;
+
     public boolean showAd;
 
     public boolean areOptionsShown;

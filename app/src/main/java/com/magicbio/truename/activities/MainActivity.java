@@ -140,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     }
                 }
         ).executeAsync();
-        // new LongOperation().execute("");
 
 
     }

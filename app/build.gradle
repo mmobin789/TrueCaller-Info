@@ -60,6 +60,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.8.0'
     implementation "androidx.core:core-ktx:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ':ImageLoader-debug')
 
 
 }

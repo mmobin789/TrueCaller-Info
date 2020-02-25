@@ -11,6 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.location.Geofence
 import com.magicbio.truename.TrueName
+import com.magicbio.truename.activeandroid.Contact
 import com.magicbio.truename.activities.CallDetails
 import io.nlopez.smartlocation.SmartLocation
 import io.nlopez.smartlocation.geofencing.model.GeofenceModel
@@ -19,12 +20,12 @@ import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProv
 object ContactUtils {
     private val context = TrueName.getInstance()
 
-
     @JvmStatic
-    fun openCallDetailsActivity(name: String?, number: String) {
+    fun openCallDetailsActivity(name: String?, number: String, contact: Contact?) {
         val intent = Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra("name", name)
         intent.putExtra("number", number)
+        intent.putExtra("email", contact?.email)
         context.startActivity(intent)
     }
 
@@ -82,6 +83,9 @@ object ContactUtils {
 
     @JvmStatic
     fun formatNumberToLocal(number: String): String {
+        if (!number.contains("92"))
+            return number
+
         val numberFormatted = number.replace(" ", "").removePrefix("+92").removePrefix("92")
         return "0$numberFormatted"
     }

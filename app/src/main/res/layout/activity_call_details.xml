@@ -90,11 +90,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginBottom="5dp"
-            android:weightSum="5">
+            android:layout_margin="8dp">
 
             <ImageView
                 android:id="@+id/btnCall"
@@ -229,6 +225,7 @@
 
 
                 <TextView
+                    android:id="@+id/tvEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -351,7 +348,9 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:background="@drawable/dark_grey_border"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -375,7 +374,9 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/dark_grey_border"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -398,7 +399,9 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:background="@drawable/dark_grey_border"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -422,7 +425,9 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/dark_grey_border"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -445,7 +450,9 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:background="@drawable/dark_grey_border"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -470,7 +477,9 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/dark_grey_border"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <ImageView
                         android:layout_width="wrap_content"
