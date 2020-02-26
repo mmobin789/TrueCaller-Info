@@ -2,6 +2,7 @@ package com.magicbio.truename.fragments;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -12,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallLogsAdapter;
-import com.magicbio.truename.adapters.HotNumbersAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
 
@@ -42,17 +41,17 @@ import static android.content.ContentValues.TAG;
  */
 public class CallLogFragment extends Fragment {
     private boolean adShown;
-    private RecyclerView recyclerView, hotNumbers;
+    private RecyclerView recyclerView;
     private CallLogsAdapter callLogsAdapter;
-    private ProgressBar progressBar;
+    private ProgressDialog progressDialog;
 
     public CallLogFragment() {
         // Required empty public constructor
     }
 
     public void search(String newText) {
-
-        callLogsAdapter.search(newText.toLowerCase(), null);
+        if (newText != null)
+            callLogsAdapter.search(newText.toLowerCase(), null);
     }
 
 
@@ -77,17 +76,16 @@ public class CallLogFragment extends Fragment {
             Log.i(TAG, "giving read call log permission 2");
         }
         recyclerView = v.findViewById(R.id.recycler_View);
-        hotNumbers = v.findViewById(R.id.hotNumbers);
-        progressBar = v.findViewById(R.id.progressBar);
+        // hotNumbers = v.findViewById(R.id.hotNumbers);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        HotNumbersAdapter itemListDataAdapter = new HotNumbersAdapter(getHotCalls(recyclerView.getContext()), getContext());
+        //   HotNumbersAdapter itemListDataAdapter = new HotNumbersAdapter(getHotCalls(recyclerView.getContext()), getContext());
 
-        hotNumbers.setHasFixedSize(true);
-        hotNumbers.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        hotNumbers.setAdapter(itemListDataAdapter);
+        // hotNumbers.setHasFixedSize(true);
+        // hotNumbers.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        // hotNumbers.setAdapter(itemListDataAdapter);
         setCallLogsAdapter();
 
         // hotNumbers.setRecycledViewPool(viewPool);
@@ -97,10 +95,17 @@ public class CallLogFragment extends Fragment {
 
 
     private void setCallLogsAdapter() {
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Please Wait.....");
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
         AppAsyncWorker.fetchCallLog(new Function1<ArrayList<CallLogModel>, Unit>() {
             @Override
             public Unit invoke(ArrayList<CallLogModel> callLogModels) {
                 setCallLogsAdapter(callLogModels);
+                progressDialog.dismiss();
                 return Unit.INSTANCE;
             }
         });
@@ -117,7 +122,6 @@ public class CallLogFragment extends Fragment {
             callLogsAdapter.showAd();
         }
 
-        progressBar.setVisibility(View.GONE);
     }
     /*private List<CallLogModel> getCallDetails(Context context) {
         StringBuilder sb = new StringBuilder();

@@ -90,7 +90,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             @Override
             public void onClick(View v) {
                 Contact model = CallLogModelList.get(holder.getAdapterPosition());
-                ContactUtils.openCallDetailsActivity(model.getName(), model.getNumber(), model);
+                ContactUtils.openCallDetailsActivity(model);
             }
         });
 

@@ -4,29 +4,66 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorAccent"
     android:orientation="vertical"
     tools:context="com.magicbio.truename.activities.CallDetails">
 
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/topPanel"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/dark_gray"
-        android:padding="5dp">
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="8dp">
 
-        <ImageView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:padding="8dp"
-            android:src="@drawable/logo_w" />
+            android:background="@drawable/app_black_bg"
+            android:orientation="horizontal">
 
-    </RelativeLayout>
 
+            <ImageView
+                android:id="@+id/logoView"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="48dp"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/logo_new" />
+
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:iconifiedByDefault="true"
+                app:searchHintIcon="@null"
+                app:searchIcon="@drawable/search_new" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/black" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
@@ -78,7 +115,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginTop="10dp"
-        android:background="#E1E1E1" />
+        android:background="@color/colorAccent" />
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -145,12 +182,12 @@
         android:orientation="vertical">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/browser_actions_divider_color"
-            android:paddingLeft="10dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
+            android:layout_marginStart="16dp"
+            android:background="@color/colorAccent"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
             android:text="@string/in_your_contacts"
             android:textColor="@color/black" />
 
@@ -168,9 +205,6 @@
                     android:id="@+id/recycler_View"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:scrollbarSize="5dp"
-                    android:scrollbarThumbVertical="@android:color/darker_gray"
-                    android:scrollbars="vertical"
                     tools:listitem="@layout/contacts_row_call_history" />
 
 
@@ -254,6 +288,7 @@
                     android:textStyle="bold" />
 
                 <LinearLayout
+                    android:id="@+id/llwhatsApp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -294,6 +329,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:onClick="makeWhatsAppAudioCall"
                         android:padding="16dp">
 
                         <ImageView

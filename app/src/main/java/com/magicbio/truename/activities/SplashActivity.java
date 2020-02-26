@@ -5,18 +5,19 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 
 import java.util.ArrayList;
 
 public class SplashActivity extends AppCompatActivity {
 
-    TextView btnGetStarted;
+    ImageView btnGetStarted;
 
 
     @Override
@@ -57,7 +58,7 @@ public class SplashActivity extends AppCompatActivity {
 
         if (notHasPermission(Manifest.permission.READ_CALL_LOG)) {
             permissions.add(Manifest.permission.READ_CALL_LOG);
-        }
+        } else AppAsyncWorker.fetchCallLog(null);
 
         if (notHasPermission(Manifest.permission.WRITE_CALL_LOG)) {
             permissions.add(Manifest.permission.WRITE_CALL_LOG);

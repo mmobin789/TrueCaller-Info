@@ -28,6 +28,7 @@ object AppAsyncWorker {
 
     private val context = TrueName.getInstance()
     private var smsList: ArrayList<Sms>? = null
+    private var callLogList: ArrayList<CallLogModel>? = null
     /*  private var callLogList: ArrayList<CallLogModel>? = null
       private var contactsList: ArrayList<Contact>? = null*/
 
@@ -60,6 +61,13 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
+    fun getContactByName(name: String, callback: (Contact?) -> Unit) {
+        GlobalScope.launch {
+            callback(getContacts().find { it.name == name })
+        }
+    }
+
+    @JvmStatic
     fun fetchContactsByNumber(number: String, onComplete: (ArrayList<Contact>) -> Unit) {
         GlobalScope.launch {
             val filtered = getContacts().filter {
@@ -73,11 +81,12 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-    fun fetchCallLog(onComplete: (ArrayList<CallLogModel>) -> Unit) {
+    fun fetchCallLog(onComplete: ((ArrayList<CallLogModel>) -> Unit)?) {
         GlobalScope.launch {
-            val callLogList = getCallDetails()
+            if (callLogList.isNullOrEmpty())
+                callLogList = getCallDetails()
             withContext(Dispatchers.Main) {
-                onComplete(callLogList)
+                onComplete?.invoke(callLogList!!)
             }
         }
     }
@@ -203,6 +212,7 @@ object AppAsyncWorker {
                     contact.email = email
                     contact.number = phone
                     contact.image = image
+                    contact.contactId = id
                     contacts.add(contact)
                     val cid = contact.save()
                     Log.d("ContactID", cid.toString())

@@ -76,11 +76,15 @@
             android:name="com.facebook.accountkit.ClientToken"
             android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
 
-        <activity android:name="com.facebook.accountkit.ui.AccountKitActivity" />
+        <activity android:name="com.facebook.accountkit.ui.AccountKitActivity">
+
+
+        </activity>
         <activity
             android:name=".activities.MainActivity"
-            android:persistableMode="persistAcrossReboots"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="unspecified" />
+
+
         <activity android:name=".activities.IntroActivity" />
         <activity
             android:name=".activities.SplashActivity"

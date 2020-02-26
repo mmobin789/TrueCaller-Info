@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
@@ -58,19 +59,19 @@ public class CallHistoryAdapter extends RecyclerView.Adapter<CallHistoryAdapter.
         holder.txtDuration.setText(model.getCallDuration());
         switch (model.getCallType()) {
             case "OUTGOING":
-                holder.CallType.setImageResource(R.drawable.dialled_call_icon);
+                holder.CallType.setImageResource(R.drawable.dialled_call);
                 break;
             case "INCOMING":
-                holder.CallType.setImageResource(R.drawable.received_call_icon1);
+                holder.CallType.setImageResource(R.drawable.recieve_call);
                 break;
             case "MISSED":
-                holder.CallType.setImageResource(R.drawable.miss_call);
+                holder.CallType.setImageResource(R.drawable.missed_call);
                 break;
         }
         if (model.getSim().equals("1")) {
-            holder.sim.setImageResource(R.drawable.sim_2);
+            holder.sim.setImageResource(R.drawable.sim2_dialed_call);
         } else if (model.getSim().equals("0")) {
-            holder.sim.setImageResource(R.drawable.sim_1);
+            holder.sim.setImageResource(R.drawable.sim1_dialed_call);
         }
 
         holder.txtDate.setText(getDate(Long.parseLong(model.getCallDate())));
@@ -88,9 +89,9 @@ public class CallHistoryAdapter extends RecyclerView.Adapter<CallHistoryAdapter.
 
 
         if (position % 2 == 0) {
-            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#E8E8E8"));
+            holder.row_linearlayout.setBackgroundColor(ContextCompat.getColor(holder.row_linearlayout.getContext(), R.color.colorAccent));
         } else {
-            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#ffffff"));
+            holder.row_linearlayout.setBackgroundColor(Color.WHITE);
         }
 
     }
@@ -100,7 +101,7 @@ public class CallHistoryAdapter extends RecyclerView.Adapter<CallHistoryAdapter.
         return CallLogModelList.size();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtNumber, txtDuration, txtDate;
         RelativeLayout row_linearlayout;
         ImageView CallType, sim;

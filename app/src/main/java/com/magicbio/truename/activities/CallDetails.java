@@ -73,11 +73,15 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         String email = getIntent().getStringExtra("email");
         tvEmail.setText(email);
 
-        if (email == null)
+        if (email == null) {
             tvEmail.setVisibility(View.GONE);
+        }
 
-        if (!name.replace(" ", "").isEmpty())
+        if (!name.replace(" ", "").isEmpty()) {
             btnSave.setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
+        }
 
         setupClick();
         init();
@@ -89,6 +93,10 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
 
     public void openWhatsAppChat(View v) {
         ContactUtils.openWhatsAppChat(number);
+    }
+
+    public void makeWhatsAppAudioCall(View v) {
+        ContactUtils.makeWhatsAppAudioCall(name);
     }
 
     public void setupClick() {

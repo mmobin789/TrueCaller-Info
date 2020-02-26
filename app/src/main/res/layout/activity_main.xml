@@ -4,72 +4,67 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorAccent"
     tools:context="com.magicbio.truename.activities.MainActivity">
 
     <LinearLayout
         android:id="@+id/topPanel"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:layout_alignParentTop="true"
-        android:background="#E4E5E7"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/white"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="5dp">
+        android:padding="8dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="#FFFFFF"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_black_bg"
             android:orientation="horizontal">
 
 
             <ImageView
                 android:id="@+id/logoView"
-                android:layout_width="200dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="15dp"
+                android:layout_marginStart="48dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/logo1" />
+                android:src="@drawable/logo_new" />
 
-            <Button
-                android:id="@+id/btnMenu1"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="7dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/menu1"
-                android:visibility="gone" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:background="@color/black" />
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/searchView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layoutDirection="rtl"
+                android:layout_height="wrap_content"
                 app:iconifiedByDefault="true"
-                app:queryHint="search by name or number" />
+                app:searchHintIcon="@null"
+                app:searchIcon="@drawable/search_new" />
 
         </RelativeLayout>
 
+
     </LinearLayout>
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/topPanel"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/black" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/vp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/belowPanel"
-        android:layout_below="@id/topPanel">
+        android:layout_below="@id/line">
 
     </androidx.viewpager.widget.ViewPager>
 

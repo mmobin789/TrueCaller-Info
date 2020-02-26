@@ -3,9 +3,7 @@ package com.magicbio.truename.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.Contacts;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Patterns;
@@ -49,7 +47,6 @@ import static com.magicbio.truename.utils.CommonAnimationUtils.slideFromRightToL
 public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
     private volatile List<CallLogModel> CallLogModelList;
-    Context context;
     private int previousPosition = -1;
     /*private SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
         @Override
@@ -75,7 +72,6 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     public CallLogsAdapter(List<CallLogModel> CallLogModelList, Context context) {
         super(CallLogModelList);
         this.CallLogModelList = CallLogModelList;
-        this.context = context;
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         //   height = displayMetrics.heightPixels;
@@ -120,11 +116,11 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.call_log_row, parent, false);
+                .inflate(R.layout.call_log_row_new, parent, false);
 
         final MyViewHolder myViewHolder = new MyViewHolder(itemView);
 
-        myViewHolder.main_view.setOnClickListener(new View.OnClickListener() {
+        myViewHolder.rl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int position = myViewHolder.getAdapterPosition();
@@ -136,7 +132,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
                 }
                 // hidden so show
-                slideFromRightToLeft(myViewHolder.btnView, myViewHolder.main_view.getWidth());
+                slideFromRightToLeft(myViewHolder.btnView, myViewHolder.rl.getWidth() - myViewHolder.img.getWidth());
 
                 callLogModel.areOptionsShown = true;
 
@@ -154,7 +150,17 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
                 AppAsyncWorker.getContactByNumber(model.getPhNumber(), new Function1<Contact, Unit>() {
                     @Override
                     public Unit invoke(Contact contact) {
-                        ContactUtils.openCallDetailsActivity(model.getName(), model.getPhNumber(), contact);
+                        Contact open = contact;
+                        if (open == null)
+                            open = new Contact();
+
+                        if (open.getName() == null)
+                            open.setName(model.getName());
+                        if (open.getNumber() == null)
+                            open.setNumber(model.getPhNumber());
+
+                        ContactUtils.openCallDetailsActivity(open);
+
                         return Unit.INSTANCE;
                     }
                 });
@@ -183,9 +189,9 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 //                    File file = new File(newPath);
 //                    intent.setDataAndType(Uri.fromFile(file), "*");
 //                    context.startActivity(intent);
-                    Toast.makeText(context, r.getPath(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(v.getContext(), r.getPath(), Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(context, "recording not available", Toast.LENGTH_LONG).show();
+                    Toast.makeText(v.getContext(), "recording not available", Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -197,7 +203,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
                 Uri uri = Uri.parse("smsto:" + model.getPhNumber());
                 Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
                 intent.putExtra("sms_body", "");
-                context.startActivity(intent);
+                v.getContext().startActivity(intent);
             }
         });
 
@@ -249,27 +255,30 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
         switch (model.getCallType()) {
             case "OUTGOING":
-                holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.dialed_call1));
+                holder.CallType.setImageResource(R.drawable.dialled_call);
+                holder.sim.setImageResource(R.drawable.sim1_dialed_call);
                 if (model.getSim().equals("1")) {
-                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_dialed_call));
+                    holder.sim.setImageResource(R.drawable.sim1_dialed_call);
                 } else if (model.getSim().equals("0")) {
-                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_dialed_call));
+                    holder.sim.setImageResource(R.drawable.sim2_dialed_call);
                 }
                 break;
             case "INCOMING":
-                holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.recieve_call1));
+                holder.CallType.setImageResource(R.drawable.recieve_call);
+                holder.sim.setImageResource(R.drawable.sim1_dialed_call);
                 if (model.getSim().equals("1")) {
-                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_recieve_call));
+                    holder.sim.setImageResource(R.drawable.sim1_dialed_call);
                 } else if (model.getSim().equals("0")) {
-                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_recieve_call));
+                    holder.sim.setImageResource(R.drawable.sim2_dialed_call);
                 }
                 break;
             case "MISSED":
-                holder.CallType.setBackground(context.getResources().getDrawable(R.drawable.missed_call1));
+                holder.CallType.setImageResource(R.drawable.missed_call);
+                holder.sim.setImageResource(R.drawable.sim1_missed_call);
                 if (model.getSim().equals("1")) {
-                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim2_missed_call));
+                    holder.sim.setImageResource(R.drawable.sim1_missed_call);
                 } else if (model.getSim().equals("0")) {
-                    holder.sim.setBackground(context.getResources().getDrawable(R.drawable.sim1_missed_call));
+                    holder.sim.setImageResource(R.drawable.sim2_missed_call);
                 }
                 break;
         }
@@ -298,7 +307,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     }
 
 
-    private String getContactIdFromNumber(String number) {
+    /*private String getContactIdFromNumber(String number) {
         String[] projection = new String[]{Contacts.Phones._ID};
         Uri contactUri = Uri.withAppendedPath(Contacts.Phones.CONTENT_FILTER_URL,
                 Uri.encode(number));
@@ -309,13 +318,13 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
             return contactId;
         }
         return null;
-    }
+    }*/
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber, txtDuration;
-        RelativeLayout main_view;
-        Button rec, btnHistory, btnwa, btnSms, btnCall, btnLocation;
-        ImageView img;
+        RelativeLayout rl;
+        Button rec, btnHistory, btnwa, btnSms, btnLocation;
+        ImageView img, btnCall;
         LinearLayout btnView;
         AdView adView;
         ImageView CallType, sim;
@@ -330,7 +339,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
             sim = itemView.findViewById(R.id.sim);
             rec = itemView.findViewById(R.id.rec);
             btnView = itemView.findViewById(R.id.btnView);
-            main_view = itemView.findViewById(R.id.main_view);
+            rl = itemView.findViewById(R.id.rl);
             btnHistory = itemView.findViewById(R.id.btnHistory);
             btnwa = itemView.findViewById(R.id.btnwa);
             btnSms = itemView.findViewById(R.id.btnSms);

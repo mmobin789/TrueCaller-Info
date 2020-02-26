@@ -28,6 +28,9 @@ public class Contact extends Model implements DynamicSearchAdapter.Searchable {
 
     @Column(name = "email")
     public String email;
+    @Column
+    public String contactId;
+
 
     public boolean showAd;
 

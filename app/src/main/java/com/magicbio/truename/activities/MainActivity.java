@@ -1,10 +1,12 @@
 package com.magicbio.truename.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -51,7 +53,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(this);
-
+        TextView textView = searchView.findViewById(R.id.search_src_text);
+        textView.setHintTextColor(Color.WHITE);
+        textView.setTextColor(Color.WHITE);
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
+import android.provider.ContactsContract
 import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Toast
@@ -17,14 +18,15 @@ import io.nlopez.smartlocation.SmartLocation
 import io.nlopez.smartlocation.geofencing.model.GeofenceModel
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider
 
+
 object ContactUtils {
     private val context = TrueName.getInstance()
 
     @JvmStatic
-    fun openCallDetailsActivity(name: String?, number: String, contact: Contact?) {
+    fun openCallDetailsActivity(contact: Contact?) {
         val intent = Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra("name", name)
-        intent.putExtra("number", number)
+        intent.putExtra("name", contact?.name)
+        intent.putExtra("number", contact?.number)
         intent.putExtra("email", contact?.email)
         context.startActivity(intent)
     }
@@ -53,16 +55,60 @@ object ContactUtils {
         context.startActivity(intent)
     }
 
+
     @JvmStatic
-    fun openWhatsAppChat(number: String) {
+    fun makeWhatsAppAudioCall(name: String?) {
 
+        if (!isWhatsAppInstalled() || name.isNullOrBlank())
+            return
+
+        val resolver = context.contentResolver
+        val cursor = resolver.query(
+                ContactsContract.Data.CONTENT_URI,
+                null, null, null,
+                ContactsContract.Contacts.DISPLAY_NAME)
+        while (cursor?.moveToNext() == true) {
+            val _id = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data._ID))
+            val displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
+            val mimeType = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
+            //   val contactId = cursor.getInt(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)).toString()
+            if (displayName == name) {
+                Log.d(javaClass.simpleName, "$_id $displayName $mimeType")
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.setPackage("com.whatsapp")
+                intent.setDataAndType(Uri.parse("content://com.android.contacts/data/$_id"), "vnd.android.cursor.item/vnd.com.whatsapp.voip.call")
+                context.startActivity(intent)
+                break
+
+            }
+
+
+        }
+
+
+        cursor?.close()
+    }
+
+    private fun isWhatsAppInstalled(): Boolean {
         val whatsAppPackage = "com.whatsapp"
-
         if (!isAppInstalled(whatsAppPackage, context)) {
             Toast.makeText(context, "WhatsApp not Installed.", Toast.LENGTH_SHORT).show()
             val uri = Uri.parse("market://details?id=$whatsAppPackage")
             val goToMarket = Intent(Intent.ACTION_VIEW, uri)
             context.startActivity(goToMarket)
+            return false
+        }
+
+        return true
+    }
+
+    @JvmStatic
+    fun openWhatsAppChat(number: String) {
+
+        val whatsAppPackage = "com.whatsapp"
+
+        if (!isWhatsAppInstalled()) {
             return
         }
 

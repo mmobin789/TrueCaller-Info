@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorAccent">
+    android:background="@color/white">
 
     <ImageView
         android:id="@+id/imgE"
@@ -31,7 +31,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_toEndOf="@id/img"
             android:contentDescription="@string/app_name"
@@ -42,25 +41,51 @@
             android:textStyle="bold"
             tools:text="Ahmed Bilal" />
 
+        <ImageView
+            android:id="@+id/callType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtName"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="4dp"
+            android:layout_toEndOf="@+id/img"
+            android:src="@drawable/recieve_call" />
 
         <TextView
             android:id="@+id/txtNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/txtName"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_toEndOf="@id/img"
+            android:layout_toEndOf="@id/callType"
             android:textColor="@color/black"
             tools:text="0300 1234567" />
 
+        <TextView
+            android:id="@+id/txtDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtNumber"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@+id/img"
+            tools:text="09:45" />
+
+        <ImageView
+            android:id="@+id/sim"
+            android:layout_width="10dp"
+            android:layout_height="12dp"
+            android:layout_below="@+id/txtName"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_toEndOf="@+id/txtNumber"
+            android:src="@drawable/sim1_dialed_call" />
 
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/btnView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_toStartOf="@id/btnCall"
         android:layout_toEndOf="@id/imgE"
         android:background="@color/white"
