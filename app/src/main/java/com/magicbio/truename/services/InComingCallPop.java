@@ -13,7 +13,6 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.media.MediaRecorder;
@@ -22,7 +21,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
@@ -49,7 +47,6 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
-import com.magicbio.truename.activeandroid.RecordModel;
 import com.magicbio.truename.activities.ComFunc;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.models.GetNumberResponse;
@@ -61,7 +58,6 @@ import com.magicbio.truename.utils.ContactUtils;
 
 import java.io.File;
 import java.text.Format;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -71,8 +67,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class InComingCallPop extends Service {
-    // constants
-    public static final String BASIC_TAG = InComingCallPop.class.getName();
     String number;
     TextView txtNumber, txtName, txtAddress, txtNetwork;
     ApiInterface apiInterface;
@@ -133,7 +127,7 @@ public class InComingCallPop extends Service {
     }
 
 
-    public static String getLastCall(CallLogModel callLogModel, Context context) {
+ /*   public static String getLastCall(CallLogModel callLogModel, Context context) {
         long differenceDates = 0;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         String date = callLogModel.getCallDayTime();
@@ -148,7 +142,7 @@ public class InComingCallPop extends Service {
             e.printStackTrace();
         }
         return "Last Call " + differenceDates / 1000 + " Seconds ago";
-    }
+    }*/
 
 //        private void addRecycleBinView() {
 //            // add recycle bin ImageView centered on the bottom of the screen
@@ -204,8 +198,10 @@ public class InComingCallPop extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        number = intent.getStringExtra("number");
-        ptype = intent.getIntExtra("ptype", 0);
+        if (intent != null) {
+            number = intent.getStringExtra("number");
+            ptype = intent.getIntExtra("ptype", 0);
+        }
         showHud();
         createAndShowForegroundNotification(this, 99);
 
@@ -265,11 +261,14 @@ public class InComingCallPop extends Service {
             AdUtils.loadBannerAd(adView);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
             //txtLastCall.setText(TrueName.getLastCall(number,getApplicationContext()));
-            txtName.setText(ComFunc.getContactName(number, getApplicationContext()));
+            txtName.setText(ComFunc.getContactName(number, context));
+
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
             recordCall(number);
-            txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(getCallLast(getApplicationContext(), number).getCallDate()), "dd/MM/yyyy hh:mm:ss")));
+            CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
+            if (callLogModel != null && !callLogModel.getCallDate().replace(" ", "").isEmpty())
+                txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(callLogModel.getCallDate()), "dd/MM/yyyy hh:mm:ss")));
             getNumberdata(number);
         } else if (ptype == 1) {
 
@@ -287,7 +286,7 @@ public class InComingCallPop extends Service {
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
             ImageView ivWhatsApp = ivCrumpledPaper.findViewById(R.id.ivWta);
-            ImageView ivLoc = ivCrumpledPaper.findViewById(R.id.ivLocation);
+            Button ivLoc = ivCrumpledPaper.findViewById(R.id.ivLocation);
 
             ivWhatsApp.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -302,8 +301,9 @@ public class InComingCallPop extends Service {
                     ContactUtils.shareLocationOnSms(number, txtName.getText().toString());
                 }
             });
-
-            txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(getCallLast(getApplicationContext(), number).getCallDate()), "dd/MM/yyyy hh:mm:ss")));
+            CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
+            if (callLogModel != null && !callLogModel.getCallDate().replace(" ", "").isEmpty())
+                txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(callLogModel.getCallDate()), "dd/MM/yyyy hh:mm:ss")));
             getNumberdata(number);
 
             setupClick();
@@ -325,23 +325,28 @@ public class InComingCallPop extends Service {
             });
 
         }
-        txtNumber = ivCrumpledPaper.findViewById(R.id.txtNumber);
-        ImageView cross = ivCrumpledPaper.findViewById(R.id.cross);
-        cross.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopSelf();
-            }
-        });
-        txtNumber.setText(number);
+        try {
+
+            txtNumber = ivCrumpledPaper.findViewById(R.id.txtNumber);
+            ImageView cross = ivCrumpledPaper.findViewById(R.id.cross);
+            cross.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    stopSelf();
+                }
+            });
+            txtNumber.setText(number);
 
 
-        mPaperParams.x = Gravity.CENTER;
-        mPaperParams.y = Gravity.CENTER;
+            mPaperParams.x = Gravity.CENTER;
+            mPaperParams.y = Gravity.CENTER;
 
-        mWindowManager.addView(ivCrumpledPaper, mPaperParams);
-        addCrumpledPaperOnTouchListener();
+            mWindowManager.addView(ivCrumpledPaper, mPaperParams);
+            addCrumpledPaperOnTouchListener();
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setupClick() {
@@ -459,12 +464,15 @@ public class InComingCallPop extends Service {
         return null;
     }
 
-    public void getNumberdata(String n) {
+    private void getNumberdata(String n) {
+        if (n == null)
+            return;
+
         Call<GetNumberResponse> call = apiInterface.getNumber("findNumber", TrueName.getUserInfo(getApplicationContext()).getUser_id(), getNumber(n));
         call.enqueue(new Callback<GetNumberResponse>() {
             @Override
             public void onResponse(Call<GetNumberResponse> call, Response<GetNumberResponse> response) {
-                if (response.body().getSuccess() == true) {
+                if (response.body() != null && response.body().getSuccess()) {
                     Record record = response.body().getRecords().get(0);
                     txtName.setText(record.getName());
                     txtAddress.setText(record.getAddress());
@@ -486,14 +494,14 @@ public class InComingCallPop extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recorder != null) {
+        /*if (recorder != null) {
             RecordModel r = new RecordModel();
             r.setPath(filepath);
             CallLogModel c = getCallLast(getApplicationContext(), number);
             r.setRid(c.get_Id());
             r.save();
             recorder.stop();
-        }
+        }*/
         recorder = null;
         // remove views on destroy!
         if (ivCrumpledPaper != null) {

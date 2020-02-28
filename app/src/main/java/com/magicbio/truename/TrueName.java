@@ -94,7 +94,13 @@ public class TrueName extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        MobileAds.initialize(this, getString(R.string.adMob_ID));
+
+        try {
+            MobileAds.initialize(this, getString(R.string.adMob_ID));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         ActiveAndroid.initialize(this);
         FacebookSdk.sdkInitialize(this);
         FacebookSdk.setIsDebugEnabled(true);
