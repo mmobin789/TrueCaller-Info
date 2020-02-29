@@ -102,6 +102,38 @@ object AppAsyncWorker {
     }
 
 
+    fun getWhatsAppUserId(name: String, callType: String, callback: (Long) -> Unit) {
+        GlobalScope.launch {
+            val resolver = context.contentResolver
+            val cursor = resolver.query(
+                    ContactsContract.Data.CONTENT_URI,
+                    null, null, null,
+                    ContactsContract.Contacts.DISPLAY_NAME)
+            var found = false
+            while (cursor?.moveToNext() == true) {
+                val _id = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data._ID))
+                val displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
+                val mimeType = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
+                found = displayName == name && mimeType == callType
+
+                if (found) {
+                    Log.d(this@AppAsyncWorker.javaClass.simpleName, "$_id $displayName $mimeType")
+                    callback(_id)
+                    break
+                }
+            }
+
+            if (!found) {
+                withContext(Dispatchers.Main)
+                {
+                    callback(-1)
+                }
+            }
+
+            cursor?.close()
+        }
+    }
+
 /*    private fun getContactList(): ArrayList<Contact> {
         var contactList: ArrayList<Contact>? = null
 

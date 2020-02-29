@@ -96,7 +96,11 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
     }
 
     public void makeWhatsAppAudioCall(View v) {
-        ContactUtils.makeWhatsAppAudioCall(name);
+        ContactUtils.makeWhatsAppCall(name, false);
+    }
+
+    public void makeWhatsAppVideoCall(View v) {
+        ContactUtils.makeWhatsAppCall(name, true);
     }
 
     public void setupClick() {

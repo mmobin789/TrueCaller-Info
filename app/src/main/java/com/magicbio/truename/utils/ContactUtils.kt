@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
-import android.provider.ContactsContract
 import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Toast
@@ -14,6 +13,7 @@ import com.google.android.gms.location.Geofence
 import com.magicbio.truename.TrueName
 import com.magicbio.truename.activeandroid.Contact
 import com.magicbio.truename.activities.CallDetails
+import com.magicbio.truename.fragments.background.AppAsyncWorker
 import io.nlopez.smartlocation.SmartLocation
 import io.nlopez.smartlocation.geofencing.model.GeofenceModel
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider
@@ -57,37 +57,27 @@ object ContactUtils {
 
 
     @JvmStatic
-    fun makeWhatsAppAudioCall(name: String?) {
+    fun makeWhatsAppCall(name: String?, videoCall: Boolean = false) {
 
         if (!isWhatsAppInstalled() || name.isNullOrBlank())
             return
 
-        val resolver = context.contentResolver
-        val cursor = resolver.query(
-                ContactsContract.Data.CONTENT_URI,
-                null, null, null,
-                ContactsContract.Contacts.DISPLAY_NAME)
-        while (cursor?.moveToNext() == true) {
-            val _id = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data._ID))
-            val displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
-            val mimeType = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
-            //   val contactId = cursor.getInt(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)).toString()
-            if (displayName == name) {
-                Log.d(javaClass.simpleName, "$_id $displayName $mimeType")
+        var type = "vnd.android.cursor.item/vnd.com.whatsapp.voip.call"
+        if (videoCall)
+            type = "vnd.android.cursor.item/vnd.com.whatsapp.video.call"
+
+        AppAsyncWorker.getWhatsAppUserId(name, type) {
+            if (it != -1L) {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 intent.setPackage("com.whatsapp")
-                intent.setDataAndType(Uri.parse("content://com.android.contacts/data/$_id"), "vnd.android.cursor.item/vnd.com.whatsapp.voip.call")
+                intent.setDataAndType(Uri.parse("content://com.android.contacts/data/$it"), type)
                 context.startActivity(intent)
-                break
-
+            } else {
+                Toast.makeText(context, "$name does not uses WhatsApp", Toast.LENGTH_SHORT).show()
             }
-
-
         }
 
-
-        cursor?.close()
     }
 
     private fun isWhatsAppInstalled(): Boolean {
