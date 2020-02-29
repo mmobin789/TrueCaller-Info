@@ -303,10 +303,10 @@ object AppAsyncWorker {
             call._Id = sid
             call.image = image
             // call.email = getEmail()
-            //  val hours = Integer.valueOf(callDuration) / 3600
+            val hours = Integer.valueOf(callDuration) / 3600
             val minutes = Integer.valueOf(callDuration) % 3600 / 60
             val seconds = Integer.valueOf(callDuration) % 60
-            call.callDuration = String.format("%02d:%02d", minutes, seconds)
+            call.callDuration = String.format("%02d:%02d:%02d", hours, minutes, seconds)
             // Uri allCalls = Uri.parse("content://call_log/calls");
 // Cursor c = ((MainActivity)getActivity()).managedQuery(allCalls, null, null, null, null);
 //String id = c.getString(c.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID));

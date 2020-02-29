@@ -31,7 +31,13 @@ import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
@@ -227,6 +233,41 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         return myViewHolder;
     }
 
+    @Nullable
+    private String formatTime(String time) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE MMM dd H:mm:s z yyyy", Locale.getDefault());
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        try {
+            Date date = simpleDateFormat.parse(time);
+            simpleDateFormat.applyPattern("dd/MM/yyyy hh:mm a");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            return simpleDateFormat.format(date).toUpperCase();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String formatDuration(String duration) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:s", Locale.getDefault());
+        try {
+            Date date = simpleDateFormat.parse(duration);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int hours = calendar.get(Calendar.HOUR);
+            int minutes = calendar.get(Calendar.MINUTE);
+            int seconds = calendar.get(Calendar.SECOND);
+            String withHours = hours + "h " + minutes + "m " + seconds + "s";
+            String withMinutes = minutes + "m " + seconds + "s";
+            if (hours > 0)
+                return withHours;
+            return withMinutes;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
@@ -235,7 +276,8 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
         holder.txtName.setText(model.getName());
         holder.txtNumber.setText(model.getPhNumber());
-        holder.txtDuration.setText(model.getCallDuration());
+        String time = formatDuration(model.getCallDuration()) + "\t" + formatTime(model.getCallDayTime());
+        holder.txtDuration.setText(time);
 
         if (model.areOptionsShown)
             holder.btnView.setVisibility(View.VISIBLE);

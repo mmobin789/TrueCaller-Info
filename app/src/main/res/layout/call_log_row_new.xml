@@ -68,6 +68,8 @@
             android:layout_below="@+id/txtNumber"
             android:layout_marginStart="16dp"
             android:layout_toEndOf="@+id/img"
+            android:textColor="@color/dark_gray"
+            android:textSize="12sp"
             tools:text="09:45" />
 
         <ImageView
