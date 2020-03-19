@@ -26,4 +26,6 @@
     <string name="hot_numbers">Hot Numbers</string>
     <string name="mobile">Mobile</string>
     <string name="in_your_call_history">In your call history</string>
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="login">login</string>
 </resources>

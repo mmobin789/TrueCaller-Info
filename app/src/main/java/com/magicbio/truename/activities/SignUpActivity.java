@@ -1,3 +1,4 @@
+/*
 package com.magicbio.truename.activities;
 
 import android.app.ProgressDialog;
@@ -118,7 +119,9 @@ public class SignUpActivity extends AppCompatActivity {
                                                     public void onCompleted(GraphResponse response) {
                                                         String email = response.getRawResponse();
                                                         Log.d("all data", email);
-                                                        /* handle the result */
+                                                        */
+/* handle the result *//*
+
                                                     }
                                                 }
                                         ).executeAsync();
@@ -424,3 +427,4 @@ public class SignUpActivity extends AppCompatActivity {
 
 
 }
+*/

@@ -2,7 +2,6 @@ package com.magicbio.truename.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -12,11 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
-import com.facebook.accountkit.AccessToken;
-import com.facebook.accountkit.AccountKit;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
@@ -131,9 +125,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 //      }
 
 
-        AccessToken accessToken = AccountKit.getCurrentAccessToken();
-        Log.d("token", accessToken.getToken());
-        new GraphRequest(
+      /*  new GraphRequest(
                 com.facebook.AccessToken.getCurrentAccessToken(),
                 "/263866514295586/",
                 null,
@@ -143,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         Log.d("apiresponse", response.toString());
                     }
                 }
-        ).executeAsync();
+        ).executeAsync();*/
 
 
     }

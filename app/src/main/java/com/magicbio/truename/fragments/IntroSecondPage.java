@@ -72,7 +72,8 @@ public class IntroSecondPage extends Fragment {
             @Override
             public void onClick(View v) {
                 IntroActivity introActivity = (IntroActivity) getActivity();
-                introActivity.accountKitLogin();
+                assert introActivity != null;
+                introActivity.showLoginPopUp();
             }
         });
         return view;
