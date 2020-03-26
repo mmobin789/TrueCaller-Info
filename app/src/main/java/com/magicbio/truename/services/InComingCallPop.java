@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
-import android.os.Vibrator;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
@@ -39,7 +38,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -72,8 +70,9 @@ public class InComingCallPop extends Service {
     ApiInterface apiInterface;
     MediaRecorder recorder;
     ImageView btnMessage, btnCall, btnInvite, btnSave;
-    Context context;
     int ptype = -1;
+    private int notificationId = 33;
+    private NotificationManager nm;
     int MAX_CLICK_DURATION = 200;
     long startClickTime;
     AdView mAdView;
@@ -81,10 +80,9 @@ public class InComingCallPop extends Service {
     String filepath;
     // variables
     private WindowManager mWindowManager;
-    private Vibrator mVibrator;
+
     private WindowManager.LayoutParams mPaperParams;
-    private WindowManager.LayoutParams mRecycleBinParams;
-    private int windowHeight;
+
     private int windowWidth;
     // UI
     private View ivCrumpledPaper;
@@ -93,33 +91,33 @@ public class InComingCallPop extends Service {
 
     // get intent methods
     public static Intent getIntent(Context context) {
-        Intent intent = new Intent(context, InComingCallPop.class);
 
-        return intent;
+        return new Intent(context, InComingCallPop.class);
     }
 
-    public static NotificationCompat.Builder getNotificationBuilder(Context context, String channelId, int importance) {
+    private NotificationCompat.Builder getNotificationBuilder() {
         NotificationCompat.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            prepareChannel(context, channelId, importance);
-            builder = new NotificationCompat.Builder(context, channelId);
+            String channelId = "channel-786";
+            prepareChannel(this, channelId);
+            builder = new NotificationCompat.Builder(this, channelId);
         } else {
-            builder = new NotificationCompat.Builder(context);
+            builder = new NotificationCompat.Builder(this);
         }
         return builder;
     }
 
     @TargetApi(26)
-    private static void prepareChannel(Context context, String id, int importance) {
+    private void prepareChannel(Context context, String id) {
         final String appName = context.getString(R.string.app_name);
         String description = context.getString(R.string.notifications_channel_description);
-        final NotificationManager nm = (NotificationManager) context.getSystemService(Activity.NOTIFICATION_SERVICE);
+
 
         if (nm != null) {
             NotificationChannel nChannel = nm.getNotificationChannel(id);
 
             if (nChannel == null) {
-                nChannel = new NotificationChannel(id, appName, importance);
+                nChannel = new NotificationChannel(id, appName, NotificationManager.IMPORTANCE_DEFAULT);
                 nChannel.setDescription(description);
                 nm.createNotificationChannel(nChannel);
             }
@@ -193,7 +191,10 @@ public class InComingCallPop extends Service {
         super.onCreate();
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
         mWindowManager = (WindowManager) getSystemService(Service.WINDOW_SERVICE);
-        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        nm = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
+        createAndShowForegroundNotification(false);
+
+
     }
 
     @Override
@@ -203,24 +204,31 @@ public class InComingCallPop extends Service {
             ptype = intent.getIntExtra("ptype", 0);
         }
         showHud();
-        createAndShowForegroundNotification(this, 99);
+
 
         return START_STICKY;
     }
 
-    private void createAndShowForegroundNotification(Service yourService, int notificationId) {
+    private void createAndShowForegroundNotification(boolean cancel) {
 
-        final NotificationCompat.Builder builder = getNotificationBuilder(yourService,
-                "com.magicmayo.truename.notification.CHANNEL_ID_FOREGROUND", // Channel id
-                NotificationManagerCompat.IMPORTANCE_LOW); //Low importance prevent visual appearance for this notification channel on top
-        builder.setOngoing(true)
-                .setSmallIcon(R.drawable.logo)
-                .setContentTitle("True Name")
-                .setContentText("Identify unknown number");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-        Notification notification = builder.build();
+            if (cancel && nm != null) {
+                nm.cancel(notificationId);
+                return;
+            }
 
-        startForeground(notificationId, notification);
+            final NotificationCompat.Builder builder = getNotificationBuilder();
+            builder.setOngoing(true)
+                    .setSmallIcon(R.drawable.logo)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setContentTitle("True Name")
+                    .setContentText("Identify unknown number");
+
+            Notification notification = builder.build();
+
+            startForeground(notificationId, notification);
+        }
 
     }
 
@@ -246,7 +254,7 @@ public class InComingCallPop extends Service {
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
         mWindowManager.getDefaultDisplay().getMetrics(displaymetrics);
-        windowHeight = displaymetrics.heightPixels;
+        //   windowHeight = displaymetrics.heightPixels;
         windowWidth = displaymetrics.widthPixels;
 
         mPaperParams.gravity = Gravity.CENTER;
@@ -261,7 +269,7 @@ public class InComingCallPop extends Service {
             AdUtils.loadBannerAd(adView);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
             //txtLastCall.setText(TrueName.getLastCall(number,getApplicationContext()));
-            txtName.setText(ComFunc.getContactName(number, context));
+            txtName.setText(ComFunc.getContactName(number, this));
 
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
@@ -282,7 +290,7 @@ public class InComingCallPop extends Service {
             btnSave = ivCrumpledPaper.findViewById(R.id.btnSave);
             mAdView = ivCrumpledPaper.findViewById(R.id.adView);
             txtName = ivCrumpledPaper.findViewById(R.id.txtName);
-            txtName.setText(ComFunc.getContactName(number, getApplicationContext()));
+            txtName.setText(ComFunc.getContactName(number, this));
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
             ImageView ivWhatsApp = ivCrumpledPaper.findViewById(R.id.ivWta);
@@ -342,6 +350,12 @@ public class InComingCallPop extends Service {
             mPaperParams.y = Gravity.CENTER;
 
             mWindowManager.addView(ivCrumpledPaper, mPaperParams);
+
+            mPaperParams.flags = WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD;
+
             addCrumpledPaperOnTouchListener();
 
         } catch (Exception e) {
@@ -485,7 +499,7 @@ public class InComingCallPop extends Service {
 
             @Override
             public void onFailure(Call<GetNumberResponse> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -513,6 +527,8 @@ public class InComingCallPop extends Service {
             mWindowManager.removeView(ivRecycleBin);
             ivRecycleBin = null;
         }
+
+        createAndShowForegroundNotification(true);
     }
 
     public String getNumber(String number) {

@@ -3,7 +3,9 @@ package com.magicbio.truename;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.webkit.WebView;
 
 import com.activeandroid.ActiveAndroid;
 import com.facebook.FacebookSdk;
@@ -95,11 +97,13 @@ public class TrueName extends Application {
         super.onCreate();
         instance = this;
 
-        try {
-            MobileAds.initialize(this, getString(R.string.adMob_ID));
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            String process = getProcessName();
+            if (!getPackageName().equals(process)) WebView.setDataDirectorySuffix(process);
+
         }
+
+        MobileAds.initialize(this, getString(R.string.adMob_ID));
 
         ActiveAndroid.initialize(this);
         FacebookSdk.sdkInitialize(this);

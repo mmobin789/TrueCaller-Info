@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.magicbio.truename">
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -27,7 +28,14 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:fullBackupContent="false"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".activities.MainActivity"
+            android:screenOrientation="unspecified" />
+
+        <activity android:name=".activities.IntroActivity" />
+
         <meta-data
             android:name="AA_MODELS"
             android:value="com.magicbio.truename.activeandroid.Contact,com.magicbio.truename.models.CallLogModel,com.magicbio.truename.activeandroid.RecordModel" />
@@ -38,6 +46,7 @@
             android:name="AA_DB_VERSION"
             android:value="16" />
 
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -47,46 +56,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
         <provider
             android:name="com.activeandroid.content.ContentProvider"
             android:authorities="com.magicbio.truename"
             android:enabled="true"
             android:exported="false" />
 
-        <!-- <activity -->
-        <!-- android:name="com.facebook.accountkit.ui.AccountKitActivity" -->
-        <!-- android:theme="@style/AppLoginTheme" -->
-        <!-- tools:replace="android:theme" /> -->
-
-        <meta-data
-            android:name="com.facebook.accountkit.FacebookAppEventsEnabled"
-            android:value="false" />
-        <meta-data
-            android:name="com.facebook.accountkit.ApplicationName"
-            android:value="@string/app_name" />
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/FACEBOOK_APP_ID" />
-
-        <activity
-            android:name="com.facebook.FacebookActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <meta-data
-            android:name="com.facebook.accountkit.ClientToken"
-            android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
-
-        <activity android:name="com.facebook.accountkit.ui.AccountKitActivity">
-
-
-        </activity>
-        <activity
-            android:name=".activities.MainActivity"
-            android:screenOrientation="unspecified" />
-
-
-        <activity android:name=".activities.IntroActivity" />
         <activity
             android:name=".activities.SplashActivity"
             android:theme="@style/AppTheme">
@@ -96,7 +72,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".activities.PhoneConfirmActivity" />
+
 
         <!-- This part is inside the application -->
         <receiver
@@ -110,31 +88,24 @@
             </intent-filter>
         </receiver>
 
+
         <service
             android:name=".services.InComingCallPop"
             android:enabled="true"
             android:exported="true"
             android:process=":remote"
-            android:stopWithTask="false" />
+            android:stopWithTask="false"
+            tools:ignore="ExportedService" />
 
-        <activity android:name="com.facebook.accountkit.ui.AccountKitEmailRedirectActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="@string/ak_login_protocol_scheme" />
-            </intent-filter>
-        </activity>
-
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/adMob_ID" />
 
         <activity android:name=".activities.SmsConversation" />
         <activity android:name=".activities.CallDetails" />
         <activity android:name=".activities.CallHistory" />
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/adMob_ID" />
     </application>
+
 
 </manifest>
