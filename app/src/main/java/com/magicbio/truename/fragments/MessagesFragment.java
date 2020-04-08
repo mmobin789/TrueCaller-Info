@@ -53,10 +53,12 @@ public class MessagesFragment extends Fragment {
         AppAsyncWorker.fetchAllMessages(new Function1<ArrayList<Sms>, Unit>() {
             @Override
             public Unit invoke(ArrayList<Sms> sms) {
+                //   Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+                //   Log.i("SMS_JSON", gson.toJson(sms));
                 recyclerView.setAdapter(new SMSAdapter(sms));
                 return Unit.INSTANCE;
             }
-        }, refresh);
+        }, refresh, false);
 
 
     }

@@ -16,10 +16,7 @@ import com.magicbio.truename.activeandroid.Contact
 import com.magicbio.truename.models.CallLogModel
 import com.magicbio.truename.models.Sms
 import com.magicbio.truename.utils.ContactUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -43,11 +40,16 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-    fun fetchAllMessages(onComplete: (ArrayList<Sms>) -> Unit, refresh: Boolean = false) {
+    fun fetchAllMessages(onComplete: (ArrayList<Sms>) -> Unit, refresh: Boolean = false, backgroundResult: Boolean = false) {
         GlobalScope.launch {
             if (smsList.isNullOrEmpty() && !refresh)
                 smsList = getAllSms()
-            withContext(Dispatchers.Main) {
+
+            var dispatcher: CoroutineDispatcher = Dispatchers.Main
+            if (backgroundResult)
+                dispatcher = Dispatchers.Default
+
+            withContext(dispatcher) {
                 onComplete(smsList!!)
             }
         }
@@ -92,10 +94,14 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-    fun fetchContacts(onComplete: (ArrayList<Contact>) -> Unit) {
+    fun fetchContacts(onComplete: (ArrayList<Contact>) -> Unit, backgroundResult: Boolean = false) {
         GlobalScope.launch {
             val contactsList = getContacts()
-            withContext(Dispatchers.Main) {
+
+            var dispatcher: CoroutineDispatcher = Dispatchers.Main
+            if (backgroundResult)
+                dispatcher = Dispatchers.Default
+            withContext(dispatcher) {
                 onComplete(contactsList)
             }
         }
@@ -244,7 +250,7 @@ object AppAsyncWorker {
                     contact.email = email
                     contact.number = phone
                     contact.image = image
-                    contact.contactId = id
+                    contact.userid = id
                     contacts.add(contact)
                     val cid = contact.save()
                     Log.d("ContactID", cid.toString())

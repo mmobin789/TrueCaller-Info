@@ -1,5 +1,7 @@
 package com.magicbio.truename.retrofit;
 
+import com.google.gson.GsonBuilder;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -27,7 +29,7 @@ public class ApiClient {
                     .baseUrl("http://bookingplc.com")
                     //.baseUrl("http://192.168.0.178:8043/mandionline/api/")
                     // .baseUrl("http://192.168.10.2:8043/mandionline/api/")
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()))
                     .client(client)
                     .build();
         }

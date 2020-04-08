@@ -61,18 +61,22 @@ public class ContactsFragment extends Fragment {
                 setAdapter(contacts);
                 return Unit.INSTANCE;
             }
-        });
+        }, false);
 
 
     }
 
     private void setAdapter(List<Contact> contacts) {
+        //  Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        // Log.i("Contacts_JSON", gson.toJson(contacts));
         contactsAdapter = new ContactsAdapter(contacts);
         recyclerView.setAdapter(contactsAdapter);
         if (!adShown) {
             contactsAdapter.showAd();
             adShown = true;
         }
+
+
     }
 
 

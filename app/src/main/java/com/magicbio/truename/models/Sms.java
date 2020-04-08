@@ -1,5 +1,6 @@
 package com.magicbio.truename.models;
 
+import com.google.gson.annotations.Expose;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.adapters.DynamicSearchAdapter;
 
@@ -10,9 +11,14 @@ import org.jetbrains.annotations.NotNull;
  */
 
 public class Sms implements DynamicSearchAdapter.Searchable {
-    private String _id;
-    private String _address;
-    private String _msg;
+    @Expose
+    private String userid;
+    @Expose
+    private String name;
+
+    @Expose
+    private String txtmessage;
+
     private String _readState; //"0" for have not read sms and "1" for have read sms
     private String _time;
     private String _folderName;
@@ -30,34 +36,34 @@ public class Sms implements DynamicSearchAdapter.Searchable {
     @NotNull
     @Override
     public String getSearchCriteria() {
-        Contact contact = Contact.getRandom(_address);
+        Contact contact = Contact.getRandom(name);
         if (!searchByName || contact == null)
-            return _address;
+            return name;
         return contact.getName().toLowerCase();
     }
 
     public String getId() {
-        return _id;
+        return userid;
     }
 
     public void setId(String id) {
-        _id = id;
+        userid = id;
     }
 
     public String getAddress() {
-        return _address;
+        return name;
     }
 
     public void setAddress(String address) {
-        _address = address;
+        name = address;
     }
 
     public String getMsg() {
-        return _msg;
+        return txtmessage;
     }
 
     public void setMsg(String msg) {
-        _msg = msg;
+        txtmessage = msg;
     }
 
     public String getReadState() {

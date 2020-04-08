@@ -4,6 +4,7 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.google.gson.annotations.Expose;
 import com.magicbio.truename.adapters.DynamicSearchAdapter;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +18,11 @@ import java.util.List;
 @Table(name = "Contacts")
 public class Contact extends Model implements DynamicSearchAdapter.Searchable {
     @Column(name = "Name")
+    @Expose
     public String name;
 
     @Column(name = "Number", unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    @Expose
     public String number;
 
 
@@ -28,8 +31,10 @@ public class Contact extends Model implements DynamicSearchAdapter.Searchable {
 
     @Column(name = "email")
     public String email;
-    @Column
-    public String contactId;
+
+    @Column(name = "contactId")
+    @Expose
+    public String userid;
 
 
     public boolean showAd;
