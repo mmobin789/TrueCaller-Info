@@ -23,9 +23,12 @@ import com.google.android.gms.location.Geofence;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallHistoryAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.fragments.background.FetchCallHistory;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.services.InComingCallPop;
 import com.magicbio.truename.utils.ContactUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,8 +39,6 @@ import io.nlopez.smartlocation.OnActivityUpdatedListener;
 import io.nlopez.smartlocation.OnGeofencingTransitionListener;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.geofencing.utils.TransitionGeofence;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 public class CallHistory extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
     TextView txtName;
@@ -136,11 +137,10 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         recyclerView.setLayoutManager(linearLayoutManager);
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
 
-        AppAsyncWorker.fetchCallHistory(number, new Function1<ArrayList<CallLogModel>, Unit>() {
+        AppAsyncWorker.fetchCallHistory(number, new FetchCallHistory.OnCallHistoryListener() {
             @Override
-            public Unit invoke(ArrayList<CallLogModel> callLogModels) {
-                recyclerView.setAdapter(new CallHistoryAdapter(callLogModels));
-                return Unit.INSTANCE;
+            public void onCallHistory(@NotNull ArrayList<CallLogModel> result) {
+                recyclerView.setAdapter(new CallHistoryAdapter(result));
             }
         });
 

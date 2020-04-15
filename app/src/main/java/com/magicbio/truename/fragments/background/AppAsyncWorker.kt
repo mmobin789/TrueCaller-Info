@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.database.Cursor
 import android.database.DatabaseUtils
+import android.os.Build
 import android.provider.CallLog
 import android.provider.ContactsContract
 import android.provider.Telephony
@@ -16,7 +17,10 @@ import com.magicbio.truename.activeandroid.Contact
 import com.magicbio.truename.models.CallLogModel
 import com.magicbio.truename.models.Sms
 import com.magicbio.truename.utils.ContactUtils
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -24,35 +28,32 @@ import kotlin.collections.ArrayList
 object AppAsyncWorker {
 
     private val context = TrueName.getInstance()
-    private var smsList: ArrayList<Sms>? = null
-    private var callLogList: ArrayList<CallLogModel>? = null
     /*  private var callLogList: ArrayList<CallLogModel>? = null
       private var contactsList: ArrayList<Contact>? = null*/
 
     @JvmStatic
-    fun fetchCallHistory(number: String, onComplete: (ArrayList<CallLogModel>) -> Unit) {
-        GlobalScope.launch {
-            val callLogList = getCallDetails(number)
-            withContext(Dispatchers.Main) {
-                onComplete(callLogList)
+    fun fetchCallHistory(number: String, onCallHistoryListener: FetchCallHistory.OnCallHistoryListener) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            GlobalScope.launch {
+                val callLogList = getCallDetails(number)
+                withContext(Dispatchers.Main) {
+                    onCallHistoryListener.onCallHistory(callLogList)
+                }
             }
-        }
+        } else FetchCallHistory(number, onCallHistoryListener).execute()
     }
 
     @JvmStatic
-    fun fetchAllMessages(onComplete: (ArrayList<Sms>) -> Unit, refresh: Boolean = false, backgroundResult: Boolean = false) {
-        GlobalScope.launch {
-            if (smsList.isNullOrEmpty() && !refresh)
-                smsList = getAllSms()
+    fun fetchAllMessages(onMessagesListener: FetchMessages.OnMessagesListener) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            GlobalScope.launch {
+                val smsList = getAllSms()
 
-            var dispatcher: CoroutineDispatcher = Dispatchers.Main
-            if (backgroundResult)
-                dispatcher = Dispatchers.Default
-
-            withContext(dispatcher) {
-                onComplete(smsList!!)
+                withContext(Dispatchers.Main) {
+                    onMessagesListener.onMessages(smsList)
+                }
             }
-        }
+        } else FetchMessages(onMessagesListener).execute()
     }
 
     @JvmStatic
@@ -62,12 +63,12 @@ object AppAsyncWorker {
         }
     }
 
-    @JvmStatic
-    fun getContactByName(name: String, callback: (Contact?) -> Unit) {
-        GlobalScope.launch {
-            callback(getContacts().find { it.name == name })
-        }
-    }
+    /* @JvmStatic
+     fun getContactByName(name: String, callback: (Contact?) -> Unit) {
+         GlobalScope.launch {
+             callback(getContacts().find { it.name == name })
+         }
+     }*/
 
     @JvmStatic
     fun fetchContactsByNumber(number: String, onComplete: (ArrayList<Contact>) -> Unit) {
@@ -83,28 +84,30 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-    fun fetchCallLog(onComplete: ((ArrayList<CallLogModel>) -> Unit)?) {
-        GlobalScope.launch {
-            if (callLogList.isNullOrEmpty())
-                callLogList = getCallDetails()
-            withContext(Dispatchers.Main) {
-                onComplete?.invoke(callLogList!!)
+    fun fetchCallLog(onCallLogListener: FetchCallLog.OnCallLogListener) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            GlobalScope.launch {
+                val callLogList = getCallDetails()
+                withContext(Dispatchers.Main) {
+                    onCallLogListener.onCallLog(callLogList)
+                }
             }
+        } else {
+            FetchCallLog(onCallLogListener).execute()
         }
     }
 
     @JvmStatic
-    fun fetchContacts(onComplete: (ArrayList<Contact>) -> Unit, backgroundResult: Boolean = false) {
-        GlobalScope.launch {
-            val contactsList = getContacts()
+    fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            GlobalScope.launch {
+                val contactsList = getContacts()
 
-            var dispatcher: CoroutineDispatcher = Dispatchers.Main
-            if (backgroundResult)
-                dispatcher = Dispatchers.Default
-            withContext(dispatcher) {
-                onComplete(contactsList)
+                withContext(Dispatchers.Main) {
+                    onContactsListener.onContacts(contactsList)
+                }
             }
-        }
+        } else FetchContacts(onContactsListener).execute()
     }
 
 
@@ -201,7 +204,7 @@ object AppAsyncWorker {
         return contactList!!
     }*/
 
-    private fun getContacts(): ArrayList<Contact> {
+    fun getContacts(): ArrayList<Contact> {
         if (!Contact.getAll().isNullOrEmpty()) {
             return Contact.getAll() as ArrayList<Contact>
         }
@@ -265,7 +268,7 @@ object AppAsyncWorker {
     }
 
 
-    private fun getCallDetails(): ArrayList<CallLogModel> {
+    fun getCallDetails(): ArrayList<CallLogModel> {
         val sb = StringBuilder()
 
         val contacts = CallLog.Calls.CONTENT_URI
@@ -324,7 +327,7 @@ object AppAsyncWorker {
         return callLogModelList
     }
 
-    private fun getAllSms(): ArrayList<Sms> {
+    fun getAllSms(): ArrayList<Sms> {
 
         var objSms: Sms
         // Uri message = Uri.parse("content://sms/conversations");
@@ -364,7 +367,7 @@ object AppAsyncWorker {
         return lstSms
     }
 
-    private fun getCallDetails(numbers: String): ArrayList<CallLogModel> {
+    fun getCallDetails(numbers: String): ArrayList<CallLogModel> {
         val sb = StringBuffer()
 
         val contacts = CallLog.Calls.CONTENT_URI

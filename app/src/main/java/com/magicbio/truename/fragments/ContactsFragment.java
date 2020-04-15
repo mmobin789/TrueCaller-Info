@@ -13,11 +13,12 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.adapters.ContactsAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.fragments.background.FetchContacts;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 import java.util.List;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,13 +56,12 @@ public class ContactsFragment extends Fragment {
 
     private void setContactsAdapter() {
 
-        AppAsyncWorker.fetchContacts(new Function1<List<Contact>, Unit>() {
+        AppAsyncWorker.fetchContacts(new FetchContacts.OnContactsListener() {
             @Override
-            public Unit invoke(List<Contact> contacts) {
-                setAdapter(contacts);
-                return Unit.INSTANCE;
+            public void onContacts(@NotNull ArrayList<Contact> result) {
+                setAdapter(result);
             }
-        }, false);
+        });
 
 
     }

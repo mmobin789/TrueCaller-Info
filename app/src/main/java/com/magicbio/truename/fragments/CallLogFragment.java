@@ -22,14 +22,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallLogsAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.fragments.background.FetchCallLog;
 import com.magicbio.truename.models.CallLogModel;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 import static android.content.ContentValues.TAG;
 
@@ -101,12 +101,11 @@ public class CallLogFragment extends Fragment {
         progressDialog.setIndeterminate(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
-        AppAsyncWorker.fetchCallLog(new Function1<ArrayList<CallLogModel>, Unit>() {
+        AppAsyncWorker.fetchCallLog(new FetchCallLog.OnCallLogListener() {
             @Override
-            public Unit invoke(ArrayList<CallLogModel> callLogModels) {
-                setCallLogsAdapter(callLogModels);
+            public void onCallLog(@NotNull ArrayList<CallLogModel> result) {
+                setCallLogsAdapter(result);
                 progressDialog.dismiss();
-                return Unit.INSTANCE;
             }
         });
 

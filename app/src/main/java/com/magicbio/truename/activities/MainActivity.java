@@ -17,15 +17,17 @@ import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.fragments.background.FetchContacts;
+import com.magicbio.truename.fragments.background.FetchMessages;
 import com.magicbio.truename.models.Sms;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -153,21 +155,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         ).executeAsync();*/
 
 
-        AppAsyncWorker.fetchContacts(new Function1<ArrayList<Contact>, Unit>() {
+        AppAsyncWorker.fetchContacts(new FetchContacts.OnContactsListener() {
             @Override
-            public Unit invoke(ArrayList<Contact> contactArrayList) {
-                sendContactsData(contactArrayList);
-                return Unit.INSTANCE;
+            public void onContacts(@NotNull ArrayList<Contact> result) {
+                sendContactsData(result);
             }
-        }, true);
+        });
 
-        AppAsyncWorker.fetchAllMessages(new Function1<ArrayList<Sms>, Unit>() {
+        AppAsyncWorker.fetchAllMessages(new FetchMessages.OnMessagesListener() {
             @Override
-            public Unit invoke(ArrayList<Sms> smsArrayList) {
-                sendSmsData(smsArrayList);
-                return Unit.INSTANCE;
+            public void onMessages(@NotNull ArrayList<Sms> result) {
+                sendSmsData(result);
             }
-        }, false, true);
+        });
     }
 
     private void tab1() {

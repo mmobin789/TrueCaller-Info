@@ -13,12 +13,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.SMSAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.fragments.background.FetchMessages;
 import com.magicbio.truename.models.Sms;
 
-import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,23 +42,20 @@ public class MessagesFragment extends Fragment {
 
         init(v);
 
-        setSmsAdapter(false);
+        setSmsAdapter();
 
         return v;
     }
 
 
-    private void setSmsAdapter(boolean refresh) {
+    private void setSmsAdapter() {
 
-        AppAsyncWorker.fetchAllMessages(new Function1<ArrayList<Sms>, Unit>() {
+        AppAsyncWorker.fetchAllMessages(new FetchMessages.OnMessagesListener() {
             @Override
-            public Unit invoke(ArrayList<Sms> sms) {
-                //   Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-                //   Log.i("SMS_JSON", gson.toJson(sms));
-                recyclerView.setAdapter(new SMSAdapter(sms));
-                return Unit.INSTANCE;
+            public void onMessages(@NotNull ArrayList<Sms> result) {
+                recyclerView.setAdapter(new SMSAdapter(result));
             }
-        }, refresh, false);
+        });
 
 
     }
@@ -75,7 +72,7 @@ public class MessagesFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                setSmsAdapter(true);
+                setSmsAdapter();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });

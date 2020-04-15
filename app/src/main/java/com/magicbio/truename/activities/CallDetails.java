@@ -1,6 +1,5 @@
 package com.magicbio.truename.activities;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -38,7 +37,6 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
     private String number, name;
 
     ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation;
-    ProgressDialog progressDoalog;
     RecyclerView recyclerView;
     /*   private TextView locationText;
        private TextView activityText;
@@ -157,11 +155,11 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
     }
 
     private void init() {
-        progressDoalog = new ProgressDialog(CallDetails.this);
+        /*progressDoalog = new ProgressDialog(CallDetails.this);
         progressDoalog.setMessage("Please Wait.....");
         progressDoalog.setCancelable(false);
         progressDoalog.setIndeterminate(false);
-        progressDoalog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDoalog.setProgressStyle(ProgressDialog.STYLE_SPINNER);*/
         recyclerView = findViewById(R.id.recycler_View);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CallDetails.this);
