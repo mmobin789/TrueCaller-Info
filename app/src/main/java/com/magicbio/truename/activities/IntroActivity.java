@@ -113,7 +113,8 @@ public class IntroActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<SignUpResponse> call, Response<SignUpResponse> response) {
                 TrueName.setIsLogin(true, getApplicationContext());
-                TrueName.SaveUserInfo(response.body().getInfo(), getApplicationContext());
+                if (response.body() != null)
+                    TrueName.SaveUserInfo(response.body().getInfo(), getApplicationContext());
                 // Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), response.body().getMessage(), Snackbar.LENGTH_LONG);
                 // snackbar.show();
                 dialog.dismiss();
