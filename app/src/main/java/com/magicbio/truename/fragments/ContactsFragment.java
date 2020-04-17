@@ -81,7 +81,8 @@ public class ContactsFragment extends Fragment {
 
 
     public void search(String newText) {
-        contactsAdapter.search(newText.toLowerCase(), null);
+        if (contactsAdapter != null)
+            contactsAdapter.search(newText.toLowerCase(), null);
     }
 
 

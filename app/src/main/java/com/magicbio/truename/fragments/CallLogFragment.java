@@ -50,7 +50,7 @@ public class CallLogFragment extends Fragment {
     }
 
     public void search(String newText) {
-        if (newText != null)
+        if (newText != null && callLogsAdapter != null)
             callLogsAdapter.search(newText.toLowerCase(), null);
     }
 
