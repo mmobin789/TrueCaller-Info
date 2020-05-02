@@ -219,7 +219,7 @@ public class InComingCallPop extends Service {
             }
 
             final NotificationCompat.Builder builder = getNotificationBuilder();
-            builder.setOngoing(true)
+            builder
                     .setSmallIcon(R.drawable.logo)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setContentTitle("True Name")
