@@ -72,11 +72,7 @@ public class CallLogModel extends Model implements DynamicSearchAdapter.Searchab
     }
 
     public String getSim() {
-        if (sim == null) {
-            return "";
-        } else {
-            return sim;
-        }
+        return sim;
     }
 
     public void setSim(String sim) {

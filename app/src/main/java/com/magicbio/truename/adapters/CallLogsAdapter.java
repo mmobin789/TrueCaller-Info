@@ -295,31 +295,32 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         else holder.btnLocation.setVisibility(View.VISIBLE);
 
 
+
         switch (model.getCallType()) {
             case "OUTGOING":
                 holder.CallType.setImageResource(R.drawable.dialled_call);
                 holder.sim.setImageResource(R.drawable.sim1_dialed_call);
-                if (model.getSim().equals("1")) {
+                if (model.getSim().equals("0")) {
                     holder.sim.setImageResource(R.drawable.sim1_dialed_call);
-                } else if (model.getSim().equals("0")) {
+                } else if (model.getSim().equals("1")) {
                     holder.sim.setImageResource(R.drawable.sim2_dialed_call);
                 }
                 break;
             case "INCOMING":
                 holder.CallType.setImageResource(R.drawable.recieve_call);
                 holder.sim.setImageResource(R.drawable.sim1_dialed_call);
-                if (model.getSim().equals("1")) {
+                if (model.getSim().equals("0")) {
                     holder.sim.setImageResource(R.drawable.sim1_dialed_call);
-                } else if (model.getSim().equals("0")) {
+                } else if (model.getSim().equals("1")) {
                     holder.sim.setImageResource(R.drawable.sim2_dialed_call);
                 }
                 break;
             case "MISSED":
                 holder.CallType.setImageResource(R.drawable.missed_call);
                 holder.sim.setImageResource(R.drawable.sim1_missed_call);
-                if (model.getSim().equals("1")) {
+                if (model.getSim().equals("0")) {
                     holder.sim.setImageResource(R.drawable.sim1_missed_call);
-                } else if (model.getSim().equals("0")) {
+                } else if (model.getSim().equals("1")) {
                     holder.sim.setImageResource(R.drawable.sim2_missed_call);
                 }
                 break;

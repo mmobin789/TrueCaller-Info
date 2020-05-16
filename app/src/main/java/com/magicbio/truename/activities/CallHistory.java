@@ -1,14 +1,9 @@
 package com.magicbio.truename.activities;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,9 +26,6 @@ import com.magicbio.truename.utils.ContactUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 import io.nlopez.smartlocation.OnActivityUpdatedListener;
 import io.nlopez.smartlocation.OnGeofencingTransitionListener;
@@ -147,7 +139,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
 
     }
 
-    private List<CallLogModel> getCallDetails(Context context, String numbers) {
+    /*private List<CallLogModel> getCallDetails(Context context, String numbers) {
         StringBuffer sb = new StringBuffer();
 
         List<CallLogModel> callLogModelList = new ArrayList<>();
@@ -218,7 +210,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         managedCursor.close();
         System.out.println(sb);
         return callLogModelList;
-    }
+    }*/
 
 
     @Override
