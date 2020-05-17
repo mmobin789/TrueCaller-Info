@@ -385,14 +385,14 @@ object AppAsyncWorker {
     @SuppressLint("MissingPermission")
     fun getCallDetails(numbers: String): ArrayList<CallLogModel> {
         val sb = StringBuffer()
-        val simsList = (context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager).activeSubscriptionInfoList
+        val sm = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         val contacts = CallLog.Calls.CONTENT_URI
         @SuppressLint("MissingPermission") val managedCursor = context.contentResolver.query(contacts, null, "number=?", arrayOf(numbers), "DATE desc")
         val number = managedCursor!!.getColumnIndex(CallLog.Calls.NUMBER)
         val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
         val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
         val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
-        val sim = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
+        val subscriptionIdC = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
         sb.append("Call Details :")
         val callLogModelList = ArrayList<CallLogModel>(managedCursor.count)
         while (managedCursor.moveToNext()) {
@@ -405,7 +405,7 @@ object AppAsyncWorker {
             val name = managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
             // long timestamp = convertDateToTimestamp(callDayTime);
             val callDuration = managedCursor.getString(duration)
-            val subscriptionIdInt = managedCursor.getInt(sim)
+            val subscriptionId = managedCursor.getString(subscriptionIdC)
             val dircode = callType.toInt()
             val dir = when (dircode) {
                 CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
@@ -420,8 +420,13 @@ object AppAsyncWorker {
             call.callDate = callDate
             call.phNumber = phNumber
             call.callDayTime = callDayTime
-            simsList.find { it.subscriptionId == subscriptionIdInt }?.also {
-                call.sim = it.simSlotIndex.toString()
+            call.sim = "0"
+            if (sm.activeSubscriptionInfoCount > 1) {
+                sm.activeSubscriptionInfoList.find {
+                    it.iccId == subscriptionId
+                }?.also {
+                    call.sim = it.simSlotIndex.toString()
+                }
             }
             call.name = name
             val hours = Integer.valueOf(callDuration) / 3600

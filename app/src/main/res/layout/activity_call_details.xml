@@ -97,7 +97,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:text="Pakistan"
                 android:textSize="15sp" />
         </LinearLayout>
@@ -141,7 +141,7 @@
                 android:id="@+id/btnMessage"
                 android:layout_width="60dp"
                 android:layout_height="50dp"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/msg_btn_back"
                 android:padding="5dp" />
@@ -150,7 +150,7 @@
                 android:id="@+id/btnInvite"
                 android:layout_width="60dp"
                 android:layout_height="50dp"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/invite_btn_back"
                 android:padding="5dp" />
@@ -159,16 +159,27 @@
                 android:id="@+id/btnSave"
                 android:layout_width="60dp"
                 android:layout_height="50dp"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/save_btn_back"
                 android:padding="5dp" />
 
             <ImageView
+                android:id="@+id/btnBlock"
+                android:layout_width="60dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:src="@drawable/ic_block"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <ImageView
                 android:id="@+id/btnLocation"
                 android:layout_width="60dp"
                 android:layout_height="50dp"
-                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/location_btn_back"
                 android:padding="5dp" />
