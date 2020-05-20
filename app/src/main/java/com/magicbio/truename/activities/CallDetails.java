@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -72,15 +74,16 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
         String email = getIntent().getStringExtra("email");
         tvEmail.setText(email);
 
-        if (email == null) {
+        if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             tvEmail.setVisibility(View.GONE);
         }
 
-        if (!name.replace(" ", "").isEmpty()) {
+        if (name != null && !name.replace(" ", "").isEmpty()) {
             btnSave.setVisibility(View.GONE);
             btnBlock.setVisibility(View.VISIBLE);
         } else {
             findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
+            txtName.setText(number);
         }
 
         setupClick();

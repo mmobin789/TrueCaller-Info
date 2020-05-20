@@ -53,6 +53,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         btnSave = findViewById(R.id.btnSave);
         btnLocation = findViewById(R.id.btnLocation);
         ImageView btnBlock = findViewById(R.id.btnBlock);
+        ImageView btnWA = findViewById(R.id.btnwa);
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
@@ -62,11 +63,13 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         setupClick();
         init();
 
+
         if (name != null && !name.replace(" ", "").isEmpty()) {
             btnSave.setVisibility(View.GONE);
             btnBlock.setVisibility(View.VISIBLE);
         } else {
-            findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
+            btnWA.setVisibility(View.GONE);
+            txtName.setText(number);
         }
     }
 

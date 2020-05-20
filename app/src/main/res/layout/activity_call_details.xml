@@ -102,13 +102,13 @@
                 android:textSize="15sp" />
         </LinearLayout>
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/wta_btn_back"
-            android:onClick="openWhatsAppChat"
-            android:visibility="gone" />
+        <!--  <ImageView
+              android:layout_width="50dp"
+              android:layout_height="50dp"
+              android:layout_marginTop="10dp"
+              android:background="@drawable/wta_btn_back"
+              android:onClick="openWhatsAppChat"
+              android:visibility="gone" />-->
     </LinearLayout>
 
     <View
