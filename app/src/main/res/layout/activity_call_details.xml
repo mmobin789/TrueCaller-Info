@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="Ahmed Bial"
+            tools:text="Ahmed Bial"
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />

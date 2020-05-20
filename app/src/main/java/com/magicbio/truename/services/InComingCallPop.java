@@ -221,6 +221,7 @@ public class InComingCallPop extends Service {
             final NotificationCompat.Builder builder = getNotificationBuilder();
             builder
                     .setSmallIcon(R.drawable.logo)
+                    .setAutoCancel(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setContentTitle("True Name")
                     .setContentText("Identify unknown number");
@@ -493,7 +494,7 @@ public class InComingCallPop extends Service {
                     txtNumber.setText(number);
                     txtNetwork.setText(record.getSource());
                 } else {
-                    Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Get Number API failed", Toast.LENGTH_LONG).show();
                 }
             }
 

@@ -1,7 +1,6 @@
 package com.magicbio.truename.models;
 
 import com.google.gson.annotations.Expose;
-import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.adapters.DynamicSearchAdapter;
 
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +12,19 @@ import org.jetbrains.annotations.NotNull;
 public class Sms implements DynamicSearchAdapter.Searchable {
     @Expose
     private String userid;
+
+    private String address;
+
+    public String getName() {
+        return name;
+    }
+
     @Expose
     private String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Expose
     private String txtmessage;
@@ -36,10 +46,10 @@ public class Sms implements DynamicSearchAdapter.Searchable {
     @NotNull
     @Override
     public String getSearchCriteria() {
-        Contact contact = Contact.getRandom(name);
-        if (!searchByName || contact == null)
+        //   if (!searchByName || contact == null)
             return name;
-        return contact.getName().toLowerCase();
+        // sms sender name not available for now
+        // return contact.getName().toLowerCase();
     }
 
     public String getId() {
@@ -51,11 +61,11 @@ public class Sms implements DynamicSearchAdapter.Searchable {
     }
 
     public String getAddress() {
-        return name;
+        return address;
     }
 
     public void setAddress(String address) {
-        name = address;
+        this.address = address;
     }
 
     public String getMsg() {

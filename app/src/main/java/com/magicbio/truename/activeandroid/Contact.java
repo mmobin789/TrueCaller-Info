@@ -1,38 +1,32 @@
 package com.magicbio.truename.activeandroid;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
-import com.activeandroid.query.Select;
 import com.google.gson.annotations.Expose;
 import com.magicbio.truename.adapters.DynamicSearchAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
  * Created by Ahmed Bilal on 12/20/2018.
  */
 
-@Table(name = "Contacts")
-public class Contact extends Model implements DynamicSearchAdapter.Searchable {
-    @Column(name = "Name")
+/*@Table(name = "Contacts")*/
+public class Contact implements DynamicSearchAdapter.Searchable {
+    //  @Column(name = "Name")
     @Expose
     public String name;
 
-    @Column(name = "Number", unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    // @Column(name = "Number", unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     public String number;
 
 
-    @Column(name = "Image")
+    //  @Column(name = "Image")
     public String Image;
 
-    @Column(name = "email")
+    //@Column(name = "email")
     public String email;
 
-    @Column(name = "contactId")
+    //@Column(name = "contactId")
     @Expose
     public String userid;
 
@@ -45,22 +39,13 @@ public class Contact extends Model implements DynamicSearchAdapter.Searchable {
         super();
     }
 
-    public static List<Contact> getAll() {
+    /*public static List<Contact> getAll() {
         return new Select()
                 .all()
                 .from(Contact.class)
                 .execute();
-    }
+    } */
 
-    public static Contact getRandom(String Phone) {
-        if (Phone == null) {
-            Phone = "";
-        }
-        return new Select()
-                .from(Contact.class)
-                .where("Number = ?", Phone)
-                .executeSingle();
-    }
 
     public String getImage() {
         return Image;

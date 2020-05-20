@@ -52,13 +52,22 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         btnInvite = findViewById(R.id.btnInvite);
         btnSave = findViewById(R.id.btnSave);
         btnLocation = findViewById(R.id.btnLocation);
+        ImageView btnBlock = findViewById(R.id.btnBlock);
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
         number = getIntent().getStringExtra("number");
-        txtName.setText(getIntent().getStringExtra("name"));
+        String name = getIntent().getStringExtra("name");
+        txtName.setText(name);
         setupClick();
         init();
+
+        if (name != null && !name.replace(" ", "").isEmpty()) {
+            btnSave.setVisibility(View.GONE);
+            btnBlock.setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
+        }
     }
 
 

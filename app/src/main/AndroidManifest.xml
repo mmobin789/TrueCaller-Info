@@ -36,16 +36,6 @@
 
         <activity android:name=".activities.IntroActivity" />
 
-        <meta-data
-            android:name="AA_MODELS"
-            android:value="com.magicbio.truename.activeandroid.Contact,com.magicbio.truename.models.CallLogModel,com.magicbio.truename.activeandroid.RecordModel" />
-        <meta-data
-            android:name="AA_DB_NAME"
-            android:value="truename.db" />
-        <meta-data
-            android:name="AA_DB_VERSION"
-            android:value="16" />
-
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -56,12 +46,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
-        <provider
-            android:name="com.activeandroid.content.ContentProvider"
-            android:authorities="com.magicbio.truename"
-            android:enabled="true"
-            android:exported="false" />
 
         <activity
             android:name=".activities.SplashActivity"

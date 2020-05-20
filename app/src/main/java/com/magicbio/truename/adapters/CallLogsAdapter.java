@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
-import com.magicbio.truename.activeandroid.RecordModel;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
@@ -157,13 +155,12 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
                     @Override
                     public Unit invoke(Contact contact) {
                         Contact open = contact;
-                        if (open == null)
-                            open = new Contact();
 
-                        if (open.getName() == null)
+                        if (open == null) {
+                            open = new Contact();
                             open.setName(model.getName());
-                        if (open.getNumber() == null)
                             open.setNumber(model.getPhNumber());
+                        }
 
                         ContactUtils.openCallDetailsActivity(open);
 
@@ -185,7 +182,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         myViewHolder.rec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+             /*   CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
                 RecordModel r = RecordModel.getRandom(model.get_Id());
                 if (r != null) {
 //                    Uri path = Uri.parse(r.getPath());
@@ -198,7 +195,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
                     Toast.makeText(v.getContext(), r.getPath(), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(v.getContext(), "recording not available", Toast.LENGTH_LONG).show();
-                }
+                }*/
 
             }
         });
@@ -271,7 +268,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
-        MyViewHolder holder = (MyViewHolder) viewHolder;
+        final MyViewHolder holder = (MyViewHolder) viewHolder;
         final CallLogModel model = CallLogModelList.get(position);
 
         holder.txtName.setText(model.getName());
@@ -293,7 +290,6 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         if (TextUtils.isEmpty(model.getName()))
             holder.btnLocation.setVisibility(View.GONE);
         else holder.btnLocation.setVisibility(View.VISIBLE);
-
 
 
         switch (model.getCallType()) {

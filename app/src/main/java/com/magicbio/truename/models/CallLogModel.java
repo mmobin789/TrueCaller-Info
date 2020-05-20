@@ -1,8 +1,5 @@
 package com.magicbio.truename.models;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
 import com.magicbio.truename.adapters.DynamicSearchAdapter;
 
 import org.jetbrains.annotations.NotNull;
@@ -10,28 +7,28 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Created by Ahmed Bilal on 12/14/2018.
  */
-@Table(name = "CallLog")
-public class CallLogModel extends Model implements DynamicSearchAdapter.Searchable {
+//@Table(name = "CallLog")
+public class CallLogModel implements DynamicSearchAdapter.Searchable {
 
-    @Column(name = "Name")
+    // @Column(name = "Name")
     String name;
-    @Column(name = "Number")
+    // @Column(name = "Number")
     String phNumber;
-    @Column(name = "CallType")
+    //  @Column(name = "CallType")
     String callType;
-    @Column(name = "CallDate")
+    // @Column(name = "CallDate")
     String callDate;
-    @Column(name = "CallDateTime")
+    //  @Column(name = "CallDateTime")
     String callDayTime;
-    @Column(name = "CallDuration")
+    // @Column(name = "CallDuration")
     String callDuration;
-    @Column(name = "CallSim")
+    //  @Column(name = "CallSim")
     String sim;
 
-    @Column(name = "image")
+    // @Column(name = "image")
     String image;
 
-    @Column(name = "_id")
+    //@Column(name = "_id")
     String _id;
 
     public boolean areOptionsShown;

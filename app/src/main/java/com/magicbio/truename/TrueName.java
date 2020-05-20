@@ -7,7 +7,6 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.webkit.WebView;
 
-import com.activeandroid.ActiveAndroid;
 import com.facebook.FacebookSdk;
 import com.facebook.LoggingBehavior;
 import com.google.android.gms.ads.MobileAds;
@@ -105,7 +104,7 @@ public class TrueName extends Application {
 
         MobileAds.initialize(this, getString(R.string.adMob_ID));
 
-        ActiveAndroid.initialize(this);
+
         FacebookSdk.sdkInitialize(this);
         FacebookSdk.setIsDebugEnabled(true);
         FacebookSdk.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);

@@ -23,7 +23,7 @@ import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
@@ -35,18 +35,18 @@ import kotlin.jvm.functions.Function0;
 
 public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
-    private List<Contact> CallLogModelList;
+    private ArrayList<Contact> contacts;
     private int previousPosition = -1;
 
-    public ContactsAdapter(List<Contact> CallLogModelList) {
-        super(CallLogModelList);
-        this.CallLogModelList = CallLogModelList;
+    public ContactsAdapter(ArrayList<Contact> contacts) {
+        super(contacts);
+        this.contacts = contacts;
         //Toast.makeText(context,""+smsList.size(),Toast.LENGTH_LONG).show();
     }
 
     public void showAd() {
         int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
-        CallLogModelList.get(adPosition).showAd = true;
+        contacts.get(adPosition).showAd = true;
         notifyItemChanged(adPosition);
     }
 
@@ -61,20 +61,20 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         holder.btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContactUtils.callNumber(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
+                ContactUtils.callNumber(contacts.get(holder.getAdapterPosition()).getNumber());
             }
         });
         holder.btnSms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContactUtils.openSmsApp(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
+                ContactUtils.openSmsApp(contacts.get(holder.getAdapterPosition()).getNumber());
             }
         });
 
         holder.btnLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Contact model = CallLogModelList.get(holder.getAdapterPosition());
+                Contact model = contacts.get(holder.getAdapterPosition());
                 ContactUtils.shareLocationOnSms(model.getNumber(), model.getName());
             }
         });
@@ -82,14 +82,14 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         holder.btnwa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Contact model = CallLogModelList.get(holder.getAdapterPosition());
+                Contact model = contacts.get(holder.getAdapterPosition());
                 ContactUtils.openWhatsAppChat(model.getNumber());
             }
         });
         holder.btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Contact model = CallLogModelList.get(holder.getAdapterPosition());
+                Contact model = contacts.get(holder.getAdapterPosition());
                 ContactUtils.openCallDetailsActivity(model);
             }
         });
@@ -98,9 +98,9 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             @Override
             public void onClick(View view) {
                 int position = holder.getAdapterPosition();
-                Contact contact = CallLogModelList.get(position);
+                Contact contact = contacts.get(position);
                 if (previousPosition > -1) { // if previous opened close it
-                    Contact contactOpened = CallLogModelList.get(previousPosition);
+                    Contact contactOpened = contacts.get(previousPosition);
                     contactOpened.areOptionsShown = false;
                     notifyItemChanged(previousPosition);
 
@@ -130,7 +130,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder vh, final int position) {
         MyViewHolder holder = (MyViewHolder) vh;
-        Contact contact = CallLogModelList.get(position);
+        Contact contact = contacts.get(position);
         holder.txtName.setText(contact.getName());
         holder.txtNumber.setText(contact.getNumber());
 
@@ -144,7 +144,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             holder.adView.setVisibility(View.VISIBLE);
         else holder.adView.setVisibility(View.GONE);
 
-        Glide.with(holder.img).load(CallLogModelList.get(position).getImage()).apply(RequestOptions.errorOf(R.drawable.no_image)).into(holder.img);
+        Glide.with(holder.img).load(contacts.get(position).getImage()).apply(RequestOptions.errorOf(R.drawable.no_image)).into(holder.img);
 //        Glide.with(context)
 //                .load(smsList.get(position).getImage())
 //                .centerCrop()
@@ -165,7 +165,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
     @Override
     public int getItemCount() {
-        return CallLogModelList.size();
+        return contacts.size();
     }
 
   /*  public void editContact(String number) {
@@ -177,7 +177,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         context.startActivity(intentInsertEdit);
     }*/
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber;
         ImageView btnCall;
         ImageView img;

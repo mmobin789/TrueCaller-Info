@@ -13,10 +13,10 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.activities.SmsConversation;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.Sms;
 
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +25,7 @@ import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 
 /**
@@ -57,9 +58,28 @@ public class SMSAdapter extends DynamicSearchAdapter<Sms> {
 
         myViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                int position = myViewHolder.getAdapterPosition();
-                final Contact contact = Contact.getRandom(smsList.get(position).getAddress());
+            public void onClick(final View v) {
+                final int position = myViewHolder.getAdapterPosition();
+                final String address = smsList.get(position).getAddress();
+
+                AppAsyncWorker.getContactByNumber(address, new Function1<Contact, Unit>() {
+                    @Override
+                    public Unit invoke(Contact contact) {
+
+                        Intent intent = new Intent(v.getContext(), SmsConversation.class);
+
+                        if (contact != null) {
+                            intent.putExtra("name", contact.getName());
+                        } else {
+                            intent.putExtra("name", address);
+
+                        }
+                        intent.putExtra("thread_id", smsList.get(position).getId());
+                        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        v.getContext().startActivity(intent);
+                        return Unit.INSTANCE;
+                    }
+                });
                 if (smsList.get(position).getReadState().equals("1")) {
                     smsList.get(position).setReadState("0");
                     //notifyDataSetChanged();
@@ -67,17 +87,7 @@ public class SMSAdapter extends DynamicSearchAdapter<Sms> {
                     // values.put("read", true);
                     //context.getContentResolver().update(Uri.parse("content://sms/inbox"), values, "thread_id=?" ,new String[] {smsList.get(position).getId()});
                 }
-                Intent intent = new Intent(v.getContext(), SmsConversation.class);
 
-                if (contact != null) {
-                    intent.putExtra("name", contact.getName());
-                } else {
-                    intent.putExtra("name", smsList.get(position).getAddress());
-
-                }
-                intent.putExtra("thread_id", smsList.get(position).getId());
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                v.getContext().startActivity(intent);
             }
         });
 
@@ -85,34 +95,38 @@ public class SMSAdapter extends DynamicSearchAdapter<Sms> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
-        MyViewHolder holder = (MyViewHolder) viewHolder;
-        final Contact contact = Contact.getRandom(smsList.get(position).getAddress());
-        Sms sms = smsList.get(position);
+    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int position) {
+        final MyViewHolder holder = (MyViewHolder) viewHolder;
+        final Sms sms = smsList.get(position);
+        final String address = sms.getAddress();
         //sms.setReadState(String.valueOf(getNumberOfUnreadMessages(context,sms.getId())));
+        final boolean readStateValid = Integer.parseInt(sms.getReadState()) >= 1;
 
-        if (contact != null) {
-            Glide.with(viewHolder.itemView).load(contact.getImage()).into(holder.img);
-            if (Integer.valueOf(sms.getReadState()) >= 1) {
-                holder.txtName.setText(contact.getName() + "(" + sms.getReadState() + ")");
+        if (sms.getName() != null) {
+            //  Glide.with(viewHolder.itemView).load(contact.getImage()).into(holder.img);
+            if (readStateValid) {
+                holder.txtName.setText(String.format("%s(%s)", sms.getName(), sms.getReadState()));
             } else {
-                holder.txtName.setText(contact.getName());
+                holder.txtName.setText(sms.getName());
             }
         } else {
-            Glide.with(viewHolder.itemView).load(R.drawable.image_contact).into(holder.img);
-            if (Integer.valueOf(sms.getReadState()) >= 1) {
-                holder.txtName.setText(smsList.get(position).getAddress() + "(" + sms.getReadState() + ")");
+            holder.img.setImageResource(R.drawable.image_contact);
+            if (readStateValid) {
+                holder.txtName.setText(String.format("%s(%s)", address, sms.getReadState()));
             } else {
                 holder.txtName.setText(smsList.get(position).getAddress());
             }
 
+
         }
+
+
         holder.txtNumber.setText(smsList.get(position).getMsg());
 
 
         //holder.txtTimeAndN.setText(smsList.get(position).getNumber());
 
-        if (Integer.valueOf(sms.getReadState()) >= 1) {
+        if (readStateValid) {
             holder.row_linearlayout.setBackgroundColor(Color.parseColor("#E8E8E8"));
         } else {
             holder.row_linearlayout.setBackgroundColor(Color.parseColor("#ffffff"));

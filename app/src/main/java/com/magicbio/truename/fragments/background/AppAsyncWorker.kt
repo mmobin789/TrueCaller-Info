@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.database.DatabaseUtils
+import android.net.Uri
 import android.os.Build
 import android.provider.CallLog
 import android.provider.ContactsContract
@@ -13,7 +14,6 @@ import android.telephony.SubscriptionManager
 import android.text.TextUtils
 import android.util.Log
 import android.util.Patterns
-import com.activeandroid.ActiveAndroid
 import com.magicbio.truename.TrueName
 import com.magicbio.truename.activeandroid.Contact
 import com.magicbio.truename.models.CallLogModel
@@ -30,8 +30,7 @@ import kotlin.collections.ArrayList
 object AppAsyncWorker {
 
     private val context = TrueName.getInstance()
-    /*  private var callLogList: ArrayList<CallLogModel>? = null
-      private var contactsList: ArrayList<Contact>? = null*/
+    private val contacts = ArrayList<Contact>(3000)
 
     @JvmStatic
     fun fetchCallHistory(number: String, onCallHistoryListener: FetchCallHistory.OnCallHistoryListener) {
@@ -61,7 +60,15 @@ object AppAsyncWorker {
     @JvmStatic
     fun getContactByNumber(number: String, callback: (Contact?) -> Unit) {
         GlobalScope.launch {
-            callback(getContacts().find { ContactUtils.formatNumberToLocal(it.getNumber()) == ContactUtils.formatNumberToLocal(number) })
+            getContacts().find {
+                ContactUtils.formatNumberToLocal(it.getNumber().replace(" ", "")) == ContactUtils.formatNumberToLocal(number.replace(" ", ""))
+            }.also {
+                withContext(Dispatchers.Main)
+                {
+                    callback(it)
+                }
+            }
+
         }
     }
 
@@ -76,7 +83,7 @@ object AppAsyncWorker {
     fun fetchContactsByNumber(number: String, onComplete: (ArrayList<Contact>) -> Unit) {
         GlobalScope.launch {
             val filtered = getContacts().filter {
-                ContactUtils.formatNumberToLocal(it.number) == ContactUtils.formatNumberToLocal(number)
+                ContactUtils.formatNumberToLocal(it.getNumber().replace(" ", "")) == ContactUtils.formatNumberToLocal(number.replace(" ", ""))
             }
             withContext(Dispatchers.Main)
             {
@@ -103,13 +110,16 @@ object AppAsyncWorker {
     fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             GlobalScope.launch {
-                val contactsList = getContacts()
-
+                val contacts = getContacts()
                 withContext(Dispatchers.Main) {
-                    onContactsListener.onContacts(contactsList)
+                    onContactsListener.onContacts(contacts)
                 }
             }
-        } else FetchContacts(onContactsListener).execute()
+        } else {
+            if (contacts.isEmpty())
+                FetchContacts(onContactsListener).execute()
+            else onContactsListener.onContacts(contacts)
+        }
     }
 
 
@@ -207,11 +217,13 @@ object AppAsyncWorker {
     }*/
 
     fun getContacts(): ArrayList<Contact> {
-        if (!Contact.getAll().isNullOrEmpty()) {
-            return Contact.getAll() as ArrayList<Contact>
-        }
-        ActiveAndroid.beginTransaction()
-        val contacts: ArrayList<Contact> = ArrayList()
+        /*  if (!Contact.getAll().isNullOrEmpty()) {
+              return Contact.getAll() as ArrayList<Contact>
+          }
+          ActiveAndroid.beginTransaction()*/
+        if (contacts.isNotEmpty())
+            return contacts
+
         val projection = arrayOf(
                 ContactsContract.Contacts._ID,
                 ContactsContract.Contacts.DISPLAY_NAME,
@@ -257,15 +269,15 @@ object AppAsyncWorker {
                     contact.image = image
                     contact.userid = id
                     contacts.add(contact)
-                    val cid = contact.save()
-                    Log.d("ContactID", cid.toString())
+                    //  val cid = contact.save()
+                    //Log.d("ContactID", cid.toString())
                 }
             } while (cursor.moveToNext())
             // clean up cursor
             cursor.close()
         }
-        ActiveAndroid.setTransactionSuccessful()
-        ActiveAndroid.endTransaction()
+        //   ActiveAndroid.setTransactionSuccessful()
+        // ActiveAndroid.endTransaction()
         return contacts
     }
 
@@ -275,7 +287,6 @@ object AppAsyncWorker {
         val sm = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         //   val simsList = sm.activeSubscriptionInfoList
 
-        val sb = StringBuilder()
 
         val contacts = CallLog.Calls.CONTENT_URI
         @SuppressLint("MissingPermission") val managedCursor = context.contentResolver.query(contacts, null, null, null, "DATE desc")
@@ -286,7 +297,7 @@ object AppAsyncWorker {
         val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
         val subscriptionIdC = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
         val id = managedCursor.getColumnIndex(CallLog.Calls._ID)
-        sb.append("Call Details :")
+        // sb.append("Call Details :")
         while (managedCursor.moveToNext()) { //  HashMap rowDataCall = new HashMap<String, String>();
             val call = CallLogModel()
             val phNumber = managedCursor.getString(number)
@@ -306,9 +317,9 @@ object AppAsyncWorker {
                 CallLog.Calls.MISSED_TYPE -> "MISSED"
                 else -> "OUTGOING"
             }
-            sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
-                    + " \nname :--- " + name)
-            sb.append("\n----------------------------------")
+            //  sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
+            //  +" \nname :--- " + name)
+            // sb.append("\n----------------------------------")
             call.callType = dir
             call.callDate = callDate
             call.phNumber = phNumber
@@ -321,8 +332,6 @@ object AppAsyncWorker {
                     call.sim = it.simSlotIndex.toString()
                 }
             }
-
-
             call.name = name
             call._Id = sid
             call.image = image
@@ -368,7 +377,9 @@ object AppAsyncWorker {
                     } else {
                         objSms.folderName = "sent"
                     }
+                    objSms.name = getContactByPhoneNumber(objSms.address)
                     lstSms.add(objSms)
+
                     c.moveToNext()
                 }
             }
@@ -380,6 +391,23 @@ object AppAsyncWorker {
 // }
         c.close()
         return lstSms
+    }
+
+    private fun getContactByPhoneNumber(phoneNumber: String?): String? {
+        val uri: Uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
+        val projection = arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME)
+        val cursor = context.contentResolver.query(uri, projection, null, null, null)
+        return if (cursor == null) {
+            phoneNumber
+        } else {
+            var name = phoneNumber
+            cursor.use { c ->
+                if (c.moveToFirst()) {
+                    name = c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME))
+                }
+            }
+            name
+        }
     }
 
     @SuppressLint("MissingPermission")

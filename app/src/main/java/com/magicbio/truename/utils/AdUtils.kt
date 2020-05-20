@@ -31,7 +31,10 @@ object AdUtils {
 
     @JvmStatic
     fun getRandomAdPositionForList(start: Int, limit: Int): Int {
-        val position = Random.nextInt(start, limit)
+        var end = limit
+        if (limit < start)
+            end = 10
+        val position = Random.nextInt(start, end)
         Log.d("AdPositionForList", position.toString())
         return position
     }
