@@ -1,5 +1,6 @@
 package com.magicbio.truename.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,12 +62,18 @@ public class ContactsFragment extends Fragment {
     }
 
     private void setContactsAdapter() {
-
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Please Wait.....");
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
         AppAsyncWorker.fetchContacts(new FetchContacts.OnContactsListener() {
             @Override
             public void onContacts(@NotNull ArrayList<Contact> result) {
                 setAdapter(result);
                 sendContactsData(result);
+                progressDialog.dismiss();
             }
         });
 

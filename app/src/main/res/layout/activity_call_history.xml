@@ -34,6 +34,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="48dp"
                 android:layout_marginTop="20dp"
+                android:contentDescription="@string/app_name"
                 android:src="@drawable/logo_new" />
 
 
@@ -61,7 +62,8 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginTop="20dp"
-            android:background="@drawable/profile_image_1" />
+            android:background="@drawable/profile_image_1"
+            android:contentDescription="@string/app_name" />
 
         <TextView
             android:id="@+id/txtName"
@@ -69,10 +71,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="Ahmed Bial"
             android:textColor="@color/black"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="Ahmed Bial" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -82,12 +84,13 @@
             <ImageView
                 android:layout_width="10dp"
                 android:layout_height="15dp"
-                android:background="@drawable/location_pin_1" />
+                android:background="@drawable/location_pin_1"
+                android:contentDescription="@string/app_name" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:text="Pakistan"
                 android:textSize="15sp" />
         </LinearLayout>
@@ -123,6 +126,7 @@
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:background="@drawable/call_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -132,6 +136,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/msg_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -141,6 +146,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/invite_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -150,6 +156,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/save_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -158,6 +165,7 @@
                 android:layout_height="50dp"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp"
                 android:src="@drawable/ic_block"
                 android:visibility="gone"
@@ -170,6 +178,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/location_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -179,6 +188,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/wta_btn_back"
+                android:contentDescription="@string/app_name"
                 android:onClick="openWhatsAppChat"
                 android:padding="5dp" />
 
@@ -196,6 +206,7 @@
             android:background="@color/browser_actions_divider_color"
             android:paddingStart="10dp"
             android:paddingTop="5dp"
+            android:paddingEnd="10dp"
             android:paddingBottom="5dp"
             android:text="@string/in_your_call_history"
             android:textColor="@color/black" />

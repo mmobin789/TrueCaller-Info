@@ -157,21 +157,27 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
     }
 
     private void init() {
-        /*progressDoalog = new ProgressDialog(CallDetails.this);
-        progressDoalog.setMessage("Please Wait.....");
-        progressDoalog.setCancelable(false);
-        progressDoalog.setIndeterminate(false);
-        progressDoalog.setProgressStyle(ProgressDialog.STYLE_SPINNER);*/
+       /* ProgressDialog progressDialog = new ProgressDialog(CallDetails.this);
+        progressDialog.setMessage("Please Wait.....");
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);*/
         recyclerView = findViewById(R.id.recycler_View);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CallDetails.this);
         recyclerView.setLayoutManager(linearLayoutManager);
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
 
-        AppAsyncWorker.fetchContactsByNumber(number, new Function1<ArrayList<Contact>, Unit>() {
+        AppAsyncWorker.getContactByNumber(number, new Function1<Contact, Unit>() {
             @Override
-            public Unit invoke(ArrayList<Contact> contacts) {
-                recyclerView.setAdapter(new CallDetailsAdapter(contacts));
+            public Unit invoke(Contact contact) {
+                if (contact != null)
+                    recyclerView.setAdapter(new CallDetailsAdapter(contact.getNumbers()));
+                else {
+                    ArrayList<String> numberSingleton = new ArrayList<>(1);
+                    numberSingleton.add(number);
+                    recyclerView.setAdapter(new CallDetailsAdapter(numberSingleton));
+                }
                 return Unit.INSTANCE;
             }
         });

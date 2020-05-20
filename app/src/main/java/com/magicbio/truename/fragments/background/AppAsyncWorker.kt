@@ -79,18 +79,18 @@ object AppAsyncWorker {
          }
      }*/
 
-    @JvmStatic
-    fun fetchContactsByNumber(number: String, onComplete: (ArrayList<Contact>) -> Unit) {
-        GlobalScope.launch {
-            val filtered = getContacts().filter {
-                ContactUtils.formatNumberToLocal(it.getNumber().replace(" ", "")) == ContactUtils.formatNumberToLocal(number.replace(" ", ""))
-            }
-            withContext(Dispatchers.Main)
-            {
-                onComplete(ArrayList(filtered))
-            }
-        }
-    }
+    /*   @JvmStatic
+       fun fetchContactsByNumber(number: String, onComplete: (ArrayList<Contact>) -> Unit) {
+           GlobalScope.launch {
+               val filtered = getContacts().filter {
+                   ContactUtils.formatNumberToLocal(it.getNumber().replace(" ", "")) == ContactUtils.formatNumberToLocal(number.replace(" ", ""))
+               }
+               withContext(Dispatchers.Main)
+               {
+                   onComplete(ArrayList(filtered))
+               }
+           }
+       }*/
 
     @JvmStatic
     fun fetchCallLog(onCallLogListener: FetchCallLog.OnCallLogListener) {
@@ -132,14 +132,14 @@ object AppAsyncWorker {
                     ContactsContract.Contacts.DISPLAY_NAME)
             var found = false
             while (cursor?.moveToNext() == true) {
-                val _id = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data._ID))
+                val id = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data._ID))
                 val displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
                 val mimeType = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
                 found = displayName == name && mimeType == callType
 
                 if (found) {
-                    Log.d(this@AppAsyncWorker.javaClass.simpleName, "$_id $displayName $mimeType")
-                    callback(_id)
+                    Log.d(this@AppAsyncWorker.javaClass.simpleName, "$id $displayName $mimeType")
+                    callback(id)
                     break
                 }
             }
@@ -233,13 +233,14 @@ object AppAsyncWorker {
         val order = String.format("%1\$s COLLATE NOCASE", ContactsContract.Contacts.DISPLAY_NAME)
         val cr = context.contentResolver
         val cursor: Cursor? = cr.query(ContactsContract.Contacts.CONTENT_URI, projection, filter, null, order)
-        if (cursor != null && cursor.moveToFirst()) {
-            do { // get the contact's information
+        if (cursor?.moveToFirst() == true)
+            while (cursor.moveToNext()) {
+                // get the contact's information
                 val id: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
                 val name: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
                 val hasPhone: Int = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))
                 // get the user's email address
-                var email: String? = null
+                var email = ""
                 val ce: Cursor? = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
                         ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf(id), null)
                 if (ce != null && ce.moveToFirst()) {
@@ -249,13 +250,20 @@ object AppAsyncWorker {
                 // get the user's phone number
                 var phone: String? = null
                 var image: String? = null
+                val numbers = ArrayList<String>(50)
                 if (hasPhone > 0) {
                     val cp: Cursor? = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
                             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", arrayOf(id), null)
-                    if (cp != null && cp.moveToFirst()) {
-                        phone = cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    if (cp?.moveToFirst() == true) {
                         image = cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI))
 
+                        while (cp.moveToNext()) {
+                            val phoneNumber = cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                            if (phone.isNullOrBlank())
+                                phone = phoneNumber
+                            numbers.add(phoneNumber)
+                        }
+                        Log.i(javaClass.simpleName, "$name $phone")
                         cp.close()
                     }
                 }
@@ -268,14 +276,15 @@ object AppAsyncWorker {
                     contact.number = phone
                     contact.image = image
                     contact.userid = id
+                    contact.numbers = numbers
                     contacts.add(contact)
                     //  val cid = contact.save()
                     //Log.d("ContactID", cid.toString())
                 }
-            } while (cursor.moveToNext())
-            // clean up cursor
-            cursor.close()
-        }
+            }
+        // clean up cursor
+        cursor?.close()
+
         //   ActiveAndroid.setTransactionSuccessful()
         // ActiveAndroid.endTransaction()
         return contacts

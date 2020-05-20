@@ -359,7 +359,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         return null;
     }*/
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber, txtDuration;
         RelativeLayout rl;
         Button rec, btnHistory, btnwa, btnSms, btnLocation;

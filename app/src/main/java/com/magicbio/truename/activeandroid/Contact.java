@@ -5,6 +5,8 @@ import com.magicbio.truename.adapters.DynamicSearchAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+
 /**
  * Created by Ahmed Bilal on 12/20/2018.
  */
@@ -18,6 +20,16 @@ public class Contact implements DynamicSearchAdapter.Searchable {
     // @Column(name = "Number", unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
     public String number;
+
+    private ArrayList<String> numbers;
+
+    public ArrayList<String> getNumbers() {
+        return numbers;
+    }
+
+    public void setNumbers(ArrayList<String> numbers) {
+        this.numbers = numbers;
+    }
 
 
     //  @Column(name = "Image")

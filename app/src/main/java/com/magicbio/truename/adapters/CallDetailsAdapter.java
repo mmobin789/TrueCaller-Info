@@ -1,41 +1,35 @@
 package com.magicbio.truename.adapters;
 
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
-import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.utils.ContactUtils;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
 
 
 /**
  * Created by Bilal on 12/5/2017.
  */
 
-public class CallDetailsAdapter extends DynamicSearchAdapter<Contact> {
+public class CallDetailsAdapter extends RecyclerView.Adapter<CallDetailsAdapter.MyViewHolder> {
 
-    private ArrayList<Contact> CallLogModelList;
+    private ArrayList<String> numbers;
 
-    public CallDetailsAdapter(ArrayList<Contact> CallLogModelList) {
-        super(CallLogModelList);
-        this.CallLogModelList = CallLogModelList;
+    public CallDetailsAdapter(ArrayList<String> numbers) {
+        this.numbers = numbers;
         //Toast.makeText(context,""+smsList.size(),Toast.LENGTH_LONG).show();
     }
 
 
+    @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -48,13 +42,13 @@ public class CallDetailsAdapter extends DynamicSearchAdapter<Contact> {
         holder.btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContactUtils.callNumber(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
+                ContactUtils.callNumber(numbers.get(holder.getAdapterPosition()));
             }
         });
         holder.btnSms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ContactUtils.openSmsApp(CallLogModelList.get(holder.getAdapterPosition()).getNumber());
+                ContactUtils.openSmsApp(numbers.get(holder.getAdapterPosition()));
             }
         });
 
@@ -63,7 +57,7 @@ public class CallDetailsAdapter extends DynamicSearchAdapter<Contact> {
     }
 
 
-    @Override
+  /*  @Override
     public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
         if (s != null && s.matches(Patterns.PHONE.pattern()))
             Contact.setSearchByNumber();
@@ -71,13 +65,14 @@ public class CallDetailsAdapter extends DynamicSearchAdapter<Contact> {
 
 
         super.search(s, onNothingFound);
-    }
+    }*/
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder vh, final int position) {
-        MyViewHolder holder = (MyViewHolder) vh;
-        Contact contact = CallLogModelList.get(position);
-        holder.txtNumber.setText(contact.getNumber());
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        holder.txtNumber.setText(numbers.get(position));
+    }
+
+
 
 
 //        Glide.with(context)
@@ -96,11 +91,11 @@ public class CallDetailsAdapter extends DynamicSearchAdapter<Contact> {
 //            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#ffffff"));
 //        }
 
-    }
+
 
     @Override
     public int getItemCount() {
-        return CallLogModelList.size();
+        return numbers.size();
     }
 
   /*  public void editContact(String number) {
@@ -112,7 +107,7 @@ public class CallDetailsAdapter extends DynamicSearchAdapter<Contact> {
         context.startActivity(intentInsertEdit);
     }*/
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtNumber;
         ImageView btnCall, btnSms;
 
