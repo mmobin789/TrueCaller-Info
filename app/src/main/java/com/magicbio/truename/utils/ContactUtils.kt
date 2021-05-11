@@ -57,7 +57,7 @@ object ContactUtils {
 
 
     @JvmStatic
-    fun makeWhatsAppCall(name: String?, videoCall: Boolean = false) {
+    fun makeWhatsAppCall(name: String?, videoCall: Boolean) {
 
         if (!isWhatsAppInstalled() || name.isNullOrBlank())
             return
@@ -82,10 +82,11 @@ object ContactUtils {
 
     private fun isWhatsAppInstalled(): Boolean {
         val whatsAppPackage = "com.whatsapp"
-        if (!isAppInstalled(whatsAppPackage, context)) {
+        if (!isAppInstalled(whatsAppPackage)) {
             Toast.makeText(context, "WhatsApp not Installed.", Toast.LENGTH_SHORT).show()
             val uri = Uri.parse("market://details?id=$whatsAppPackage")
             val goToMarket = Intent(Intent.ACTION_VIEW, uri)
+            goToMarket.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(goToMarket)
             return false
         }
@@ -118,7 +119,13 @@ object ContactUtils {
     }
 
     @JvmStatic
-    fun formatNumberToLocal(number: String): String {
+    fun formatNumberToLocal(number: String?): String {
+
+        if(number.isNullOrBlank())
+        {
+            return "Unable to find this number in contacts"
+        }
+
         if (!number.contains("92"))
             return number
 
@@ -183,16 +190,16 @@ object ContactUtils {
         Toast.makeText(context, "Your location is successfully shared with $nameOrNumber", Toast.LENGTH_LONG).show()
     }
 
-    private fun isAppInstalled(packageName: String, c: Context): Boolean {
-        val pm = c.packageManager
-        var app_installed = false
+    private fun isAppInstalled(packageName: String): Boolean {
+        val pm = context.packageManager
+        var appInstalled = false
         try {
             pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
-            app_installed = true
+            appInstalled = true
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
-        return app_installed
+        return appInstalled
     }
 
     @JvmStatic

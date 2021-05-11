@@ -1,7 +1,6 @@
 package com.magicbio.truename.activities;
 
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
@@ -27,14 +26,10 @@ import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
 
-import io.nlopez.smartlocation.OnActivityUpdatedListener;
-import io.nlopez.smartlocation.OnGeofencingTransitionListener;
-import io.nlopez.smartlocation.OnLocationUpdatedListener;
-import io.nlopez.smartlocation.geofencing.utils.TransitionGeofence;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
-public class CallDetails extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
+public class CallDetails extends AppCompatActivity {
     TextView txtName;
     private String number, name;
 
@@ -256,21 +251,6 @@ public class CallDetails extends AppCompatActivity implements OnLocationUpdatedL
             geofenceText.setText("Null geofence");
         }
     }*/
-
-    @Override
-    public void onLocationUpdated(Location location) {
-        //  showLocation(location);
-    }
-
-    @Override
-    public void onActivityUpdated(DetectedActivity detectedActivity) {
-        //showActivity(detectedActivity);
-    }
-
-    @Override
-    public void onGeofenceTransition(TransitionGeofence geofence) {
-        //showGeofence(geofence.getGeofenceModel().toGeofence(), geofence.getTransitionType());
-    }
 
     private String getNameFromType(DetectedActivity activityType) {
         switch (activityType.getType()) {

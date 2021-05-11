@@ -30,7 +30,7 @@ import kotlin.collections.ArrayList
 object AppAsyncWorker {
 
     private val context = TrueName.getInstance()
-    private val contacts = ArrayList<Contact>(3000)
+    private val contacts = ArrayList<Contact?>(100)
 
     @JvmStatic
     fun fetchCallHistory(number: String, onCallHistoryListener: FetchCallHistory.OnCallHistoryListener) {
@@ -61,7 +61,7 @@ object AppAsyncWorker {
     fun getContactByNumber(number: String, callback: (Contact?) -> Unit) {
         GlobalScope.launch {
             getContacts().find {
-                ContactUtils.formatNumberToLocal(it.getNumber().replace(" ", "")) == ContactUtils.formatNumberToLocal(number.replace(" ", ""))
+                ContactUtils.formatNumberToLocal(it?.getNumber().orEmpty().replace(" ", "")) == ContactUtils.formatNumberToLocal(number.replace(" ", ""))
             }.also {
                 withContext(Dispatchers.Main)
                 {
@@ -216,7 +216,7 @@ object AppAsyncWorker {
         return contactList!!
     }*/
 
-    fun getContacts(): ArrayList<Contact> {
+    fun getContacts(): ArrayList<Contact?> {
         /*  if (!Contact.getAll().isNullOrEmpty()) {
               return Contact.getAll() as ArrayList<Contact>
           }
