@@ -101,12 +101,9 @@ public class CallLogFragment extends Fragment {
         progressDialog.setIndeterminate(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
-        AppAsyncWorker.fetchCallLog(new FetchCallLog.OnCallLogListener() {
-            @Override
-            public void onCallLog(@NotNull ArrayList<CallLogModel> result) {
-                setCallLogsAdapter(result);
-                progressDialog.dismiss();
-            }
+        AppAsyncWorker.fetchCallLog(result -> {
+            setCallLogsAdapter(result);
+            progressDialog.dismiss();
         });
 
 

@@ -35,7 +35,7 @@ import kotlin.jvm.functions.Function0;
 
 public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
-    private ArrayList<Contact> contacts;
+    private final ArrayList<Contact> contacts;
     private int previousPosition = -1;
 
     public ContactsAdapter(ArrayList<Contact> contacts) {
@@ -46,8 +46,12 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
     public void showAd() {
         int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
-        contacts.get(adPosition).showAd = true;
-        notifyItemChanged(adPosition);
+        try {
+            contacts.get(adPosition).showAd = true;
+            notifyItemChanged(adPosition);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -143,6 +147,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         if (contact.showAd)
             holder.adView.setVisibility(View.VISIBLE);
         else holder.adView.setVisibility(View.GONE);
+
 
         Glide.with(holder.img).load(contacts.get(position).getImage()).apply(RequestOptions.errorOf(R.drawable.no_image)).into(holder.img);
 //        Glide.with(context)

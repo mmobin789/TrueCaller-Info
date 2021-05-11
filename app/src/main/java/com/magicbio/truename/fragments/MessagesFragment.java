@@ -13,12 +13,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.SMSAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
-import com.magicbio.truename.fragments.background.FetchMessages;
 import com.magicbio.truename.models.Sms;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -57,12 +54,9 @@ public class MessagesFragment extends Fragment {
 
     private void setSmsAdapter() {
 
-        AppAsyncWorker.fetchAllMessages(new FetchMessages.OnMessagesListener() {
-            @Override
-            public void onMessages(@NotNull ArrayList<Sms> result) {
-                recyclerView.setAdapter(new SMSAdapter(result));
-                sendSmsData(result);
-            }
+        AppAsyncWorker.fetchAllMessages(result -> {
+            recyclerView.setAdapter(new SMSAdapter(result));
+            sendSmsData(result);
         });
 
 

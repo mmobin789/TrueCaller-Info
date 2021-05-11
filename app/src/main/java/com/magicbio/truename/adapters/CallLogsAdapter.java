@@ -50,7 +50,7 @@ import static com.magicbio.truename.utils.CommonAnimationUtils.slideFromRightToL
 
 public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
-    private volatile List<CallLogModel> CallLogModelList;
+    private final List<CallLogModel> CallLogModelList;
     private int previousPosition = -1;
     /*private SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
         @Override
@@ -92,8 +92,13 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
     public void showAd() {
         int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
-        CallLogModelList.get(adPosition).showAd = true;
-        notifyItemChanged(adPosition);
+        try {
+            CallLogModelList.get(adPosition).showAd = true;
+            notifyItemChanged(adPosition);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

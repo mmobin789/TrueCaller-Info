@@ -10,10 +10,8 @@ import android.webkit.WebView;
 import com.facebook.FacebookSdk;
 import com.facebook.LoggingBehavior;
 import com.google.android.gms.ads.MobileAds;
+import com.google.gson.Gson;
 import com.magicbio.truename.models.Info;
-import com.snappydb.DB;
-import com.snappydb.SnappyDB;
-import com.snappydb.SnappydbException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,19 +24,17 @@ import java.util.Date;
 public class TrueName extends Application {
 
     private static TrueName instance;
+    private static final Gson gson = new Gson();
 
     public static TrueName getInstance() {
         return instance;
     }
 
     public static void SaveUserInfo(Info info, Context context) {
-        try {
-            DB snappyDB = new SnappyDB.Builder(context).build();
-            snappyDB.put("info", info);
-            snappyDB.close();
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-        }
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("info", gson.toJson(info));
+        editor.apply();
     }
 
     public static void setIsLogin(Boolean isLogin, Context context) {
@@ -80,15 +76,8 @@ public class TrueName extends Application {
     }
 
     public static Info getUserInfo(Context context) {
-        Info info = new Info();
-        try {
-            DB snappyDB = new SnappyDB.Builder(context).build();
-            info = snappyDB.get("info", Info.class);
-            snappyDB.close();
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-        }
-        return info;
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return gson.fromJson(sp.getString("info", null), Info.class);
     }
 
     @Override
