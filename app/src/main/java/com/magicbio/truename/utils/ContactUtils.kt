@@ -33,6 +33,15 @@ object ContactUtils {
     }
 
     @JvmStatic
+    fun isContactName(name: String?): Boolean {
+        return !name.isNullOrBlank() && name.isNameOnly()
+    }
+
+    private fun String.isNameOnly(): Boolean {
+        return matches("[a-z A-Z]+".toRegex())
+    }
+
+    @JvmStatic
     @SuppressLint("MissingPermission")
     fun callNumber(number: String) {
         val intent = Intent(

@@ -73,10 +73,12 @@ public class CallDetails extends AppCompatActivity {
             tvEmail.setVisibility(View.GONE);
         }
 
-        if (name != null && !name.replace(" ", "").isEmpty()) {
+        if (ContactUtils.isContactName(name)) {
             btnSave.setVisibility(View.GONE);
             btnBlock.setVisibility(View.VISIBLE);
         } else {
+            btnSave.setVisibility(View.VISIBLE);
+            btnBlock.setVisibility(View.GONE);
             findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
             txtName.setText(number);
         }

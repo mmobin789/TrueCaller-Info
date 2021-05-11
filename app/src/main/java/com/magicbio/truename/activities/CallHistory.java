@@ -62,10 +62,12 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         init();
 
 
-        if (name != null && !name.replace(" ", "").isEmpty()) {
+        if (ContactUtils.isContactName(name)) {
             btnSave.setVisibility(View.GONE);
             btnBlock.setVisibility(View.VISIBLE);
         } else {
+            btnSave.setVisibility(View.VISIBLE);
+            btnBlock.setVisibility(View.GONE);
             btnWA.setVisibility(View.GONE);
             txtName.setText(number);
         }
