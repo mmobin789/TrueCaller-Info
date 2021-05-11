@@ -60,13 +60,19 @@ object AppAsyncWorker {
     @JvmStatic
     fun getContactByNumber(number: String, callback: (Contact?) -> Unit) {
         GlobalScope.launch {
-            getContacts().find {
-                ContactUtils.formatNumberToLocal(it?.getNumber().orEmpty().replace(" ", "")) == ContactUtils.formatNumberToLocal(number.replace(" ", ""))
-            }.also {
-                withContext(Dispatchers.Main)
-                {
-                    callback(it)
+            try {
+                getContacts().find {
+                    ContactUtils.formatNumberToLocal(
+                        it?.getNumber().orEmpty().replace(" ", "")
+                    ) == ContactUtils.formatNumberToLocal(number.replace(" ", ""))
+                }.also {
+                    withContext(Dispatchers.Main)
+                    {
+                        callback(it)
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
 
         }

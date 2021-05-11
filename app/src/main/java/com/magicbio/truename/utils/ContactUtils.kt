@@ -24,7 +24,8 @@ object ContactUtils {
 
     @JvmStatic
     fun openCallDetailsActivity(contact: Contact?) {
-        val intent = Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent =
+            Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra("name", contact?.name)
         intent.putExtra("number", contact?.number)
         intent.putExtra("email", contact?.email)
@@ -34,7 +35,10 @@ object ContactUtils {
     @JvmStatic
     @SuppressLint("MissingPermission")
     fun callNumber(number: String) {
-        val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number")).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent = Intent(
+            Intent.ACTION_CALL,
+            Uri.parse("tel:$number")
+        ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
 
     }
@@ -109,7 +113,8 @@ object ContactUtils {
             var fixedNumber = numberWithCountryCodeNoPlus
             if (!numberWithCountryCodeNoPlus.startsWith("92"))
                 fixedNumber = "92${numberWithCountryCodeNoPlus.substring(1)}"
-            val sendIntent = Intent("$whatsAppPackage.Conversation").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val sendIntent =
+                Intent("$whatsAppPackage.Conversation").setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             //  sendIntent.component = ComponentName("com.whatsapp", "com.whatsapp.Conversation")
             sendIntent.putExtra("jid", "$fixedNumber@s.whatsapp.net")
             context.startActivity(sendIntent)
@@ -121,8 +126,7 @@ object ContactUtils {
     @JvmStatic
     fun formatNumberToLocal(number: String?): String {
 
-        if(number.isNullOrBlank())
-        {
+        if (number.isNullOrBlank()) {
             return "Unable to find this number in contacts"
         }
 
@@ -137,31 +141,38 @@ object ContactUtils {
 
     @JvmStatic
     fun shareLocationOnSms(phoneNumber: String?, name: String?) {
-        startLocation()
+        try {
+            startLocation()
 
-        val lastLocation = SmartLocation.with(context).location().lastLocation
+            val lastLocation = SmartLocation.with(context).location().lastLocation
 
-        lastLocation.apply {
-            if (this == null) {
-                Log.e(javaClass.simpleName, "Failed 1st time try again")
+            lastLocation.apply {
+                if (this == null) {
+                    Log.e(javaClass.simpleName, "Failed 1st time try again")
 
-                val simpleCountDownTimer = SimpleCountDownTimer(0, 1, object : SimpleCountDownTimer.OnCountDownListener {
-                    override fun onCountDownActive(time: String) {
+                    val simpleCountDownTimer = SimpleCountDownTimer(
+                        0,
+                        1,
+                        object : SimpleCountDownTimer.OnCountDownListener {
+                            override fun onCountDownActive(time: String) {
 
-                    }
+                            }
 
-                    override fun onCountDownFinished() {
-                        shareLocationOnSms(phoneNumber, name)
-                    }
-                })
-                simpleCountDownTimer.runOnBackgroundThread()
+                            override fun onCountDownFinished() {
+                                shareLocationOnSms(phoneNumber, name)
+                            }
+                        })
+                    simpleCountDownTimer.runOnBackgroundThread()
 
-                simpleCountDownTimer.start()
+                    simpleCountDownTimer.start()
 
 
-            } else
-                sendLocationSMS(phoneNumber, name, this)
+                } else
+                    sendLocationSMS(phoneNumber, name, this)
 
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -176,7 +187,8 @@ object ContactUtils {
         smartLocation.activity().start {
         }
         // Create some geofences
-        val geoFence = GeofenceModel.Builder("1").setTransition(Geofence.GEOFENCE_TRANSITION_ENTER).setLatitude(39.47453120000001).setLongitude(-0.358065799999963).setRadius(500f).build()
+        val geoFence = GeofenceModel.Builder("1").setTransition(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .setLatitude(39.47453120000001).setLongitude(-0.358065799999963).setRadius(500f).build()
         smartLocation.geofencing().add(geoFence).start { }
     }
 
@@ -184,10 +196,15 @@ object ContactUtils {
         val nameOrNumber = name ?: phoneNumber
         val smsManager = SmsManager.getDefault()
         val smsBody = StringBuffer()
-        val uri = "http://maps.google.com/maps?q=" + currentLocation.latitude + "," + currentLocation.longitude
+        val uri =
+            "http://maps.google.com/maps?q=" + currentLocation.latitude + "," + currentLocation.longitude
         smsBody.append(Uri.parse(uri))
         smsManager.sendTextMessage(phoneNumber, null, smsBody.toString(), null, null)
-        Toast.makeText(context, "Your location is successfully shared with $nameOrNumber", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            context,
+            "Your location is successfully shared with $nameOrNumber",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun isAppInstalled(packageName: String): Boolean {
