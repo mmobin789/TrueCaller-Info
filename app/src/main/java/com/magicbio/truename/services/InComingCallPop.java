@@ -366,52 +366,40 @@ public class InComingCallPop extends Service {
 
     public void setupClick() {
         if (ptype == 1) {
-            btnMessage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Uri uri = Uri.parse("smsto:" + number);
-                    Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("sms_body", "The SMS text");
-                    startActivity(intent);
-                    stopSelf();
-                }
+            btnMessage.setOnClickListener(v -> {
+                Uri uri = Uri.parse("smsto:" + number);
+                Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("sms_body", "The SMS text");
+                startActivity(intent);
+                stopSelf();
             });
-            btnCall.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null));
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    stopSelf();
-                }
+            btnCall.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                stopSelf();
             });
-            btnInvite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            btnInvite.setOnClickListener(v -> {
 //                        Uri uri = Uri.parse("smsto:"+number);
 //                        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
 //                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                        intent.putExtra("sms_body", "Invite Text");
 //                        startActivity(intent);
 
-                    final Intent i = getIntent(getApplicationContext());
-                    i.putExtra("number", number);
-                    i.putExtra("ptype", 2);
-                    startService(i);
+                final Intent i = getIntent(getApplicationContext());
+                i.putExtra("number", number);
+                i.putExtra("ptype", 2);
+                startService(i);
 
-                }
             });
-            btnSave.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(Intent.ACTION_INSERT);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-                    intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
-                    startActivity(intent);
-                    stopSelf();
-                }
+            btnSave.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_INSERT);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+                intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
+                startActivity(intent);
+                stopSelf();
             });
         }
     }
@@ -480,9 +468,7 @@ public class InComingCallPop extends Service {
     }
 
     private void getNumberdata(String n) {
-        if (n == null)
-            return;
-
+    try {
         Call<GetNumberResponse> call = apiInterface.getNumber("findNumber", TrueName.getUserInfo(getApplicationContext()).getUser_id(), getNumber(n));
         call.enqueue(new Callback<GetNumberResponse>() {
             @Override
@@ -503,6 +489,10 @@ public class InComingCallPop extends Service {
                 Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    } catch (Exception e)
+    {
+        e.printStackTrace();
+    }
 
     }
 
