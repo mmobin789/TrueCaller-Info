@@ -74,58 +74,33 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
     }
 
 
-    public void openWhatsAppChat(View v) {
-        ContactUtils.openWhatsAppChat(number);
-    }
-
     public void setupClick() {
 
-        btnMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.openSmsApp(number);
-            }
-        });
-        btnCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.openDialer(number);
-            }
-        });
-        btnInvite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        findViewById(R.id.btnwa).setOnClickListener(v -> ContactUtils.openWhatsAppChat(number));
+
+        btnMessage.setOnClickListener(v -> ContactUtils.openSmsApp(number));
+        btnCall.setOnClickListener(v -> ContactUtils.openDialer(number));
+        btnInvite.setOnClickListener(v -> {
 //                        Uri uri = Uri.parse("smsto:"+number);
 //                        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
 //                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                        intent.putExtra("sms_body", "Invite Text");
 //                        startActivity(intent);
 
-                final Intent i = InComingCallPop.getIntent(CallHistory.this);
-                i.putExtra("number", number);
-                i.putExtra("ptype", 2);
-                startService(i);
+            final Intent i = InComingCallPop.getIntent(CallHistory.this);
+            i.putExtra("number", number);
+            i.putExtra("ptype", 2);
+            startService(i);
 
-            }
         });
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_INSERT);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-                intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
-                startActivity(intent);
-            }
+        btnSave.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_INSERT);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+            intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
+            startActivity(intent);
         });
-        btnLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                ContactUtils.shareLocationOnSms(number, txtName.getText().toString());
-
-            }
-        });
+        btnLocation.setOnClickListener(v -> ContactUtils.shareLocationOnSms(number, txtName.getText().toString()));
 
     }
 

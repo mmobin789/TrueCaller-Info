@@ -189,7 +189,6 @@
                 android:layout_weight="1"
                 android:background="@drawable/wta_btn_back"
                 android:contentDescription="@string/app_name"
-                android:onClick="openWhatsAppChat"
                 android:padding="5dp" />
 
         </LinearLayout>

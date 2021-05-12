@@ -20,6 +20,7 @@ public abstract class PhonecallReceiver extends BroadcastReceiver {
     private static Date callStartTime;
     private static boolean isIncoming;
     private static String savedNumber;
+    private PhoneStateListener phoneStateListener;
     //because the passed incoming is only valid in ringing
 
 
@@ -37,14 +38,17 @@ public abstract class PhonecallReceiver extends BroadcastReceiver {
             state = TelephonyManager.CALL_STATE_RINGING;
         }*/
 
-        if (telephony != null)
-            telephony.listen(new PhoneStateListener() {
+        if (telephony != null && phoneStateListener == null) {
+            phoneStateListener = new PhoneStateListener() {
                 @Override
                 public void onCallStateChanged(int state, String phoneNumber) {
                     if (phoneNumber != null && phoneNumber.length() > 2)
                         PhonecallReceiver.this.onCallStateChanged(context, state, phoneNumber);
                 }
-            }, PhoneStateListener.LISTEN_CALL_STATE);
+            };
+
+            telephony.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        }
 
     }
 

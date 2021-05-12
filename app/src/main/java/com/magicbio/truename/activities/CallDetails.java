@@ -91,10 +91,6 @@ public class CallDetails extends AppCompatActivity {
         startActivity(new Intent(v.getContext(), CallHistory.class).putExtra("number", number).putExtra("name", name));
     }
 
-    public void openWhatsAppChat(View v) {
-        ContactUtils.openWhatsAppChat(number);
-    }
-
     public void makeWhatsAppAudioCall(View v) {
         ContactUtils.makeWhatsAppCall(name, false);
     }
@@ -105,34 +101,24 @@ public class CallDetails extends AppCompatActivity {
 
     public void setupClick() {
 
-        btnMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.openSmsApp(number);
-            }
-        });
+        findViewById(R.id.llChat).setOnClickListener(v -> ContactUtils.openWhatsAppChat(number));
 
-        btnCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.openDialer(number);
-            }
-        });
-        btnInvite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnMessage.setOnClickListener(v -> ContactUtils.openSmsApp(number));
+
+        btnCall.setOnClickListener(v -> ContactUtils.openDialer(number));
+
+        btnInvite.setOnClickListener(v -> {
 //                        Uri uri = Uri.parse("smsto:"+number);
 //                        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
 //                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                        intent.putExtra("sms_body", "Invite Text");
 //                        startActivity(intent);
 
-                final Intent i = InComingCallPop.getIntent(CallDetails.this);
-                i.putExtra("number", number);
-                i.putExtra("ptype", 2);
-                startService(i);
+            final Intent i = InComingCallPop.getIntent(CallDetails.this);
+            i.putExtra("number", number);
+            i.putExtra("ptype", 2);
+            startService(i);
 
-            }
         });
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,18 +154,15 @@ public class CallDetails extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
 
-        AppAsyncWorker.getContactByNumber(number, new Function1<Contact, Unit>() {
-            @Override
-            public Unit invoke(Contact contact) {
-                if (contact != null)
-                    recyclerView.setAdapter(new CallDetailsAdapter(contact.getNumbers()));
-                else {
-                    ArrayList<String> numberSingleton = new ArrayList<>(1);
-                    numberSingleton.add(number);
-                    recyclerView.setAdapter(new CallDetailsAdapter(numberSingleton));
-                }
-                return Unit.INSTANCE;
+        AppAsyncWorker.getContactByNumber(number, contact -> {
+            if (contact != null)
+                recyclerView.setAdapter(new CallDetailsAdapter(contact.getNumbers()));
+            else {
+                ArrayList<String> numberSingleton = new ArrayList<>(1);
+                numberSingleton.add(number);
+                recyclerView.setAdapter(new CallDetailsAdapter(numberSingleton));
             }
+            return Unit.INSTANCE;
         });
 
 

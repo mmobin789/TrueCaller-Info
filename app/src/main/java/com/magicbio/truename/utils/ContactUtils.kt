@@ -1,7 +1,6 @@
 package com.magicbio.truename.utils
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -108,7 +107,12 @@ object ContactUtils {
     }
 
     @JvmStatic
-    fun openWhatsAppChat(number: String) {
+    fun openWhatsAppChat(number: String?) {
+
+        if (number.isNullOrBlank()) {
+            Toast.makeText(context, "Phone Number not available.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val whatsAppPackage = "com.whatsapp"
 
