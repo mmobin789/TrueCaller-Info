@@ -38,14 +38,16 @@ public abstract class PhonecallReceiver extends BroadcastReceiver {
             state = TelephonyManager.CALL_STATE_RINGING;
         }*/
 
-        if (telephony != null && phoneStateListener == null) {
-            phoneStateListener = new PhoneStateListener() {
-                @Override
-                public void onCallStateChanged(int state, String phoneNumber) {
-                    if (phoneNumber != null && phoneNumber.length() > 2)
-                        PhonecallReceiver.this.onCallStateChanged(context, state, phoneNumber);
-                }
-            };
+        if (telephony != null) {
+            if (phoneStateListener == null) {
+                phoneStateListener = new PhoneStateListener() {
+                    @Override
+                    public void onCallStateChanged(int state, String phoneNumber) {
+                        if (phoneNumber != null && phoneNumber.length() > 2)
+                            PhonecallReceiver.this.onCallStateChanged(context, state, phoneNumber);
+                    }
+                };
+            }
 
             telephony.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
         }
