@@ -6,6 +6,8 @@ import com.magicbio.truename.adapters.DynamicSearchAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by Ahmed Bilal on 12/20/2018.
@@ -27,8 +29,9 @@ public class Contact implements DynamicSearchAdapter.Searchable {
         return numbers;
     }
 
-    public void setNumbers(ArrayList<String> numbers) {
-        this.numbers = numbers;
+    public void setNumbers(List<String> numbers) {
+        HashSet<String> hashSet = new HashSet<>(numbers);
+        this.numbers = new ArrayList<>(hashSet);
     }
 
 

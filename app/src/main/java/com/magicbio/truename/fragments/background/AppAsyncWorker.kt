@@ -64,7 +64,7 @@ object AppAsyncWorker {
                 getContacts().find {
                     ContactUtils.formatNumberToLocal(
                         it?.getNumber().orEmpty().replace(" ", "")
-                    ) == ContactUtils.formatNumberToLocal(number?.replace(" ", ""))
+                    ).contains(ContactUtils.formatNumberToLocal(number?.replace(" ", "")))
                 }.also {
                     withContext(Dispatchers.Main)
                     {
@@ -282,7 +282,9 @@ object AppAsyncWorker {
                     contact.number = phone
                     contact.image = image
                     contact.userid = id
-                    contact.numbers = numbers
+                    contact.setNumbers(numbers.map {
+                        it.replace(" ","")
+                    })
                     contacts.add(contact)
                     //  val cid = contact.save()
                     //Log.d("ContactID", cid.toString())

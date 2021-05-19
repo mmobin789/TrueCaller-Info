@@ -110,7 +110,7 @@ public class CallLogFragment extends Fragment {
     }
 
     private void setCallLogsAdapter(List<CallLogModel> list) {
-        callLogsAdapter = new CallLogsAdapter(list, recyclerView.getContext());
+        callLogsAdapter = new CallLogsAdapter(list);
         recyclerView.setAdapter(callLogsAdapter);
 
         if (!adShown) {

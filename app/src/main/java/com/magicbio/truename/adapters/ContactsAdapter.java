@@ -12,8 +12,6 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activeandroid.Contact;
@@ -21,10 +19,13 @@ import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.CommonAnimationUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
+import io.pixel.Pixel;
+import io.pixel.config.PixelOptions;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 
@@ -41,7 +42,6 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
     public ContactsAdapter(ArrayList<Contact> contacts) {
         super(contacts);
         this.contacts = contacts;
-        //Toast.makeText(context,""+smsList.size(),Toast.LENGTH_LONG).show();
     }
 
     public void showAd() {
@@ -54,6 +54,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         }
     }
 
+    @NotNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -62,60 +63,39 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
 
         final MyViewHolder holder = new MyViewHolder(itemView);
 
-        holder.btnCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.callNumber(contacts.get(holder.getAdapterPosition()).getNumber());
-            }
-        });
-        holder.btnSms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.openSmsApp(contacts.get(holder.getAdapterPosition()).getNumber());
-            }
+        holder.btnCall.setOnClickListener(v -> ContactUtils.callNumber(contacts.get(holder.getAdapterPosition()).getNumber()));
+
+        holder.btnSms.setOnClickListener(v -> ContactUtils.openSmsApp(contacts.get(holder.getAdapterPosition()).getNumber()));
+
+        holder.btnLocation.setOnClickListener(v -> {
+            Contact model = contacts.get(holder.getAdapterPosition());
+            ContactUtils.shareLocationOnSms(model.getNumber(), model.getName());
         });
 
-        holder.btnLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Contact model = contacts.get(holder.getAdapterPosition());
-                ContactUtils.shareLocationOnSms(model.getNumber(), model.getName());
-            }
+        holder.btnwa.setOnClickListener(v -> {
+            Contact model = contacts.get(holder.getAdapterPosition());
+            ContactUtils.openWhatsAppChat(model.getNumber());
+        });
+        holder.btnHistory.setOnClickListener(v -> {
+            Contact model = contacts.get(holder.getAdapterPosition());
+            ContactUtils.openCallDetailsActivity(model);
         });
 
-        holder.btnwa.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Contact model = contacts.get(holder.getAdapterPosition());
-                ContactUtils.openWhatsAppChat(model.getNumber());
+        holder.rl.setOnClickListener(view -> {
+            int position = holder.getAdapterPosition();
+            Contact contact = contacts.get(position);
+            if (previousPosition > -1) { // if previous opened close it
+                Contact contactOpened = contacts.get(previousPosition);
+                contactOpened.areOptionsShown = false;
+                notifyItemChanged(previousPosition);
+
             }
-        });
-        holder.btnHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Contact model = contacts.get(holder.getAdapterPosition());
-                ContactUtils.openCallDetailsActivity(model);
-            }
-        });
+            // hidden so show
+            CommonAnimationUtils.slideFromRightToLeft(holder.btnView, holder.rl.getWidth() - holder.img.getWidth());
 
-        holder.rl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int position = holder.getAdapterPosition();
-                Contact contact = contacts.get(position);
-                if (previousPosition > -1) { // if previous opened close it
-                    Contact contactOpened = contacts.get(previousPosition);
-                    contactOpened.areOptionsShown = false;
-                    notifyItemChanged(previousPosition);
+            contact.areOptionsShown = true;
 
-                }
-                // hidden so show
-                CommonAnimationUtils.slideFromRightToLeft(holder.btnView, holder.rl.getWidth() - holder.img.getWidth());
-
-                contact.areOptionsShown = true;
-
-                previousPosition = position;
-            }
+            previousPosition = position;
         });
         return holder;
     }
@@ -132,7 +112,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder vh, final int position) {
+    public void onBindViewHolder(@NotNull RecyclerView.ViewHolder vh, final int position) {
         MyViewHolder holder = (MyViewHolder) vh;
         Contact contact = contacts.get(position);
         holder.txtName.setText(contact.getName());
@@ -148,8 +128,7 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             holder.adView.setVisibility(View.VISIBLE);
         else holder.adView.setVisibility(View.GONE);
 
-
-        Glide.with(holder.img).load(contacts.get(position).getImage()).apply(RequestOptions.errorOf(R.drawable.no_image)).into(holder.img);
+        Pixel.load(contact.getImage(),new PixelOptions.Builder().setPlaceholderResource(R.drawable.no_image).build(),holder.img);
 //        Glide.with(context)
 //                .load(smsList.get(position).getImage())
 //                .centerCrop()

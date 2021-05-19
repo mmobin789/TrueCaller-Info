@@ -1,11 +1,12 @@
 <resources>
-    <string name="app_name">True Name</string>
+    <string name="app_name">TrueCaller Info</string>
     <string name="adMob_ID">ca-app-pub-2746915348369141~3037530958</string>
     <string name="test_banner_id">ca-app-pub-3940256099942544/6300978111</string>
     <!-- TODO: Remove or change this placeholder text -->
 
     <string name="notifications_channel_description">popup</string>
-    <string name="FACEBOOK_APP_ID">783529828667639</string>
+    <string name="facebook_app_id">1053236935209476</string>
+    <string name="fb_login_protocol_scheme">fb1053236935209476</string>
     <string name="ACCOUNT_KIT_CLIENT_TOKEN">29acf493801b42cccd204f52806ef974</string>
 
     // if your Facebook App ID is 1234567, you should use ak1234567

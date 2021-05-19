@@ -3,12 +3,15 @@ package com.magicbio.truename.adapters
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
+import com.magicbio.truename.activeandroid.Contact
+import com.magicbio.truename.models.CallLogModel
 
 abstract class DynamicSearchAdapter<T : DynamicSearchAdapter.Searchable>(private val searchableList: MutableList<T?>) :
-        RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
 
     // Single not-to-be-modified copy of original data in the list.
     private val originalList = ArrayList(searchableList)
+
     // a method-body to invoke when search returns nothing. It can be null.
     private var onNothingFound: (() -> Unit)? = null
 
@@ -30,7 +33,15 @@ abstract class DynamicSearchAdapter<T : DynamicSearchAdapter.Searchable>(private
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 searchableList.clear()
                 if (constraint.isNullOrBlank()) {
-                    searchableList.addAll(originalList)
+                    searchableList.addAll(originalList.map {
+                        if (it is CallLogModel) {
+                            it.areOptionsShown = false
+                        }
+                        if (it is Contact) {
+                            it.areOptionsShown = false
+                        }
+                        it
+                    })
                 } else {
                     searchableList.addAll(originalList.filter {
                         val contains = it != null && it.getSearchCriteria().contains(constraint)

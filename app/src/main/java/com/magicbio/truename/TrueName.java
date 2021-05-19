@@ -3,8 +3,13 @@ package com.magicbio.truename;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.util.Base64;
+import android.util.Log;
 import android.webkit.WebView;
 
 import com.facebook.FacebookSdk;
@@ -13,6 +18,8 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.gson.Gson;
 import com.magicbio.truename.models.Info;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -97,5 +104,20 @@ public class TrueName extends Application {
         FacebookSdk.sdkInitialize(this);
         FacebookSdk.setIsDebugEnabled(true);
         FacebookSdk.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
+        printHashKey(this);
+    }
+
+    private static void printHashKey(Context pContext) {
+        try {
+            PackageInfo info = pContext.getPackageManager().getPackageInfo(pContext.getPackageName(), PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                String hashKey = new String(Base64.encode(md.digest(), 0));
+                Log.d(pContext.getString(R.string.app_name), "printHashKey() Hash Key: " + hashKey);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

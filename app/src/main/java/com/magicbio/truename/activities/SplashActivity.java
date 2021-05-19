@@ -3,14 +3,19 @@ package com.magicbio.truename.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.facebook.FacebookSdk;
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
+import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
 
@@ -26,13 +31,10 @@ public class SplashActivity extends AppCompatActivity {
         btnGetStarted = findViewById(R.id.btnGetStarted);
 
         if (!TrueName.getIslogin(getApplicationContext())) {
-            btnGetStarted.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(SplashActivity.this, IntroActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
+            btnGetStarted.setOnClickListener(v -> {
+                Intent intent = new Intent(SplashActivity.this, IntroActivity.class);
+                startActivity(intent);
+                finish();
             });
         } else {
             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
@@ -41,6 +43,8 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         takePermissions();
+      //  runOnUiThread(() -> ContactUtils.doFacebookLogin(this));
+
     }
 
     private boolean notHasPermission(String permission) {
@@ -49,7 +53,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void takePermissions() {
-        ArrayList<String> permissions = new ArrayList<>(9);
+        ArrayList<String> permissions = new ArrayList<>(10);
 
         if (notHasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
             permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -89,11 +93,22 @@ public class SplashActivity extends AppCompatActivity {
 
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && notHasPermission(Manifest.permission.ACTIVITY_RECOGNITION)) {
+            permissions.add(Manifest.permission.ACTIVITY_RECOGNITION);
+
+        }
+
         if (permissions.isEmpty())
             return;
 
         String[] array = permissions.toArray(new String[]{});
         requestPermissions(array, 3);
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ContactUtils.handleFacebookResult(requestCode, resultCode, data);
     }
 }

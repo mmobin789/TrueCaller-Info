@@ -50,22 +50,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         TextView textView = searchView.findViewById(R.id.search_src_text);
         textView.setHintTextColor(Color.WHITE);
         textView.setTextColor(Color.WHITE);
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                logoView.setVisibility(View.VISIBLE);
-                return false;
-            }
+
+        searchView.setOnCloseListener(() -> {
+            logoView.setVisibility(View.VISIBLE);
+            return false;
         });
 
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                logoView.setVisibility(View.GONE);
-
-            }
+        findViewById(R.id.rlSearch).setOnClickListener(view -> {
+            searchView.setIconified(false);
         });
+
+        searchView.setOnSearchClickListener(view -> logoView.setVisibility(View.GONE));
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -90,28 +85,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-        v2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tab2();
-                viewPager.setCurrentItem(1);
-            }
+        v2.setOnClickListener(v -> {
+            tab2();
+            viewPager.setCurrentItem(1);
         });
 
-        v1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tab1();
-                viewPager.setCurrentItem(0);
-            }
+        v1.setOnClickListener(v -> {
+            tab1();
+            viewPager.setCurrentItem(0);
         });
 
-        v3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tab3();
-                viewPager.setCurrentItem(2);
-            }
+        v3.setOnClickListener(v -> {
+            tab3();
+            viewPager.setCurrentItem(2);
         });
 
         viewPager.setCurrentItem(1);
@@ -136,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     }
                 }
         ).executeAsync();*/
-
     }
 
     private void tab1() {
@@ -232,9 +217,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             e.printStackTrace();
         }
     }*/
-
-
-
 
 
     @Override

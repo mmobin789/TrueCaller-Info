@@ -25,6 +25,7 @@ import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -155,8 +156,9 @@ public class CallDetails extends AppCompatActivity {
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
 
         AppAsyncWorker.getContactByNumber(number, contact -> {
-            if (contact != null)
+            if (contact != null) {
                 recyclerView.setAdapter(new CallDetailsAdapter(contact.getNumbers()));
+            }
             else {
                 ArrayList<String> numberSingleton = new ArrayList<>(1);
                 numberSingleton.add(number);

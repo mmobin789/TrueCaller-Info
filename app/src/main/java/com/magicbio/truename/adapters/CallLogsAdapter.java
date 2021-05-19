@@ -1,11 +1,8 @@
 package com.magicbio.truename.adapters;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +24,7 @@ import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
@@ -73,11 +71,9 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         }
     }, 1);*/
 
-    public CallLogsAdapter(List<CallLogModel> CallLogModelList, Context context) {
+    public CallLogsAdapter(List<CallLogModel> CallLogModelList) {
         super(CallLogModelList);
         this.CallLogModelList = CallLogModelList;
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         //   height = displayMetrics.heightPixels;
         //  width = displayMetrics.widthPixels;
         //  simpleCountDownTimer.runOnBackgroundThread();
@@ -122,6 +118,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
     }
 
+    @NotNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
@@ -129,51 +126,44 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
         final MyViewHolder myViewHolder = new MyViewHolder(itemView);
 
-        myViewHolder.rl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = myViewHolder.getAdapterPosition();
-                CallLogModel callLogModel = CallLogModelList.get(position);
-                if (previousPosition > -1) { // if previous opened close it
-                    CallLogModel callLogModelOpened = CallLogModelList.get(previousPosition);
-                    callLogModelOpened.areOptionsShown = false;
-                    notifyItemChanged(previousPosition);
-
-                }
-                // hidden so show
-                slideFromRightToLeft(myViewHolder.btnView, myViewHolder.rl.getWidth() - myViewHolder.img.getWidth());
-
-                callLogModel.areOptionsShown = true;
-
-                previousPosition = position;
-
+        myViewHolder.rl.setOnClickListener(v -> {
+            int position = myViewHolder.getAdapterPosition();
+            CallLogModel callLogModel = CallLogModelList.get(position);
+            if (previousPosition > -1) { // if previous opened close it
+                CallLogModel callLogModelOpened = CallLogModelList.get(previousPosition);
+                callLogModelOpened.areOptionsShown = false;
+                notifyItemChanged(previousPosition);
 
             }
+            // hidden so show
+            slideFromRightToLeft(myViewHolder.btnView, myViewHolder.rl.getWidth() - myViewHolder.img.getWidth());
+
+            callLogModel.areOptionsShown = true;
+
+            previousPosition = position;
+
 
         });
 
-        myViewHolder.btnHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                AppAsyncWorker.getContactByNumber(model.getPhNumber(), new Function1<Contact, Unit>() {
-                    @Override
-                    public Unit invoke(Contact contact) {
-                        Contact open = contact;
+        myViewHolder.btnHistory.setOnClickListener(v -> {
+            final CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+            AppAsyncWorker.getContactByNumber(model.getPhNumber(), new Function1<Contact, Unit>() {
+                @Override
+                public Unit invoke(Contact contact) {
+                    Contact open = contact;
 
-                        if (open == null) {
-                            open = new Contact();
-                            open.setName(model.getName());
-                            open.setNumber(model.getPhNumber());
-                        }
-
-                        ContactUtils.openCallDetailsActivity(open);
-
-                        return Unit.INSTANCE;
+                    if (open == null) {
+                        open = new Contact();
+                        open.setName(model.getName());
+                        open.setNumber(model.getPhNumber());
                     }
-                });
 
-            }
+                    ContactUtils.openCallDetailsActivity(open);
+
+                    return Unit.INSTANCE;
+                }
+            });
+
         });
 
         myViewHolder.btnCall.setOnClickListener(new View.OnClickListener() {
