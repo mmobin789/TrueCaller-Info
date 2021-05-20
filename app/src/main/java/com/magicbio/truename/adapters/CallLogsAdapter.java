@@ -3,7 +3,6 @@ package com.magicbio.truename.adapters;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
-import com.magicbio.truename.activeandroid.Contact;
+import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
@@ -29,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -36,20 +36,15 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
 
 import static com.magicbio.truename.utils.CommonAnimationUtils.slideFromRightToLeft;
 
 
-/**
- * Created by Bilal on 12/5/2017.
- */
+public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyViewHolder> {
 
-public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
-
-    private final List<CallLogModel> CallLogModelList;
+    private final List<CallLogModel> list;
     private int previousPosition = -1;
+    private boolean adShown;
     /*private SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
         @Override
         public void onCountDownActive(@NotNull String time) {
@@ -71,13 +66,21 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         }
     }, 1);*/
 
-    public CallLogsAdapter(List<CallLogModel> CallLogModelList) {
-        super(CallLogModelList);
-        this.CallLogModelList = CallLogModelList;
-        //   height = displayMetrics.heightPixels;
-        //  width = displayMetrics.widthPixels;
-        //  simpleCountDownTimer.runOnBackgroundThread();
+    public CallLogsAdapter(List<CallLogModel> list) {
+        this.list = list;
 
+    }
+
+    public void addCallLogs(ArrayList<CallLogModel> callLogModels) {
+        list.addAll(callLogModels);
+        notifyItemRangeInserted(getItemCount(), callLogModels.size());
+        showAd();
+    }
+
+    public void setCallLogs(ArrayList<CallLogModel> callLogModels) {
+        list.clear();
+        list.addAll(callLogModels);
+        notifyDataSetChanged();
     }
 
   /*  private void setOptionsClosed() {
@@ -86,35 +89,18 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         }
     }*/
 
-    public void showAd() {
+    private void showAd() {
+        if (adShown)
+            return;
+
         int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
         try {
-            CallLogModelList.get(adPosition).showAd = true;
+            list.get(adPosition).showAd = true;
             notifyItemChanged(adPosition);
+            adShown = true;
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         }
-
-    }
-
-
-    @Override
-    public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
-
-
-        if (s != null && s.matches(Patterns.PHONE.pattern()))
-            CallLogModel.setSearchByNumber();
-        else CallLogModel.setSearchByName();
-
-        assert s != null;
-
-      /*  if (previousPosition > -1 && (s.length() == 0 || s.length() == 1)) {
-            previousPosition = -1;
-            simpleCountDownTimer.start(false);
-        }*/
-
-        super.search(s, onNothingFound);
-
 
     }
 
@@ -128,9 +114,9 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
         myViewHolder.rl.setOnClickListener(v -> {
             int position = myViewHolder.getAdapterPosition();
-            CallLogModel callLogModel = CallLogModelList.get(position);
+            CallLogModel callLogModel = list.get(position);
             if (previousPosition > -1) { // if previous opened close it
-                CallLogModel callLogModelOpened = CallLogModelList.get(previousPosition);
+                CallLogModel callLogModelOpened = list.get(previousPosition);
                 callLogModelOpened.areOptionsShown = false;
                 notifyItemChanged(previousPosition);
 
@@ -146,40 +132,32 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
         });
 
         myViewHolder.btnHistory.setOnClickListener(v -> {
-            final CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-            AppAsyncWorker.getContactByNumber(model.getPhNumber(), new Function1<Contact, Unit>() {
-                @Override
-                public Unit invoke(Contact contact) {
-                    Contact open = contact;
+            final CallLogModel model = list.get(myViewHolder.getAdapterPosition());
+            AppAsyncWorker.getContactByNumber(model.getPhNumber(), contact -> {
+                Contact open = contact;
 
-                    if (open == null) {
-                        open = new Contact();
-                        open.setName(model.getName());
-                        open.setNumber(model.getPhNumber());
-                    }
-
-                    ContactUtils.openCallDetailsActivity(open);
-
-                    return Unit.INSTANCE;
+                if (open == null) {
+                    open = new Contact();
+                    open.setName(model.getName());
+                    open.setNumber(model.getPhNumber());
                 }
+
+                ContactUtils.openCallDetailsActivity(open);
+
+                return Unit.INSTANCE;
             });
 
         });
 
-        myViewHolder.btnCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                ContactUtils.callNumber(model.getPhNumber());
-            }
+        myViewHolder.btnCall.setOnClickListener(v -> {
+            CallLogModel model = list.get(myViewHolder.getAdapterPosition());
+            ContactUtils.callNumber(model.getPhNumber());
         });
 
-        myViewHolder.rec.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-             /*   CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                RecordModel r = RecordModel.getRandom(model.get_Id());
-                if (r != null) {
+        myViewHolder.rec.setOnClickListener(v -> {
+         /*   CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
+            RecordModel r = RecordModel.getRandom(model.get_Id());
+            if (r != null) {
 //                    Uri path = Uri.parse(r.getPath());
 //                    String newPath = path.toString();
 //                    Intent intent = new Intent();
@@ -187,39 +165,29 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 //                    File file = new File(newPath);
 //                    intent.setDataAndType(Uri.fromFile(file), "*");
 //                    context.startActivity(intent);
-                    Toast.makeText(v.getContext(), r.getPath(), Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(v.getContext(), "recording not available", Toast.LENGTH_LONG).show();
-                }*/
+                Toast.makeText(v.getContext(), r.getPath(), Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(v.getContext(), "recording not available", Toast.LENGTH_LONG).show();
+            }*/
 
-            }
         });
-        myViewHolder.btnSms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                Uri uri = Uri.parse("smsto:" + model.getPhNumber());
-                Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-                intent.putExtra("sms_body", "");
-                v.getContext().startActivity(intent);
-            }
+        myViewHolder.btnSms.setOnClickListener(v -> {
+            CallLogModel model = list.get(myViewHolder.getAdapterPosition());
+            Uri uri = Uri.parse("smsto:" + model.getPhNumber());
+            Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+            intent.putExtra("sms_body", "");
+            v.getContext().startActivity(intent);
         });
 
 
-        myViewHolder.btnLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                ContactUtils.shareLocationOnSms(model.getPhNumber(), model.getName());
-            }
+        myViewHolder.btnLocation.setOnClickListener(v -> {
+            CallLogModel model = list.get(myViewHolder.getAdapterPosition());
+            ContactUtils.shareLocationOnSms(model.getPhNumber(), model.getName());
         });
 
-        myViewHolder.btnwa.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
-                ContactUtils.openWhatsAppChat(model.getPhNumber());
-            }
+        myViewHolder.btnwa.setOnClickListener(v -> {
+            CallLogModel model = list.get(myViewHolder.getAdapterPosition());
+            ContactUtils.openWhatsAppChat(model.getPhNumber());
         });
 
         return myViewHolder;
@@ -262,9 +230,8 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
-        final MyViewHolder holder = (MyViewHolder) viewHolder;
-        final CallLogModel model = CallLogModelList.get(position);
+    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
+        final CallLogModel model = list.get(position);
 
         holder.txtName.setText(model.getName());
         holder.txtNumber.setText(model.getPhNumber());
@@ -337,7 +304,7 @@ public class CallLogsAdapter extends DynamicSearchAdapter<CallLogModel> {
 
     @Override
     public int getItemCount() {
-        return CallLogModelList.size();
+        return list.size();
     }
 
 

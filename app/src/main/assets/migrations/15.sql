@@ -1,1 +1,0 @@
-ALTER TABLE Contacts ADD COLUMN Image TEXT

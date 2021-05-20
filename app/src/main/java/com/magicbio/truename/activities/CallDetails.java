@@ -17,7 +17,6 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.Geofence;
 import com.magicbio.truename.R;
-import com.magicbio.truename.activeandroid.Contact;
 import com.magicbio.truename.adapters.CallDetailsAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.services.InComingCallPop;
@@ -25,10 +24,8 @@ import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 public class CallDetails extends AppCompatActivity {
     TextView txtName;

@@ -10,11 +10,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
-import com.magicbio.truename.activeandroid.Contact;
+import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.CommonAnimationUtils;
 import com.magicbio.truename.utils.ContactUtils;
@@ -34,21 +35,38 @@ import kotlin.jvm.functions.Function0;
  * Created by Bilal on 12/5/2017.
  */
 
-public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
+public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyViewHolder> {
 
     private final ArrayList<Contact> contacts;
     private int previousPosition = -1;
+    private boolean adShown;
 
     public ContactsAdapter(ArrayList<Contact> contacts) {
-        super(contacts);
         this.contacts = contacts;
     }
 
-    public void showAd() {
+    public void addContacts(ArrayList<Contact> contacts) {
+        this.contacts.addAll(contacts);
+        notifyItemRangeInserted(getItemCount(), contacts.size());
+        showAd();
+    }
+
+    public void setContacts(ArrayList<Contact> contacts) {
+        this.contacts.clear();
+        this.contacts.addAll(contacts);
+        notifyDataSetChanged();
+    }
+
+
+    private void showAd() {
+        if (adShown)
+            return;
+
         int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
         try {
             contacts.get(adPosition).showAd = true;
             notifyItemChanged(adPosition);
+            adShown = true;
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         }
@@ -100,20 +118,8 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
         return holder;
     }
 
-
     @Override
-    public void search(@Nullable String s, @Nullable Function0<Unit> onNothingFound) {
-        if (s != null && s.matches(Patterns.PHONE.pattern()))
-            Contact.setSearchByNumber();
-        else Contact.setSearchByName();
-
-
-        super.search(s, onNothingFound);
-    }
-
-    @Override
-    public void onBindViewHolder(@NotNull RecyclerView.ViewHolder vh, final int position) {
-        MyViewHolder holder = (MyViewHolder) vh;
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Contact contact = contacts.get(position);
         holder.txtName.setText(contact.getName());
         holder.txtNumber.setText(contact.getNumber());
@@ -128,24 +134,9 @@ public class ContactsAdapter extends DynamicSearchAdapter<Contact> {
             holder.adView.setVisibility(View.VISIBLE);
         else holder.adView.setVisibility(View.GONE);
 
-        Pixel.load(contact.getImage(),new PixelOptions.Builder().setPlaceholderResource(R.drawable.no_image).build(),holder.img);
-//        Glide.with(context)
-//                .load(smsList.get(position).getImage())
-//                .centerCrop()
-//                .into(holder.img);
-
-        //holder.txtTimeAndN.setText(smsList.get(position).getNumber());
-
-//        if(position%2==0)
-//        {
-//            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#E8E8E8"));
-//        }
-//        else
-//        {
-//            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#ffffff"));
-//        }
-
+        Pixel.load(contact.getImage(), new PixelOptions.Builder().setPlaceholderResource(R.drawable.no_image).build(), holder.img);
     }
+
 
     @Override
     public int getItemCount() {

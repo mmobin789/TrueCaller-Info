@@ -1,7 +1,7 @@
 package com.magicbio.truename.fragments.background
 
 import android.os.AsyncTask
-import com.magicbio.truename.activeandroid.Contact
+import com.magicbio.truename.db.contacts.Contact
 
 class FetchContacts(private val onContactsListener: OnContactsListener) : AsyncTask<Unit, Unit, ArrayList<Contact?>>() {
     override fun doInBackground(vararg params: Unit?): ArrayList<Contact?> {

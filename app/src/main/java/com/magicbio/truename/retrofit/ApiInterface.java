@@ -1,7 +1,7 @@
 package com.magicbio.truename.retrofit;
 
 
-import com.magicbio.truename.activeandroid.Contact;
+import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.models.GetNumberResponse;
 import com.magicbio.truename.models.SignUpResponse;
 import com.magicbio.truename.models.Sms;
@@ -26,12 +26,11 @@ public interface ApiInterface {
     @POST("/?action=saveContactNew")
     Call<ResponseBody> sendContactsData(@Body List<Contact> contactArrayList);
 
-    @GET("index.php")
-    Call<SignUpResponse> signup(@Query("action") String action, @Query("name") String name, @Query("email") String email
-            , @Query("address") String address, @Query("city") String city, @Query("country") String country, @Query("mobile") String mobile);
+    @GET("signup")
+    Call<SignUpResponse> signup(@Query("number") String number, @Query("country_id") String countryId);
 
-    @GET("index.php")
-    Call<GetNumberResponse> getNumber(@Query("action") String action, @Query("user_id") String user_id, @Query("cell") String cell);
+    @GET("number-detail")
+    Call<GetNumberResponse> getNumberDetails(@Query("number") String number, @Query("code") String countryId);
 
 
 }

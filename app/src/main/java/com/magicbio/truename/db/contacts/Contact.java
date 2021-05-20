@@ -1,4 +1,8 @@
-package com.magicbio.truename.activeandroid;
+package com.magicbio.truename.db.contacts;
+
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
 import com.magicbio.truename.adapters.DynamicSearchAdapter;
@@ -13,17 +17,20 @@ import java.util.List;
  * Created by Ahmed Bilal on 12/20/2018.
  */
 
-/*@Table(name = "Contacts")*/
+@Entity(tableName = "contacts")
 public class Contact implements DynamicSearchAdapter.Searchable {
-    //  @Column(name = "Name")
+
+    @PrimaryKey(autoGenerate = true)
+    public int id;
+
     @Expose
     public String name;
 
-    // @Column(name = "Number", unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     @Expose
+    @Ignore
     public String number;
 
-    private ArrayList<String> numbers;
+    public ArrayList<String> numbers;
 
     public ArrayList<String> getNumbers() {
         return numbers;

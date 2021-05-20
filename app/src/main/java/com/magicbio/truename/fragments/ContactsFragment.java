@@ -4,20 +4,26 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
-import com.magicbio.truename.activeandroid.Contact;
+import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.adapters.ContactsAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,7 +37,9 @@ import retrofit2.Response;
 public class ContactsFragment extends Fragment {
     private RecyclerView recyclerView;
     private ContactsAdapter contactsAdapter;
-    private boolean adShown;
+    private TextView tvLoading;
+    private int startId = 1;
+    private int endId = 50;
 
     public ContactsFragment() {
         // Required empty public constructor
@@ -49,35 +57,55 @@ public class ContactsFragment extends Fragment {
 
     private void init(View v) {
         recyclerView = v.findViewById(R.id.recycler_View);
+        tvLoading = v.findViewById(R.id.tvLoading);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy) {
+                if (linearLayoutManager.findLastVisibleItemPosition() == contactsAdapter.getItemCount() - 1) {
+                    loadContacts();
+                }
+            }
+        });
         setContactsAdapter();
 
 
     }
 
-    private void setContactsAdapter() {
-        AppAsyncWorker.fetchContacts(result -> {
-            setAdapter(result);
-            sendContactsData(result);
+    private void loadContacts() {
+        AppAsyncWorker.loadContacts(startId, endId, contacts -> {
+            tvLoading.setVisibility(View.GONE);
+            contactsAdapter.addContacts(contacts);
+            startId = endId;
+            endId += endId;
+            return null;
         });
+    }
 
+    public void search(String newText) {
+        AppAsyncWorker.loadContactsByName(newText, contacts -> {
+            contactsAdapter.setContacts(contacts);
+            startId = 1;
+            endId = 50;
+            return null;
+        });
+    }
+
+
+    private void setContactsAdapter() {
+        contactsAdapter = new ContactsAdapter(new ArrayList<>(500));
+        recyclerView.setAdapter(contactsAdapter);
+        loadContacts();
 
     }
 
-    private void setAdapter(ArrayList<Contact> contacts) {
+
         //  Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         // Log.i("Contacts_JSON", gson.toJson(contacts));
-        contactsAdapter = new ContactsAdapter(contacts);
-        recyclerView.setAdapter(contactsAdapter);
-        if (!adShown) {
-            contactsAdapter.showAd();
-            adShown = true;
-        }
 
 
-    }
 
     private void sendContactsData(ArrayList<Contact> contacts) {
      /*   List<Contact> contacts = new ArrayList<>(10);
@@ -92,21 +120,16 @@ public class ContactsFragment extends Fragment {
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
         apiInterface.sendContactsData(contacts).enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
 
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
 
             }
         });
 
-    }
-
-    public void search(String newText) {
-        if (contactsAdapter != null)
-            contactsAdapter.search(newText.toLowerCase(), null);
     }
 
 

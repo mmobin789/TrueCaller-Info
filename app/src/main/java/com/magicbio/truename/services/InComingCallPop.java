@@ -44,7 +44,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.magicbio.truename.R;
-import com.magicbio.truename.TrueName;
 import com.magicbio.truename.activities.ComFunc;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.models.GetNumberResponse;
@@ -54,12 +53,15 @@ import com.magicbio.truename.retrofit.ApiInterface;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import io.pixel.Pixel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -278,7 +280,7 @@ public class InComingCallPop extends Service {
             CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
             if (callLogModel != null && !callLogModel.getCallDate().replace(" ", "").isEmpty())
                 txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(callLogModel.getCallDate()), "dd/MM/yyyy hh:mm:ss")));
-            getNumberdata(number);
+            getNumberDetails(number);
         } else if (ptype == 1) {
 
             ivCrumpledPaper = li.inflate(R.layout.after_call_pop, null, false);
@@ -313,7 +315,7 @@ public class InComingCallPop extends Service {
             CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
             if (callLogModel != null && !callLogModel.getCallDate().replace(" ", "").isEmpty())
                 txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(callLogModel.getCallDate()), "dd/MM/yyyy hh:mm:ss")));
-            getNumberdata(number);
+            getNumberDetails(number);
 
             setupClick();
             initAds();
@@ -467,32 +469,26 @@ public class InComingCallPop extends Service {
         return null;
     }
 
-    private void getNumberdata(String n) {
-    try {
-        Call<GetNumberResponse> call = apiInterface.getNumber("findNumber", TrueName.getUserInfo(getApplicationContext()).getUser_id(), getNumber(n));
+    private void getNumberDetails(String n) {
+        Call<GetNumberResponse> call = apiInterface.getNumberDetails(n,"92");
         call.enqueue(new Callback<GetNumberResponse>() {
             @Override
-            public void onResponse(Call<GetNumberResponse> call, Response<GetNumberResponse> response) {
-                if (response.body() != null && response.body().getSuccess()) {
-                    Record record = response.body().getRecords().get(0);
-                    txtName.setText(record.getName());
-                    txtAddress.setText(record.getAddress());
-                    txtNumber.setText(number);
-                    txtNetwork.setText(record.getSource());
+            public void onResponse(@NotNull Call<GetNumberResponse> call, @NotNull Response<GetNumberResponse> response) {
+                if (response.body() != null && response.body().getStatus()) {
+                    GetNumberResponse.Data data  = response.body().getData();
+                    txtName.setText(data.name);
+                  //  Pixel.load() //todo add image here.
+                    txtNumber.setText(data.number);
                 } else {
                     Toast.makeText(getApplicationContext(), "Get Number API failed", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<GetNumberResponse> call, Throwable t) {
+            public void onFailure(@NotNull Call<GetNumberResponse> call, @NotNull Throwable t) {
                 Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-    } catch (Exception e)
-    {
-        e.printStackTrace();
-    }
 
     }
 

@@ -15,6 +15,7 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -122,6 +123,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     }
                 }
         ).executeAsync();*/
+
+        AppAsyncWorker.saveContactsToDb();
+        AppAsyncWorker.saveCallLogToDb();
     }
 
     private void tab1() {

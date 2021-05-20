@@ -5,14 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.facebook.FacebookSdk;
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
 import com.magicbio.truename.utils.ContactUtils;
@@ -30,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
         btnGetStarted = findViewById(R.id.btnGetStarted);
 
-        if (!TrueName.getIslogin(getApplicationContext())) {
+        if (TrueName.getUserId(this) == -1) {
             btnGetStarted.setOnClickListener(v -> {
                 Intent intent = new Intent(SplashActivity.this, IntroActivity.class);
                 startActivity(intent);
@@ -43,7 +40,6 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         takePermissions();
-      //  runOnUiThread(() -> ContactUtils.doFacebookLogin(this));
 
     }
 

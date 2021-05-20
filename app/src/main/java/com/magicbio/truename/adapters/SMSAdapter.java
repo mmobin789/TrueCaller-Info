@@ -14,7 +14,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
-import com.magicbio.truename.activeandroid.Contact;
+import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.activities.SmsConversation;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.Sms;

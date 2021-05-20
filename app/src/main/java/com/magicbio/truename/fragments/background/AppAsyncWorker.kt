@@ -15,12 +15,13 @@ import android.text.TextUtils
 import android.util.Log
 import android.util.Patterns
 import com.magicbio.truename.TrueName
-import com.magicbio.truename.activeandroid.Contact
+import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.models.CallLogModel
 import com.magicbio.truename.models.Sms
 import com.magicbio.truename.utils.ContactUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -30,10 +31,94 @@ import kotlin.collections.ArrayList
 object AppAsyncWorker {
 
     private val context = TrueName.getInstance()
+    private val contactsDao = context.appDatabase.contactDao()
+    private val callLogDao = context.appDatabase.callLogDao()
     private val contacts = ArrayList<Contact?>(100)
 
     @JvmStatic
-    fun fetchCallHistory(number: String, onCallHistoryListener: FetchCallHistory.OnCallHistoryListener) {
+    fun saveContactsToDb() {
+        GlobalScope.launch(Dispatchers.IO) {
+            contactsDao.getContactsIn(1, 1).collect {
+                if (it.isEmpty()) {
+                    val ids = contactsDao.addContacts(getContacts())
+                    Log.d("AppAsyncWorker", "${ids.size} Contacts added to DB")
+                }
+            }
+        }
+    }
+
+    @JvmStatic
+    fun saveCallLogToDb() {
+        GlobalScope.launch(Dispatchers.IO) {
+            callLogDao.getCallLogIn(1, 1).collect {
+                if (it.isEmpty()) {
+                    val ids = callLogDao.addCallLog(getCallDetails())
+                    Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
+                }
+            }
+        }
+    }
+
+    @JvmStatic
+    fun loadContacts(startId: Int = 1, endId: Int = 50, onLoaded: (ArrayList<Contact>) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val flow = contactsDao.getContactsIn(startId, endId)
+            withContext(Dispatchers.Main.immediate) {
+                flow.collect {
+                    if (it.isNotEmpty()) {
+                        Log.d("AppAsyncWorker", "Loaded Contacts from DB $startId to $endId")
+                        onLoaded(it as ArrayList<Contact>)
+                    }
+                }
+            }
+        }
+    }
+
+    @JvmStatic
+    fun loadContactsByName(name: String, onLoaded: (ArrayList<Contact>) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val flow =  if(name.isBlank()) contactsDao.getContactsIn(1,50) else contactsDao.findContactsByName(name)
+            withContext(Dispatchers.Main.immediate) {
+                flow.collect {
+                    onLoaded(it as ArrayList<Contact>)
+                }
+            }
+        }
+    }
+
+    @JvmStatic
+    fun loadCallLog(startId: Int = 1, endId: Int = 50, onLoaded: (ArrayList<CallLogModel>) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val flow = callLogDao.getCallLogIn(startId, endId)
+            withContext(Dispatchers.Main.immediate) {
+                flow.collect {
+                    if (it.isNotEmpty()) {
+                        Log.d("AppAsyncWorker", "Loaded Call logs from DB $startId to $endId")
+                        onLoaded(it as ArrayList<CallLogModel>)
+                    }
+                }
+            }
+        }
+    }
+
+
+    @JvmStatic
+    fun loadCallLogsByName(name: String, onLoaded: (ArrayList<CallLogModel>) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val flow =  if(name.isBlank()) callLogDao.getCallLogIn(1,50) else callLogDao.findCallLogByName(name)
+            withContext(Dispatchers.Main.immediate) {
+                flow.collect {
+                    onLoaded(it as ArrayList<CallLogModel>)
+                }
+            }
+        }
+    }
+
+    @JvmStatic
+    fun fetchCallHistory(
+        number: String,
+        onCallHistoryListener: FetchCallHistory.OnCallHistoryListener
+    ) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             GlobalScope.launch {
                 val callLogList = getCallDetails(number)
@@ -133,14 +218,17 @@ object AppAsyncWorker {
         GlobalScope.launch {
             val resolver = context.contentResolver
             val cursor = resolver.query(
-                    ContactsContract.Data.CONTENT_URI,
-                    null, null, null,
-                    ContactsContract.Contacts.DISPLAY_NAME)
+                ContactsContract.Data.CONTENT_URI,
+                null, null, null,
+                ContactsContract.Contacts.DISPLAY_NAME
+            )
             var found = false
             while (cursor?.moveToNext() == true) {
                 val id = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data._ID))
-                val displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
-                val mimeType = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
+                val displayName =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
+                val mimeType =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
                 found = displayName == name && mimeType == callType
 
                 if (found) {
@@ -231,26 +319,33 @@ object AppAsyncWorker {
             return contacts
 
         val projection = arrayOf(
-                ContactsContract.Contacts._ID,
-                ContactsContract.Contacts.DISPLAY_NAME,
-                ContactsContract.Contacts.HAS_PHONE_NUMBER
+            ContactsContract.Contacts._ID,
+            ContactsContract.Contacts.DISPLAY_NAME,
+            ContactsContract.Contacts.HAS_PHONE_NUMBER
         )
         val filter = "${ContactsContract.Contacts.DISPLAY_NAME} NOT LIKE '%@%'"
         val order = String.format("%1\$s COLLATE NOCASE", ContactsContract.Contacts.DISPLAY_NAME)
         val cr = context.contentResolver
-        val cursor: Cursor? = cr.query(ContactsContract.Contacts.CONTENT_URI, projection, filter, null, order)
+        val cursor: Cursor? =
+            cr.query(ContactsContract.Contacts.CONTENT_URI, projection, filter, null, order)
         if (cursor?.moveToFirst() == true)
             while (cursor.moveToNext()) {
                 // get the contact's information
-                val id: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-                val name: String = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-                val hasPhone: Int = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))
+                val id: String =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                val name: String =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+                val hasPhone: Int =
+                    cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))
                 // get the user's email address
                 var email = ""
-                val ce: Cursor? = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf(id), null)
+                val ce: Cursor? = cr.query(
+                    ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf(id), null
+                )
                 if (ce != null && ce.moveToFirst()) {
-                    email = ce.getString(ce.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
+                    email =
+                        ce.getString(ce.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
                     ce.close()
                 }
                 // get the user's phone number
@@ -258,13 +353,20 @@ object AppAsyncWorker {
                 var image: String? = null
                 val numbers = ArrayList<String>(50)
                 if (hasPhone > 0) {
-                    val cp: Cursor? = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", arrayOf(id), null)
+                    val cp: Cursor? = cr.query(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        null,
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                        arrayOf(id),
+                        null
+                    )
                     if (cp?.moveToFirst() == true) {
-                        image = cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI))
+                        image =
+                            cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI))
 
                         while (cp.moveToNext()) {
-                            val phoneNumber = cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                            val phoneNumber =
+                                cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                             if (phone.isNullOrBlank())
                                 phone = phoneNumber
                             numbers.add(phoneNumber)
@@ -275,7 +377,8 @@ object AppAsyncWorker {
                 }
                 // if the user user has an email or phone then add it to contacts
                 if ((!TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-                                && !email.equals(name, ignoreCase = true)) || !TextUtils.isEmpty(phone)) {
+                            && !email.equals(name, ignoreCase = true)) || !TextUtils.isEmpty(phone)
+                ) {
                     val contact = Contact()
                     contact.name = name
                     contact.email = email
@@ -283,7 +386,7 @@ object AppAsyncWorker {
                     contact.image = image
                     contact.userid = id
                     contact.setNumbers(numbers.map {
-                        it.replace(" ","")
+                        it.replace(" ", "")
                     })
                     contacts.add(contact)
                     //  val cid = contact.save()
@@ -301,12 +404,14 @@ object AppAsyncWorker {
 
     @SuppressLint("MissingPermission")
     fun getCallDetails(): ArrayList<CallLogModel> {
-        val sm = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        val sm =
+            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         //   val simsList = sm.activeSubscriptionInfoList
 
 
         val contacts = CallLog.Calls.CONTENT_URI
-        @SuppressLint("MissingPermission") val managedCursor = context.contentResolver.query(contacts, null, null, null, "DATE desc")
+        @SuppressLint("MissingPermission") val managedCursor =
+            context.contentResolver.query(contacts, null, null, null, "DATE desc")
         val callLogModelList = ArrayList<CallLogModel>(managedCursor!!.count)
         val number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER)
         val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
@@ -321,8 +426,10 @@ object AppAsyncWorker {
             val callType = managedCursor.getString(type)
             val callDate = managedCursor.getString(date)
             val callDayTime = Date(callDate.toLong()).toString()
-            val name = managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
-            val image = managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_PHOTO_ID))
+            val name =
+                managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
+            val image =
+                managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_PHOTO_ID))
             // long timestamp = convertDateToTimestamp(callDayTime);
             val callDuration = managedCursor.getString(duration)
             val subscriptionId = managedCursor.getString(subscriptionIdC)
@@ -374,8 +481,21 @@ object AppAsyncWorker {
         // Uri message = Uri.parse("content://sms/conversations");
         val cr: ContentResolver = context.contentResolver
         //Telephony.Sms.PERSON;
-        val projection = arrayOf("thread_id", "MAX(date) as date", "COUNT(*) AS msg_count", "body", "address", "(COUNT(*)-SUM(read)) as unread")
-        val c = cr.query(Telephony.Sms.CONTENT_URI, projection, "thread_id) GROUP BY (thread_id", null, null)
+        val projection = arrayOf(
+            "thread_id",
+            "MAX(date) as date",
+            "COUNT(*) AS msg_count",
+            "body",
+            "address",
+            "(COUNT(*)-SUM(read)) as unread"
+        )
+        val c = cr.query(
+            Telephony.Sms.CONTENT_URI,
+            projection,
+            "thread_id) GROUP BY (thread_id",
+            null,
+            null
+        )
         DatabaseUtils.dumpCursor(c)
         val totalSMS = c!!.count
         val lstSms = ArrayList<Sms>(totalSMS)
@@ -384,8 +504,10 @@ object AppAsyncWorker {
                 for (i in 0 until totalSMS) {
                     objSms = Sms()
                     objSms.id = c.getString(c.getColumnIndexOrThrow("thread_id"))
-                    objSms.address = c.getString(c
-                            .getColumnIndexOrThrow("address"))
+                    objSms.address = c.getString(
+                        c
+                            .getColumnIndexOrThrow("address")
+                    )
                     objSms.msg = c.getString(c.getColumnIndexOrThrow("body"))
                     objSms.readState = c.getString(c.getColumnIndex("unread"))
                     objSms.time = c.getString(c.getColumnIndexOrThrow("date"))
@@ -411,7 +533,10 @@ object AppAsyncWorker {
     }
 
     private fun getContactByPhoneNumber(phoneNumber: String?): String? {
-        val uri: Uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
+        val uri: Uri = Uri.withAppendedPath(
+            ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+            Uri.encode(phoneNumber)
+        )
         val projection = arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME)
         val cursor = context.contentResolver.query(uri, projection, null, null, null)
         return if (cursor == null) {
@@ -430,9 +555,11 @@ object AppAsyncWorker {
     @SuppressLint("MissingPermission")
     fun getCallDetails(numbers: String): ArrayList<CallLogModel> {
         val sb = StringBuffer()
-        val sm = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        val sm =
+            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         val contacts = CallLog.Calls.CONTENT_URI
-        @SuppressLint("MissingPermission") val managedCursor = context.contentResolver.query(contacts, null, "number=?", arrayOf(numbers), "DATE desc")
+        @SuppressLint("MissingPermission") val managedCursor =
+            context.contentResolver.query(contacts, null, "number=?", arrayOf(numbers), "DATE desc")
         val number = managedCursor!!.getColumnIndex(CallLog.Calls.NUMBER)
         val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
         val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
@@ -447,7 +574,8 @@ object AppAsyncWorker {
             val callType = managedCursor.getString(type)
             val callDate = managedCursor.getString(date)
             val callDayTime = Date(java.lang.Long.valueOf(callDate)).toString()
-            val name = managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
+            val name =
+                managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
             // long timestamp = convertDateToTimestamp(callDayTime);
             val callDuration = managedCursor.getString(duration)
             val subscriptionId = managedCursor.getString(subscriptionIdC)
@@ -458,8 +586,10 @@ object AppAsyncWorker {
                 CallLog.Calls.MISSED_TYPE -> "MISSED"
                 else -> "OUTGOING"
             }
-            sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
-                    + " \nname :--- " + name)
+            sb.append(
+                "\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
+                        + " \nname :--- " + name
+            )
             sb.append("\n----------------------------------")
             call.callType = dir
             call.callDate = callDate

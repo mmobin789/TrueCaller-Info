@@ -3,8 +3,6 @@ package com.magicbio.truename.adapters
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
-import com.magicbio.truename.activeandroid.Contact
-import com.magicbio.truename.models.CallLogModel
 
 abstract class DynamicSearchAdapter<T : DynamicSearchAdapter.Searchable>(private val searchableList: MutableList<T?>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
@@ -33,15 +31,7 @@ abstract class DynamicSearchAdapter<T : DynamicSearchAdapter.Searchable>(private
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 searchableList.clear()
                 if (constraint.isNullOrBlank()) {
-                    searchableList.addAll(originalList.map {
-                        if (it is CallLogModel) {
-                            it.areOptionsShown = false
-                        }
-                        if (it is Contact) {
-                            it.areOptionsShown = false
-                        }
-                        it
-                    })
+                    searchableList.addAll(originalList)
                 } else {
                     searchableList.addAll(originalList.filter {
                         val contains = it != null && it.getSearchCriteria().contains(constraint)

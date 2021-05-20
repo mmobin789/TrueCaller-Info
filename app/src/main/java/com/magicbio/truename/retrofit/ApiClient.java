@@ -26,7 +26,7 @@ public class ApiClient {
                 .readTimeout(100, TimeUnit.SECONDS).build();
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl("http://bookingplc.com")
+                    .baseUrl("http://truecallerinfo.com/")
                     //.baseUrl("http://192.168.0.178:8043/mandionline/api/")
                     // .baseUrl("http://192.168.10.2:8043/mandionline/api/")
                     .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()))

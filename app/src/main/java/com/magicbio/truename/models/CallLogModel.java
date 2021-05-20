@@ -1,5 +1,8 @@
 package com.magicbio.truename.models;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.magicbio.truename.adapters.DynamicSearchAdapter;
 
 import org.jetbrains.annotations.NotNull;
@@ -7,8 +10,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Created by Ahmed Bilal on 12/14/2018.
  */
-//@Table(name = "CallLog")
+@Entity(tableName = "callLog")
 public class CallLogModel implements DynamicSearchAdapter.Searchable {
+    @PrimaryKey(autoGenerate = true)
+    public int id;
 
     // @Column(name = "Name")
     String name;
@@ -29,7 +34,7 @@ public class CallLogModel implements DynamicSearchAdapter.Searchable {
     String image;
 
     //@Column(name = "_id")
-    String _id;
+    public String _id;
 
     public boolean areOptionsShown;
 

@@ -17,14 +17,8 @@ import com.google.android.gms.location.Geofence;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallHistoryAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
-import com.magicbio.truename.fragments.background.FetchCallHistory;
-import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.services.InComingCallPop;
 import com.magicbio.truename.utils.ContactUtils;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 import io.nlopez.smartlocation.OnActivityUpdatedListener;
 import io.nlopez.smartlocation.OnGeofencingTransitionListener;
@@ -111,12 +105,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         recyclerView.setLayoutManager(linearLayoutManager);
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
 
-        AppAsyncWorker.fetchCallHistory(number, new FetchCallHistory.OnCallHistoryListener() {
-            @Override
-            public void onCallHistory(@NotNull ArrayList<CallLogModel> result) {
-                recyclerView.setAdapter(new CallHistoryAdapter(result));
-            }
-        });
+        AppAsyncWorker.fetchCallHistory(number, result -> recyclerView.setAdapter(new CallHistoryAdapter(result)));
 
 
     }

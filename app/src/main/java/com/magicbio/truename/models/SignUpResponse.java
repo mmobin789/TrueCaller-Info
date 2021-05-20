@@ -2,55 +2,28 @@
 package com.magicbio.truename.models;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-
-public class SignUpResponse implements Serializable {
-
-    @SerializedName("info")
+public class SignUpResponse {
     @Expose
-    private Info info;
-    @SerializedName("success")
+    private boolean status;
     @Expose
-    private Boolean success;
-    @SerializedName("message")
-    @Expose
-    private String message;
-    @SerializedName("error_code")
-    @Expose
-    private Integer errorCode;
+    private Integer id;
 
-    public Info getInfo() {
-        return info;
+    public boolean getStatus() {
+        return status;
     }
 
-    public void setInfo(Info info) {
-        this.info = info;
+
+    public Integer getId() {
+        return id;
     }
 
-    public Boolean getSuccess() {
-        return success;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public void setSuccess(Boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Integer getErrorCode() {
-        return errorCode;
-    }
-
-    public void setErrorCode(Integer errorCode) {
-        this.errorCode = errorCode;
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
 }

@@ -1,9 +1,17 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     tools:context="com.magicbio.truename.fragments.ContactsFragment">
+
+    <TextView
+        android:id="@+id/tvLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/com_facebook_loading"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textColor="@color/dark_gray" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_View"
@@ -13,4 +21,4 @@
         android:scrollbarThumbVertical="@android:color/darker_gray"
         android:scrollbars="vertical" />
 
-</LinearLayout>
+</RelativeLayout>

@@ -14,7 +14,7 @@ import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.google.android.gms.location.Geofence
 import com.magicbio.truename.TrueName
-import com.magicbio.truename.activeandroid.Contact
+import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.activities.CallDetails
 import com.magicbio.truename.activities.SplashActivity
 import com.magicbio.truename.fragments.background.AppAsyncWorker
@@ -26,6 +26,8 @@ import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProv
 object ContactUtils {
     private val context = TrueName.getInstance()
     private val fbCallbackManager = CallbackManager.Factory.create()
+
+
 
     @JvmStatic
     fun openCallDetailsActivity(contact: Contact?) {

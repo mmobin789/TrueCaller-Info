@@ -2,71 +2,36 @@
 package com.magicbio.truename.models;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
 
 public class GetNumberResponse {
 
-    @SerializedName("records")
+
     @Expose
-    private List<Record> records = null;
+    private boolean status;
 
-    @SerializedName("message")
     @Expose
-    private String message;
-    @SerializedName("success")
-    @Expose
-    private Boolean success;
-    @SerializedName("status")
-    @Expose
-    private Integer status;
-    @SerializedName("invitation")
-    @Expose
-    private String invitation;
+    private Data data;
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Boolean getSuccess() {
-        if (success == null) {
-            return true;
-        } else {
-            return success;
-        }
-    }
-
-    public void setSuccess(Boolean success) {
-        this.success = success;
-    }
-
-    public Integer getStatus() {
+    public boolean getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public Data getData() {
+        return data;
+    }
+
+    public void setStatus(boolean status) {
         this.status = status;
     }
 
-    public String getInvitation() {
-        return invitation;
+    public void setData(Data data) {
+        this.data = data;
     }
 
-    public void setInvitation(String invitation) {
-        this.invitation = invitation;
-    }
 
-    public List<Record> getRecords() {
-        return records;
-    }
-
-    public void setRecords(List<Record> records) {
-        this.records = records;
+    public static class Data {
+        @Expose
+        public String number, name, image;
     }
 
 }
