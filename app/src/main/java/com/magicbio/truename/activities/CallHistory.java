@@ -20,6 +20,8 @@ import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.services.InComingCallPop;
 import com.magicbio.truename.utils.ContactUtils;
 
+import java.util.ArrayList;
+
 import io.nlopez.smartlocation.OnActivityUpdatedListener;
 import io.nlopez.smartlocation.OnGeofencingTransitionListener;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
@@ -27,9 +29,9 @@ import io.nlopez.smartlocation.geofencing.utils.TransitionGeofence;
 
 public class CallHistory extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
     TextView txtName;
-    String number;
     ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation;
     RecyclerView recyclerView;
+    ArrayList<String> numbers;
     /*   private TextView locationText;
        private TextView activityText;
        private TextView geofenceText;*/
@@ -49,10 +51,11 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
-        number = getIntent().getStringExtra("number");
+        numbers = getIntent().getStringArrayListExtra("numbers");
         String name = getIntent().getStringExtra("name");
         txtName.setText(name);
-        setupClick();
+        String number = numbers.get(0);
+        setupClick(number);
         init();
 
 
@@ -68,7 +71,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
     }
 
 
-    public void setupClick() {
+    private void setupClick(String number) {
 
         findViewById(R.id.btnwa).setOnClickListener(v -> ContactUtils.openWhatsAppChat(number));
 
@@ -105,7 +108,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         recyclerView.setLayoutManager(linearLayoutManager);
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
 
-        AppAsyncWorker.fetchCallHistory(number, result -> recyclerView.setAdapter(new CallHistoryAdapter(result)));
+        AppAsyncWorker.fetchCallHistory(numbers, result -> recyclerView.setAdapter(new CallHistoryAdapter(result)));
 
 
     }

@@ -5,18 +5,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
-import android.os.Bundle
 import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Toast
-import com.facebook.*
-import com.facebook.login.LoginManager
-import com.facebook.login.LoginResult
+import com.facebook.CallbackManager
 import com.google.android.gms.location.Geofence
 import com.magicbio.truename.TrueName
-import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.activities.CallDetails
-import com.magicbio.truename.activities.SplashActivity
+import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.fragments.background.AppAsyncWorker
 import io.nlopez.smartlocation.SmartLocation
 import io.nlopez.smartlocation.geofencing.model.GeofenceModel
@@ -28,18 +24,17 @@ object ContactUtils {
     private val fbCallbackManager = CallbackManager.Factory.create()
 
 
-
     @JvmStatic
-    fun openCallDetailsActivity(contact: Contact?) {
+    fun openCallDetailsActivity(contact: Contact) {
         val intent =
             Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra("name", contact?.name)
-        intent.putExtra("number", contact?.number)
-        intent.putExtra("email", contact?.email)
+        intent.putExtra("name", contact.name)
+        intent.putStringArrayListExtra("numbers", contact.numbers)
+        intent.putExtra("email", contact.email)
         context.startActivity(intent)
     }
 
-    @JvmStatic
+   /* @JvmStatic
     fun doFacebookLogin(activity: SplashActivity) {
         val loginManager = LoginManager.getInstance()
         loginManager.registerCallback(fbCallbackManager, object : FacebookCallback<LoginResult> {
@@ -57,28 +52,28 @@ object ContactUtils {
             }
         })
         loginManager.logInWithReadPermissions(activity, listOf("user_friends"))
-    }
+    }*/
 
     @JvmStatic
     fun handleFacebookResult(requestCode: Int, resultCode: Int, data: Intent?) = data?.run {
         fbCallbackManager.onActivityResult(requestCode, resultCode, this)
     }
 
-    fun getFacebookFriends() {
+   /* fun getFacebookFriends() {
         val accessToken = AccessToken.getCurrentAccessToken()
 
         val request = GraphRequest.newMyFriendsRequest(
             accessToken
         ) { _, response ->
             // Insert your code here
-            Log.d("FBFriends",response.rawResponse)
+            Log.d("FBFriends", response.rawResponse)
         }
-       request.parameters = Bundle().apply {
-           putString("summary","public_profile")
-       }
+        request.parameters = Bundle().apply {
+            putString("summary", "public_profile")
+        }
         request.executeAsync()
 
-    }
+    }*/
 
     @JvmStatic
     fun isContactName(name: String?): Boolean {

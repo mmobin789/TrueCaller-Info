@@ -1,5 +1,6 @@
 package com.magicbio.truename.activities;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.viewpager.widget.ViewPager;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private View l1, l2, l3;
     private SearchView searchView;
     private ViewPager viewPager;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +129,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         AppAsyncWorker.saveContactsToDb();
         AppAsyncWorker.saveCallLogToDb();
+
+        createExitDialog();
+    }
+
+    private void createExitDialog()
+    {
+       alertDialog = new AlertDialog.Builder(this).setMessage("Are you sure you want to exit ?")
+               .setPositiveButton(android.R.string.ok, (dialog, which) -> MainActivity.super.onBackPressed()).setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel()).create();
+    }
+
+    @Override
+    public void onBackPressed() {
+        alertDialog.show();
     }
 
     private void tab1() {

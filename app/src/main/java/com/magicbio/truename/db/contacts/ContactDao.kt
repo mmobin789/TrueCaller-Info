@@ -16,4 +16,7 @@ interface ContactDao : BaseDAO<Contact> {
 
     @Query("SELECT * FROM contacts WHERE name LIKE :name")
     fun findContactsByName(name: String): Flow<List<Contact>>
+
+    @Query("select * from contacts where id = :id ")
+    suspend fun findContactById(id:Int): Contact
 }

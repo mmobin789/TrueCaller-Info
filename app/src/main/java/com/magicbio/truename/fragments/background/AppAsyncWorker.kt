@@ -77,7 +77,10 @@ object AppAsyncWorker {
     @JvmStatic
     fun loadContactsByName(name: String, onLoaded: (ArrayList<Contact>) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            val flow =  if(name.isBlank()) contactsDao.getContactsIn(1,50) else contactsDao.findContactsByName(name)
+            val flow = if (name.isBlank()) contactsDao.getContactsIn(
+                1,
+                50
+            ) else contactsDao.findContactsByName(name)
             withContext(Dispatchers.Main.immediate) {
                 flow.collect {
                     onLoaded(it as ArrayList<Contact>)
@@ -87,7 +90,11 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-    fun loadCallLog(startId: Int = 1, endId: Int = 50, onLoaded: (ArrayList<CallLogModel>) -> Unit) {
+    fun loadCallLog(
+        startId: Int = 1,
+        endId: Int = 50,
+        onLoaded: (ArrayList<CallLogModel>) -> Unit
+    ) {
         GlobalScope.launch(Dispatchers.IO) {
             val flow = callLogDao.getCallLogIn(startId, endId)
             withContext(Dispatchers.Main.immediate) {
@@ -105,7 +112,10 @@ object AppAsyncWorker {
     @JvmStatic
     fun loadCallLogsByName(name: String, onLoaded: (ArrayList<CallLogModel>) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            val flow =  if(name.isBlank()) callLogDao.getCallLogIn(1,50) else callLogDao.findCallLogByName(name)
+            val flow = if (name.isBlank()) callLogDao.getCallLogIn(
+                1,
+                50
+            ) else callLogDao.findCallLogByName(name)
             withContext(Dispatchers.Main.immediate) {
                 flow.collect {
                     onLoaded(it as ArrayList<CallLogModel>)
@@ -116,17 +126,18 @@ object AppAsyncWorker {
 
     @JvmStatic
     fun fetchCallHistory(
-        number: String,
+        numbers: ArrayList<String>,
         onCallHistoryListener: FetchCallHistory.OnCallHistoryListener
     ) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-            GlobalScope.launch {
-                val callLogList = getCallDetails(number)
-                withContext(Dispatchers.Main) {
-                    onCallHistoryListener.onCallHistory(callLogList)
-                }
+        GlobalScope.launch {
+            val callLogs = ArrayList<CallLogModel>(numbers.size)
+            numbers.forEach {
+                callLogs.addAll(getCallDetails(it))
             }
-        } else FetchCallHistory(number, onCallHistoryListener).execute()
+            withContext(Dispatchers.Main) {
+                onCallHistoryListener.onCallHistory(callLogs)
+            }
+        }
     }
 
     @JvmStatic
@@ -144,14 +155,15 @@ object AppAsyncWorker {
 
     @JvmStatic
     fun getContactByNumber(number: String?, callback: (Contact?) -> Unit) {
-        GlobalScope.launch {
+        //todo working here.
+        GlobalScope.launch(Dispatchers.IO) {
             try {
                 getContacts().find {
                     ContactUtils.formatNumberToLocal(
                         it?.getNumber().orEmpty().replace(" ", "")
                     ).contains(ContactUtils.formatNumberToLocal(number?.replace(" ", "")))
                 }.also {
-                    withContext(Dispatchers.Main)
+                    withContext(Dispatchers.Main.immediate)
                     {
                         callback(it)
                     }
@@ -183,7 +195,7 @@ object AppAsyncWorker {
            }
        }*/
 
-    @JvmStatic
+    /*@JvmStatic
     fun fetchCallLog(onCallLogListener: FetchCallLog.OnCallLogListener) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             GlobalScope.launch {
@@ -211,7 +223,7 @@ object AppAsyncWorker {
                 FetchContacts(onContactsListener).execute()
             else onContactsListener.onContacts(contacts)
         }
-    }
+    }*/
 
 
     fun getWhatsAppUserId(name: String, callType: String, callback: (Long) -> Unit) {

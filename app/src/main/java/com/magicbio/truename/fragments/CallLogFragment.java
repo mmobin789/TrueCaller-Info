@@ -84,6 +84,10 @@ public class CallLogFragment extends Fragment {
     }
 
     public void search(String newText) {
+
+        if(callLogsAdapter == null)
+            return;
+
         AppAsyncWorker.loadCallLogsByName(newText, callLog -> {
             callLogsAdapter.setCallLogs(callLog);
             startId = 1;

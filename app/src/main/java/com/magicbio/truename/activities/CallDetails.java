@@ -18,21 +18,18 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.Geofence;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallDetailsAdapter;
-import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.services.InComingCallPop;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
 
-import kotlin.Unit;
-
 public class CallDetails extends AppCompatActivity {
     TextView txtName;
-    private String number, name;
-
     ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation;
     RecyclerView recyclerView;
+    String name;
+    ArrayList<String> numbers;
     /*   private TextView locationText;
        private TextView activityText;
        private TextView geofenceText;*/
@@ -51,11 +48,11 @@ public class CallDetails extends AppCompatActivity {
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
-        number = getIntent().getStringExtra("number");
-        name = getIntent().getStringExtra("name");
+        String name = getIntent().getStringExtra("name");
+        numbers = getIntent().getStringArrayListExtra("numbers");
         txtName.setText(name);
 
-
+        String number = numbers.get(0);
         TextView tvWTAMessage = findViewById(R.id.tvMessageWhatsApp);
         TextView tvWTAAudio = findViewById(R.id.tvAudioWhatsApp);
         TextView tvWTAVideo = findViewById(R.id.tvVideoWhatsApp);
@@ -81,12 +78,12 @@ public class CallDetails extends AppCompatActivity {
             txtName.setText(number);
         }
 
-        setupClick();
+        setupClick(number);
         init();
     }
 
     public void openCallHistory(View v) {
-        startActivity(new Intent(v.getContext(), CallHistory.class).putExtra("number", number).putExtra("name", name));
+        startActivity(new Intent(v.getContext(), CallHistory.class).putStringArrayListExtra("numbers", numbers).putExtra("name", name));
     }
 
     public void makeWhatsAppAudioCall(View v) {
@@ -97,7 +94,7 @@ public class CallDetails extends AppCompatActivity {
         ContactUtils.makeWhatsAppCall(name, true);
     }
 
-    public void setupClick() {
+    private void setupClick(String number) {
 
         findViewById(R.id.llChat).setOnClickListener(v -> ContactUtils.openWhatsAppChat(number));
 
@@ -118,25 +115,14 @@ public class CallDetails extends AppCompatActivity {
             startService(i);
 
         });
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_INSERT);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-                intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
-                startActivity(intent);
-            }
+        btnSave.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_INSERT);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+            intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
+            startActivity(intent);
         });
-        btnLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                ContactUtils.shareLocationOnSms(number, txtName.getText().toString());
-
-
-            }
-        });
+        btnLocation.setOnClickListener(v -> ContactUtils.shareLocationOnSms(number, txtName.getText().toString()));
 
     }
 
@@ -151,18 +137,7 @@ public class CallDetails extends AppCompatActivity {
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CallDetails.this);
         recyclerView.setLayoutManager(linearLayoutManager);
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
-
-        AppAsyncWorker.getContactByNumber(number, contact -> {
-            if (contact != null) {
-                recyclerView.setAdapter(new CallDetailsAdapter(contact.getNumbers()));
-            }
-            else {
-                ArrayList<String> numberSingleton = new ArrayList<>(1);
-                numberSingleton.add(number);
-                recyclerView.setAdapter(new CallDetailsAdapter(numberSingleton));
-            }
-            return Unit.INSTANCE;
-        });
+        recyclerView.setAdapter(new CallDetailsAdapter(numbers));
 
 
     }
