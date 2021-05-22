@@ -47,7 +47,6 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.activities.ComFunc;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.models.GetNumberResponse;
-import com.magicbio.truename.models.Record;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
 import com.magicbio.truename.utils.AdUtils;
@@ -62,6 +61,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 import io.pixel.Pixel;
+import io.pixel.config.PixelConfiguration;
+import io.pixel.config.PixelOptions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -71,7 +72,7 @@ public class InComingCallPop extends Service {
     TextView txtNumber, txtName, txtAddress, txtNetwork;
     ApiInterface apiInterface;
     MediaRecorder recorder;
-    ImageView btnMessage, btnCall, btnInvite, btnSave;
+    ImageView btnMessage, btnCall, btnInvite, btnSave, ivAd;
     int ptype = -1;
     private int notificationId = 33;
     private NotificationManager nm;
@@ -268,6 +269,7 @@ public class InComingCallPop extends Service {
         if (ptype == 0) {
             ivCrumpledPaper = li.inflate(R.layout.incoming_call_pop, null, false);
             txtName = ivCrumpledPaper.findViewById(R.id.txtName);
+            ivAd = ivCrumpledPaper.findViewById(R.id.ivAd);
             AdView adView = ivCrumpledPaper.findViewById(R.id.adView);
             AdUtils.loadBannerAd(adView);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
@@ -291,6 +293,7 @@ public class InComingCallPop extends Service {
             btnCall = ivCrumpledPaper.findViewById(R.id.btnCall);
             btnInvite = ivCrumpledPaper.findViewById(R.id.btnInvite);
             btnSave = ivCrumpledPaper.findViewById(R.id.btnSave);
+            ivAd = ivCrumpledPaper.findViewById(R.id.ivAd);
             mAdView = ivCrumpledPaper.findViewById(R.id.adView);
             txtName = ivCrumpledPaper.findViewById(R.id.txtName);
             txtName.setText(ComFunc.getContactName(number, this));
@@ -470,17 +473,20 @@ public class InComingCallPop extends Service {
     }
 
     private void getNumberDetails(String n) {
-        Call<GetNumberResponse> call = apiInterface.getNumberDetails(n,"92");
+        Call<GetNumberResponse> call = apiInterface.getNumberDetails(n, "92");
         call.enqueue(new Callback<GetNumberResponse>() {
             @Override
             public void onResponse(@NotNull Call<GetNumberResponse> call, @NotNull Response<GetNumberResponse> response) {
                 if (response.body() != null && response.body().getStatus()) {
-                    GetNumberResponse.Data data  = response.body().getData();
+                    GetNumberResponse.Data data = response.body().getData();
                     txtName.setText(data.name);
-                  //  Pixel.load() //todo add image here.
+                    PixelConfiguration.setLoggingEnabled(true);
+                    String url = data.image.replace("\"", "");
+                    Log.d("ImageURL", url);
+                    Pixel.load(url,new PixelOptions.Builder().setPlaceholderResource(R.drawable.ad_2).build(),ivAd);
                     txtNumber.setText(data.number);
                 } else {
-                    Toast.makeText(getApplicationContext(), "Get Number API failed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Get Number Details API failed", Toast.LENGTH_LONG).show();
                 }
             }
 

@@ -80,7 +80,7 @@ object AppAsyncWorker {
             val flow = if (name.isBlank()) contactsDao.getContactsIn(
                 1,
                 50
-            ) else contactsDao.findContactsByName(name)
+            ) else contactsDao.findContactsByName("${name}%")
             withContext(Dispatchers.Main.immediate) {
                 flow.collect {
                     onLoaded(it as ArrayList<Contact>)
@@ -115,7 +115,7 @@ object AppAsyncWorker {
             val flow = if (name.isBlank()) callLogDao.getCallLogIn(
                 1,
                 50
-            ) else callLogDao.findCallLogByName(name)
+            ) else callLogDao.findCallLogByName("${name}%")
             withContext(Dispatchers.Main.immediate) {
                 flow.collect {
                     onLoaded(it as ArrayList<CallLogModel>)

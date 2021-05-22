@@ -172,9 +172,11 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/ivAd"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:background="@drawable/ad_2" />
+                android:layout_height="70dp"
+                android:contentDescription="@string/app_name"
+                tools:src="@drawable/ad_2" />
 
             <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/adView"
