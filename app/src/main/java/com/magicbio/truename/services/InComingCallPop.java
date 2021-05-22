@@ -483,7 +483,7 @@ public class InComingCallPop extends Service {
                     PixelConfiguration.setLoggingEnabled(true);
                     String url = data.image.replace("\"", "");
                     Log.d("ImageURL", url);
-                    Pixel.load(url,new PixelOptions.Builder().setPlaceholderResource(R.drawable.ad_2).build(),ivAd);
+                    Pixel.load(url,new PixelOptions.Builder().setPlaceholderResource(R.drawable.sms_connect_ad).build(),ivAd);
                     txtNumber.setText(data.number);
                 } else {
                     Toast.makeText(getApplicationContext(), "Get Number Details API failed", Toast.LENGTH_LONG).show();
