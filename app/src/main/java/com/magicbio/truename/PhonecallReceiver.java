@@ -47,9 +47,10 @@ public abstract class PhonecallReceiver extends BroadcastReceiver {
                             PhonecallReceiver.this.onCallStateChanged(context, state, phoneNumber);
                     }
                 };
-            }
 
-            telephony.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+                telephony.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+            }
         }
 
     }

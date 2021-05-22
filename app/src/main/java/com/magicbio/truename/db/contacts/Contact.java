@@ -5,9 +5,6 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
-import com.magicbio.truename.adapters.DynamicSearchAdapter;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,7 +15,7 @@ import java.util.List;
  */
 
 @Entity(tableName = "contacts")
-public class Contact implements DynamicSearchAdapter.Searchable {
+public class Contact  {
 
     @PrimaryKey(autoGenerate = true)
     public int id;
@@ -57,18 +54,6 @@ public class Contact implements DynamicSearchAdapter.Searchable {
 
     public boolean areOptionsShown;
 
-    public Contact() {
-        super();
-    }
-
-    /*public static List<Contact> getAll() {
-        return new Select()
-                .all()
-                .from(Contact.class)
-                .execute();
-    } */
-
-
     public String getImage() {
         return Image;
     }
@@ -93,22 +78,4 @@ public class Contact implements DynamicSearchAdapter.Searchable {
         this.number = number;
     }
 
-    private static boolean searchByName = true;
-
-    public static void setSearchByNumber() {
-        searchByName = false;
-    }
-
-    public static void setSearchByName() {
-        searchByName = true;
-    }
-
-    @NotNull
-    @Override
-    public String getSearchCriteria() {
-        if (searchByName && name != null)
-            return name.toLowerCase();
-
-        return number;
-    }
 }

@@ -3,10 +3,12 @@ package com.magicbio.truename.activities;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +20,19 @@ import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.models.GetNumberResponse;
+import com.magicbio.truename.models.UploadContactsResponse;
+import com.magicbio.truename.retrofit.ApiClient;
+import com.magicbio.truename.retrofit.ApiInterface;
+
+import org.jetbrains.annotations.NotNull;
+
+import io.pixel.Pixel;
+import io.pixel.config.PixelConfiguration;
+import io.pixel.config.PixelOptions;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -29,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private SearchView searchView;
     private ViewPager viewPager;
     private AlertDialog alertDialog;
+    private ApiInterface apiInterface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,12 +147,18 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         AppAsyncWorker.saveCallLogToDb();
 
         createExitDialog();
+
+        apiInterface = ApiClient.getClient().create(ApiInterface.class);
     }
 
-    private void createExitDialog()
-    {
-       alertDialog = new AlertDialog.Builder(this).setMessage("Are you sure you want to exit ?")
-               .setPositiveButton(android.R.string.ok, (dialog, which) -> MainActivity.super.onBackPressed()).setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel()).create();
+   private void uploadContacts() {
+        //todo
+       // Call<UploadContactsResponse> call = apiInterface.uploadContacts();
+    }
+
+    private void createExitDialog() {
+        alertDialog = new AlertDialog.Builder(this).setMessage("Are you sure you want to exit ?")
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> MainActivity.super.onBackPressed()).setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel()).create();
     }
 
     @Override

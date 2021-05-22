@@ -6,28 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
-import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.adapters.ContactsAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
-import com.magicbio.truename.retrofit.ApiClient;
-import com.magicbio.truename.retrofit.ApiInterface;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -107,30 +96,6 @@ public class ContactsFragment extends Fragment {
 
 
 
-    private void sendContactsData(ArrayList<Contact> contacts) {
-     /*   List<Contact> contacts = new ArrayList<>(10);
-        for (int i = 0; i < 10; i++) {
-            Contact contact = new Contact();
-            contact.setNumber("+92 321 700410" + i);
-            contact.setName("Mobin" + i);
-            contact.userid = i + "";
-            contacts.add(contact);
-
-        }*/
-        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
-        apiInterface.sendContactsData(contacts).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
-
-            }
-
-            @Override
-            public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
-
-            }
-        });
-
-    }
 
 
 }
