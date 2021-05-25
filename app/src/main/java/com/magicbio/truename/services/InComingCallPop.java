@@ -63,6 +63,8 @@ import java.util.Date;
 import io.pixel.Pixel;
 import io.pixel.config.PixelConfiguration;
 import io.pixel.config.PixelOptions;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -328,14 +330,11 @@ public class InComingCallPop extends Service {
             ivCrumpledPaper = li.inflate(R.layout.invite_pop, null, false);
             Button btnInvite = ivCrumpledPaper.findViewById(R.id.btnInvite);
             TextView text = ivCrumpledPaper.findViewById(R.id.text);
-            text.setText("Invite " + number + " to True Name to \n send instantly flash message and \n get missed call reminder");
-            btnInvite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    sendSMS(number, "invitesms");
-                    stopSelf();
+            text.setText(String.format("Invite %s to True Name to \n send instantly flash message and \n get missed call reminder", number));
+            btnInvite.setOnClickListener(v -> {
+                sendSMS();
+                stopSelf();
 
-                }
             });
 
         }
@@ -485,8 +484,6 @@ public class InComingCallPop extends Service {
                     Log.d("ImageURL", url);
                     Pixel.load(url,new PixelOptions.Builder().setPlaceholderResource(R.drawable.sms_connect_ad).build(),ivAd);
                     txtNumber.setText(data.number);
-                } else {
-                    Toast.makeText(getApplicationContext(), "Get Number Details API failed", Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -574,10 +571,12 @@ public class InComingCallPop extends Service {
         }
     }
 
-    private void sendSMS(String phoneNumber, String message) {
-        SmsManager sms = SmsManager.getDefault();
-        sms.sendTextMessage(phoneNumber, null, message, null, null);
-        Toast.makeText(getApplicationContext(), "Invite SMS Sent", Toast.LENGTH_LONG).show();
+    private void sendSMS() {
+        ContactUtils.sendSMSToNumber(apiInterface, number, () -> {
+            Toast.makeText(this, "Invite SMS Sent", Toast.LENGTH_LONG).show();
+            return null;
+        });
+
     }
 
     private CallLogModel getCallLast(Context context, String numbers) {

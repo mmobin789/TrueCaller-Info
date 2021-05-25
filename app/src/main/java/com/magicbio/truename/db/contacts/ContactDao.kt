@@ -14,9 +14,12 @@ interface ContactDao : BaseDAO<Contact> {
     @Query("select * from contacts where id between :startId and :endId")
     fun getContactsIn(startId: Int, endId: Int): Flow<List<Contact>>
 
+    @Query("select * from contacts")
+    fun getAllContacts(): List<Contact>
+
     @Query("SELECT * FROM contacts WHERE name LIKE :name")
     fun findContactsByName(name: String): Flow<List<Contact>>
 
     @Query("select * from contacts where id = :id ")
-    suspend fun findContactById(id:Int): Contact
+    suspend fun findContactById(id: Int): Contact
 }

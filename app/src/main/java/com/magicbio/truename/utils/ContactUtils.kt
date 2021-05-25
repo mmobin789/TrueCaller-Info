@@ -8,20 +8,24 @@ import android.net.Uri
 import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Toast
-import com.facebook.CallbackManager
 import com.google.android.gms.location.Geofence
 import com.magicbio.truename.TrueName
 import com.magicbio.truename.activities.CallDetails
 import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.fragments.background.AppAsyncWorker
+import com.magicbio.truename.retrofit.ApiInterface
 import io.nlopez.smartlocation.SmartLocation
 import io.nlopez.smartlocation.geofencing.model.GeofenceModel
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 object ContactUtils {
     private val context = TrueName.getInstance()
-    private val fbCallbackManager = CallbackManager.Factory.create()
+  //  private val fbCallbackManager = CallbackManager.Factory.create()
 
 
     @JvmStatic
@@ -34,46 +38,54 @@ object ContactUtils {
         context.startActivity(intent)
     }
 
-   /* @JvmStatic
-    fun doFacebookLogin(activity: SplashActivity) {
-        val loginManager = LoginManager.getInstance()
-        loginManager.registerCallback(fbCallbackManager, object : FacebookCallback<LoginResult> {
-            override fun onSuccess(result: LoginResult?) {
-                //retrieve access token and use throughout app from fb sdk.
-                getFacebookFriends()
-            }
-
-            override fun onError(error: FacebookException?) {
-                error?.printStackTrace()
-            }
-
-            override fun onCancel() {
-
-            }
-        })
-        loginManager.logInWithReadPermissions(activity, listOf("user_friends"))
-    }*/
-
     @JvmStatic
-    fun handleFacebookResult(requestCode: Int, resultCode: Int, data: Intent?) = data?.run {
-        fbCallbackManager.onActivityResult(requestCode, resultCode, this)
+    fun openCallDetailsActivity(number: String) {
+        val intent =
+            Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putStringArrayListExtra("numbers", arrayListOf(number))
+        context.startActivity(intent)
     }
 
-   /* fun getFacebookFriends() {
-        val accessToken = AccessToken.getCurrentAccessToken()
+    /* @JvmStatic
+     fun doFacebookLogin(activity: SplashActivity) {
+         val loginManager = LoginManager.getInstance()
+         loginManager.registerCallback(fbCallbackManager, object : FacebookCallback<LoginResult> {
+             override fun onSuccess(result: LoginResult?) {
+                 //retrieve access token and use throughout app from fb sdk.
+                 getFacebookFriends()
+             }
 
-        val request = GraphRequest.newMyFriendsRequest(
-            accessToken
-        ) { _, response ->
-            // Insert your code here
-            Log.d("FBFriends", response.rawResponse)
-        }
-        request.parameters = Bundle().apply {
-            putString("summary", "public_profile")
-        }
-        request.executeAsync()
+             override fun onError(error: FacebookException?) {
+                 error?.printStackTrace()
+             }
 
+             override fun onCancel() {
+
+             }
+         })
+         loginManager.logInWithReadPermissions(activity, listOf("user_friends"))
+     }*/
+
+  /*  @JvmStatic
+    fun handleFacebookResult(requestCode: Int, resultCode: Int, data: Intent?) = data?.run {
+        fbCallbackManager.onActivityResult(requestCode, resultCode, this)
     }*/
+
+    /* fun getFacebookFriends() {
+         val accessToken = AccessToken.getCurrentAccessToken()
+
+         val request = GraphRequest.newMyFriendsRequest(
+             accessToken
+         ) { _, response ->
+             // Insert your code here
+             Log.d("FBFriends", response.rawResponse)
+         }
+         request.parameters = Bundle().apply {
+             putString("summary", "public_profile")
+         }
+         request.executeAsync()
+
+     }*/
 
     @JvmStatic
     fun isContactName(name: String?): Boolean {
@@ -247,6 +259,77 @@ object ContactUtils {
         val geoFence = GeofenceModel.Builder("1").setTransition(Geofence.GEOFENCE_TRANSITION_ENTER)
             .setLatitude(39.47453120000001).setLongitude(-0.358065799999963).setRadius(500f).build()
         smartLocation.geofencing().add(geoFence).start { }
+    }
+
+    @JvmStatic
+    fun sendSMSToNumber(apiInterface: ApiInterface, number: String, onSent: () -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val response = apiInterface.invite("self")
+                Log.d("InviteAPI", response.status.toString())
+                val msg = response.msg
+                withContext(Dispatchers.Main.immediate) {
+                    val smsManager = SmsManager.getDefault()
+                    val smsBody = StringBuffer()
+                    smsBody.append(Uri.parse(msg))
+                    smsManager.sendTextMessage(
+                        number,
+                        null,
+                        smsBody.toString(),
+                        null,
+                        null
+                    )
+                    onSent()
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+        }
+    }
+
+    @JvmStatic
+    fun sendSMSToPhoneBook(apiInterface: ApiInterface, dummyContacts: Boolean = true) {
+        AppAsyncWorker.loadContacts {
+            GlobalScope.launch(Dispatchers.IO) {
+                try {
+                    val response = apiInterface.invite("auto")
+                    Log.d("InviteAPI", response.status.toString())
+                    val msg = response.msg
+                    if (msg.isNotBlank()) {
+                        withContext(Dispatchers.Default) {
+                            var contacts = it
+
+                            if (dummyContacts) {
+                                contacts = arrayListOf(Contact().apply {
+                                    name = "Test User 1"
+                                    setNumbers(arrayListOf("03101289585"))
+                                }, Contact().apply {
+                                    name = "Test User 2"
+                                    setNumbers(arrayListOf("03455555613"))
+                                })
+                            }
+                            contacts.forEach {
+                                val smsManager = SmsManager.getDefault()
+                                val smsBody = StringBuffer()
+                                smsBody.append(Uri.parse(msg))
+                                smsManager.sendTextMessage(
+                                    it.numbers[0],
+                                    null,
+                                    smsBody.toString(),
+                                    null,
+                                    null
+                                )
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+        }
     }
 
     private fun sendLocationSMS(phoneNumber: String?, name: String?, currentLocation: Location) {

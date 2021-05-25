@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * Created by Ahmed Bilal on 12/14/2018.
  */
 @Entity(tableName = "callLog")
-public class CallLogModel implements DynamicSearchAdapter.Searchable {
+public class CallLogModel  {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
@@ -123,22 +123,4 @@ public class CallLogModel implements DynamicSearchAdapter.Searchable {
         this.callDuration = callDuration;
     }
 
-    private static boolean searchByName = true;
-
-    public static void setSearchByNumber() {
-        searchByName = false;
-    }
-
-    public static void setSearchByName() {
-        searchByName = true;
-    }
-
-    @NotNull
-    @Override
-    public String getSearchCriteria() {
-        if (searchByName && name != null)
-            return name.toLowerCase();
-
-        return phNumber;
-    }
 }

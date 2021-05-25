@@ -29,4 +29,5 @@
     <string name="in_your_call_history">In your call history</string>
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="login">login</string>
+    <string name="loading">Loading…</string>
 </resources>

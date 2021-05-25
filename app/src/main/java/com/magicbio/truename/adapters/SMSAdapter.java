@@ -14,18 +14,17 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
-import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.activities.SmsConversation;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.Sms;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
 
 
 /**
@@ -34,7 +33,7 @@ import kotlin.jvm.functions.Function1;
 
 public class SMSAdapter extends DynamicSearchAdapter<Sms> {
 
-    private List<Sms> smsList;
+    private final List<Sms> smsList;
 
     public SMSAdapter(List<Sms> smsList) {
         super(smsList);
@@ -50,52 +49,46 @@ public class SMSAdapter extends DynamicSearchAdapter<Sms> {
         super.search(s, onNothingFound);
     }
 
+    @NotNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.sms_row, parent, false);
         final MyViewHolder myViewHolder = new MyViewHolder(itemView);
 
-        myViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                final int position = myViewHolder.getAdapterPosition();
-                final String address = smsList.get(position).getAddress();
+        myViewHolder.itemView.setOnClickListener(v -> {
+            final int position = myViewHolder.getAdapterPosition();
+            final String address = smsList.get(position).getAddress();
 
-                AppAsyncWorker.getContactByNumber(address, new Function1<Contact, Unit>() {
-                    @Override
-                    public Unit invoke(Contact contact) {
+            AppAsyncWorker.getContactByNumber(address, contact -> {
 
-                        Intent intent = new Intent(v.getContext(), SmsConversation.class);
+                Intent intent = new Intent(v.getContext(), SmsConversation.class);
 
-                        if (contact != null) {
-                            intent.putExtra("name", contact.getName());
-                        } else {
-                            intent.putExtra("name", address);
-
-                        }
-                        intent.putExtra("thread_id", smsList.get(position).getId());
-                        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        v.getContext().startActivity(intent);
-                        return Unit.INSTANCE;
-                    }
-                });
-                if (smsList.get(position).getReadState().equals("1")) {
-                    smsList.get(position).setReadState("0");
-                    //notifyDataSetChanged();
-                    //ContentValues values = new ContentValues();
-                    // values.put("read", true);
-                    //context.getContentResolver().update(Uri.parse("content://sms/inbox"), values, "thread_id=?" ,new String[] {smsList.get(position).getId()});
+                if (contact != null) {
+                    intent.putExtra("name", contact.getName());
+                } else {
+                    intent.putExtra("name", address);
                 }
-
+                intent.putExtra("thread_id", smsList.get(position).getId());
+                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                v.getContext().startActivity(intent);
+                return Unit.INSTANCE;
+            });
+            if (smsList.get(position).getReadState().equals("1")) {
+                smsList.get(position).setReadState("0");
+                //notifyDataSetChanged();
+                //ContentValues values = new ContentValues();
+                // values.put("read", true);
+                //context.getContentResolver().update(Uri.parse("content://sms/inbox"), values, "thread_id=?" ,new String[] {smsList.get(position).getId()});
             }
+
         });
 
         return myViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(@NotNull final RecyclerView.ViewHolder viewHolder, final int position) {
         final MyViewHolder holder = (MyViewHolder) viewHolder;
         final Sms sms = smsList.get(position);
         final String address = sms.getAddress();
@@ -156,7 +149,7 @@ public class SMSAdapter extends DynamicSearchAdapter<Sms> {
         return unreadMessagesCount;
     }*/
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber;
         Button btnCall, btnSms;
         RelativeLayout row_linearlayout;

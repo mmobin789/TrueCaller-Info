@@ -102,9 +102,9 @@ public class SplashActivity extends AppCompatActivity {
 
     }
 
-    @Override
+   /* @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ContactUtils.handleFacebookResult(requestCode, resultCode, data);
-    }
+    }*/
 }

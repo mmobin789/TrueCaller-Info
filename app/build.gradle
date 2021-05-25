@@ -56,7 +56,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:19.1.0'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.0'
-    implementation 'com.facebook.android:facebook-android-sdk:4.0.0'
+   // implementation 'com.facebook.android:facebook-android-sdk:4.0.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3"
    // implementation 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
     implementation 'io.nlopez.smartlocation:rx:3.3.3'

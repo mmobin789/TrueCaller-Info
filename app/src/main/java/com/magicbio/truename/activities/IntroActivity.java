@@ -84,7 +84,7 @@ public class IntroActivity extends AppCompatActivity {
                 .show();
 
         final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.com_facebook_loading));
+        progressDialog.setMessage(getString(R.string.loading));
         progressDialog.setIndeterminate(false);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
