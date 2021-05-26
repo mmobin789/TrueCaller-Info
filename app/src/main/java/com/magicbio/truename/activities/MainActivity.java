@@ -1,6 +1,6 @@
 package com.magicbio.truename.activities;
 
- import android.graphics.Color;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,7 +20,6 @@ import com.magicbio.truename.fragments.ContactsFragment;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
-import com.magicbio.truename.utils.ContactUtils;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -133,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
         AppAsyncWorker.saveContactsToDb(apiInterface, TrueName.getUserId(this));
         AppAsyncWorker.saveCallLogToDb();
-        ContactUtils.sendSMSToPhoneBook(apiInterface, true);
 
         createExitDialog();
 

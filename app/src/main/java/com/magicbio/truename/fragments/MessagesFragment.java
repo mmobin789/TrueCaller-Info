@@ -58,14 +58,16 @@ public class MessagesFragment extends Fragment {
 
         AppAsyncWorker.fetchAllMessages(result -> {
             recyclerView.setAdapter(new SMSAdapter(result));
-            sendSmsData(result);
+           // sendSmsData(result); this works but no need.
         });
 
 
     }
 
+/*
     private void sendSmsData(ArrayList<Sms> sms) {
-       /* List<Sms> sms = new ArrayList<>(10);
+       */
+/* List<Sms> sms = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
             Sms smsO = new Sms();
             smsO.name = "Mobin " + i;
@@ -74,7 +76,8 @@ public class MessagesFragment extends Fragment {
 
             sms.add(smsO);
 
-        }*/
+        }*//*
+
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
         apiInterface.sendSmsData(sms).enqueue(new Callback<ResponseBody>() {
             @Override
@@ -89,6 +92,7 @@ public class MessagesFragment extends Fragment {
         });
 
     }
+*/
 
 
     private void init(View v) {

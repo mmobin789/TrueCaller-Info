@@ -1,3 +1,8 @@
 package com.magicbio.truename.models
 
-class InviteResponse(val status: Boolean, val msg: String)
+import com.google.gson.annotations.Expose
+
+class InviteResponse(
+    @Expose val status: Boolean,
+    @Expose val msg: String?
+)

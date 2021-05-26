@@ -25,8 +25,8 @@ interface ApiInterface {
     ): Call<GetNumberResponse?>?
 
     @POST("upload-numbers")
-    suspend fun uploadContacts(@Body uploadContactsRequest: UploadContactsRequest?): UploadContactsResponse
+    suspend fun uploadContacts(@Body uploadContactsRequest: UploadContactsRequest): UploadContactsResponse
 
-    @GET("get_msg")
+    @GET("get-msg")
     suspend fun invite(@Query("type") type: String): InviteResponse
 }

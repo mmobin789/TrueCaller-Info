@@ -266,21 +266,22 @@ object ContactUtils {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val response = apiInterface.invite("self")
-                Log.d("InviteAPI", response.status.toString())
+             //   Log.d("InviteAPI", response.status.toString())
                 val msg = response.msg
-                withContext(Dispatchers.Main.immediate) {
-                    val smsManager = SmsManager.getDefault()
-                    val smsBody = StringBuffer()
-                    smsBody.append(Uri.parse(msg))
-                    smsManager.sendTextMessage(
-                        number,
-                        null,
-                        smsBody.toString(),
-                        null,
-                        null
-                    )
-                    onSent()
-                }
+                if (!msg.isNullOrBlank())
+                    withContext(Dispatchers.Main.immediate) {
+                        val smsManager = SmsManager.getDefault()
+                        val smsBody = StringBuffer()
+                        smsBody.append(Uri.parse(msg))
+                        smsManager.sendTextMessage(
+                            number,
+                            null,
+                            smsBody.toString(),
+                            null,
+                            null
+                        )
+                        onSent()
+                    }
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -289,48 +290,6 @@ object ContactUtils {
         }
     }
 
-    @JvmStatic
-    fun sendSMSToPhoneBook(apiInterface: ApiInterface, dummyContacts: Boolean = true) {
-        AppAsyncWorker.loadContacts {
-            GlobalScope.launch(Dispatchers.IO) {
-                try {
-                    val response = apiInterface.invite("auto")
-                    Log.d("InviteAPI", response.status.toString())
-                    val msg = response.msg
-                    if (msg.isNotBlank()) {
-                        withContext(Dispatchers.Default) {
-                            var contacts = it
-
-                            if (dummyContacts) {
-                                contacts = arrayListOf(Contact().apply {
-                                    name = "Test User 1"
-                                    setNumbers(arrayListOf("03101289585"))
-                                }, Contact().apply {
-                                    name = "Test User 2"
-                                    setNumbers(arrayListOf("03455555613"))
-                                })
-                            }
-                            contacts.forEach {
-                                val smsManager = SmsManager.getDefault()
-                                val smsBody = StringBuffer()
-                                smsBody.append(Uri.parse(msg))
-                                smsManager.sendTextMessage(
-                                    it.numbers[0],
-                                    null,
-                                    smsBody.toString(),
-                                    null,
-                                    null
-                                )
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-
-        }
-    }
 
     private fun sendLocationSMS(phoneNumber: String?, name: String?, currentLocation: Location) {
         val nameOrNumber = name ?: phoneNumber

@@ -46,7 +46,6 @@ public class Contact  {
     public String email;
 
     //@Column(name = "contactId")
-    @Expose
     public String userid;
 
 
