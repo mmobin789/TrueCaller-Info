@@ -15,7 +15,7 @@ import java.util.List;
  */
 
 @Entity(tableName = "contacts")
-public class Contact  {
+public class Contact {
 
     @PrimaryKey(autoGenerate = true)
     public int id;
@@ -23,10 +23,10 @@ public class Contact  {
     @Expose
     public String name;
 
-    @Expose
+
     @Ignore
     public String number;
-
+    @Expose
     public ArrayList<String> numbers;
 
     public ArrayList<String> getNumbers() {
