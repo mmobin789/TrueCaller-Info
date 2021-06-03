@@ -1,6 +1,5 @@
 package com.magicbio.truename.adapters;
 
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,14 +20,11 @@ import com.magicbio.truename.utils.CommonAnimationUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 import io.pixel.Pixel;
 import io.pixel.config.PixelOptions;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
 
 
 /**

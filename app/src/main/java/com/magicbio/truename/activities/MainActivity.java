@@ -13,13 +13,9 @@ import androidx.appcompat.widget.SearchView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.magicbio.truename.R;
-import com.magicbio.truename.TrueName;
 import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
-import com.magicbio.truename.fragments.background.AppAsyncWorker;
-import com.magicbio.truename.retrofit.ApiClient;
-import com.magicbio.truename.retrofit.ApiInterface;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -31,7 +27,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private SearchView searchView;
     private ViewPager viewPager;
     private AlertDialog alertDialog;
-    private ApiInterface apiInterface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,10 +124,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     }
                 }
         ).executeAsync();*/
-        apiInterface = ApiClient.getClient().create(ApiInterface.class);
-        AppAsyncWorker.saveContactsToDb(apiInterface, TrueName.getUserId(this));
-        AppAsyncWorker.saveCallLogToDb();
-
         createExitDialog();
 
     }

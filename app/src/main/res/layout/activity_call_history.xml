@@ -166,8 +166,8 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:contentDescription="@string/app_name"
-                android:padding="5dp"
-                android:src="@drawable/ic_block"
+                android:scaleType="centerCrop"
+                android:src="@drawable/block_btn"
                 android:visibility="gone"
                 tools:visibility="visible" />
 

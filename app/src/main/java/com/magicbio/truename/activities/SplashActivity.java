@@ -7,18 +7,26 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.retrofit.ApiClient;
+import com.magicbio.truename.retrofit.ApiInterface;
 import com.magicbio.truename.utils.ContactUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 public class SplashActivity extends AppCompatActivity {
 
     ImageView btnGetStarted;
+    ApiInterface apiInterface;
+    private ArrayList<String> permissions = new ArrayList<>(9);
 
 
     @Override
@@ -33,6 +41,7 @@ public class SplashActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             });
+
         } else {
             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
             startActivity(intent);
@@ -49,7 +58,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void takePermissions() {
-        ArrayList<String> permissions = new ArrayList<>(10);
+
 
         if (notHasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
             permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -80,10 +89,6 @@ public class SplashActivity extends AppCompatActivity {
             permissions.add(Manifest.permission.READ_PHONE_STATE);
         }
 
-        if (notHasPermission(Manifest.permission.RECORD_AUDIO)) {
-            permissions.add(Manifest.permission.RECORD_AUDIO);
-        }
-
         if (notHasPermission(Manifest.permission.CALL_PHONE)) {
             permissions.add(Manifest.permission.CALL_PHONE);
 
@@ -94,15 +99,25 @@ public class SplashActivity extends AppCompatActivity {
 
         }
 
-        if (permissions.isEmpty())
+        if (permissions.isEmpty()) {
             return;
+        }
+
 
         String[] array = permissions.toArray(new String[]{});
         requestPermissions(array, 3);
 
     }
 
-   /* @Override
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
+        if (requestCode == 3 && permissions.length == this.permissions.size()) {
+            apiInterface = ApiClient.getClient().create(ApiInterface.class);
+            AppAsyncWorker.saveContactsToDb(apiInterface, TrueName.getUserId(this));
+            AppAsyncWorker.saveCallLogToDb();
+        }
+    }
+/* @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ContactUtils.handleFacebookResult(requestCode, resultCode, data);

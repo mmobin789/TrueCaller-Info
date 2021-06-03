@@ -74,7 +74,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     public void addCallLogs(ArrayList<CallLogModel> callLogModels) {
         list.addAll(callLogModels);
         notifyItemRangeInserted(getItemCount(), callLogModels.size());
-        showAd();
+        showAds();
     }
 
     public void setCallLogs(ArrayList<CallLogModel> callLogModels) {
@@ -89,7 +89,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         }
     }*/
 
-    private void showAd() {
+    private void showAds() {
         if (adShown)
             return;
 

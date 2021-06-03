@@ -489,7 +489,7 @@ public class InComingCallPop extends Service {
 
             @Override
             public void onFailure(@NotNull Call<GetNumberResponse> call, @NotNull Throwable t) {
-                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
 

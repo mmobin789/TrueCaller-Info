@@ -48,7 +48,7 @@ public class CallDetails extends AppCompatActivity {
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
-        String name = getIntent().getStringExtra("name");
+        name = getIntent().getStringExtra("name");
         numbers = getIntent().getStringArrayListExtra("numbers");
         txtName.setText(name);
 
@@ -71,9 +71,11 @@ public class CallDetails extends AppCompatActivity {
         if (ContactUtils.isContactName(name)) {
             btnSave.setVisibility(View.GONE);
             btnBlock.setVisibility(View.VISIBLE);
+            btnBlock.setImageResource(R.drawable.block_btn);
         } else {
             btnSave.setVisibility(View.VISIBLE);
             btnBlock.setVisibility(View.GONE);
+            btnBlock.setImageResource(R.drawable.unblock_btn);
             findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
             txtName.setText(number);
         }

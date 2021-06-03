@@ -77,12 +77,6 @@ public class IntroActivity extends AppCompatActivity {
 
 
     private void login(String number, String countryCode, final Dialog dialog) {
-        Toast.makeText(
-                this,
-                "Logging in with " + countryCode + number,
-                Toast.LENGTH_LONG)
-                .show();
-
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(getString(R.string.loading));
         progressDialog.setIndeterminate(false);
