@@ -9,7 +9,6 @@ import com.google.android.gms.ads.AdView
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.*
-import kotlin.random.Random
 
 
 object AdUtils {
@@ -27,16 +26,6 @@ object AdUtils {
         val testDeviceId = md5(androidId).toUpperCase(Locale.getDefault())
         Log.d("TestDeviceId", testDeviceId)
         return testDeviceId
-    }
-
-    @JvmStatic
-    fun getRandomAdPositionForList(start: Int, limit: Int): Int {
-        var end = limit
-        if (limit < start)
-            end = 10
-        val position = Random.nextInt(start, end)
-        Log.d("AdPositionForList", position.toString())
-        return position
     }
 
 

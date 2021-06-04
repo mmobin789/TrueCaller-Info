@@ -3,10 +3,6 @@ package com.magicbio.truename.models;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.magicbio.truename.adapters.DynamicSearchAdapter;
-
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Created by Ahmed Bilal on 12/14/2018.
  */

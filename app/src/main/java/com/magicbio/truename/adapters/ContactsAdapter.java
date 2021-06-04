@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.db.contacts.Contact;
+import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.CommonAnimationUtils;
 import com.magicbio.truename.utils.ContactUtils;
@@ -35,7 +36,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
     private final ArrayList<Contact> contacts;
     private int previousPosition = -1;
-    private boolean adShown;
 
     public ContactsAdapter(ArrayList<Contact> contacts) {
         this.contacts = contacts;
@@ -43,29 +43,23 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
     public void addContacts(ArrayList<Contact> contacts) {
         this.contacts.addAll(contacts);
+        showAds(contacts);
         notifyItemRangeInserted(getItemCount(), contacts.size());
-        showAd();
     }
 
     public void setContacts(ArrayList<Contact> contacts) {
         this.contacts.clear();
         this.contacts.addAll(contacts);
+        showAds(contacts);
         notifyDataSetChanged();
     }
 
+    private void showAds(@NotNull ArrayList<Contact> contacts) {
 
-    private void showAd() {
-        if (adShown)
-            return;
-
-        int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
-        try {
-            contacts.get(adPosition).showAd = true;
-            notifyItemChanged(adPosition);
-            adShown = true;
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+        for (int i = 0; i < contacts.size(); i++) {
+            contacts.get(i).showAd = i % 5 == 0;
         }
+
     }
 
     @NotNull

@@ -44,7 +44,6 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
     private final List<CallLogModel> list;
     private int previousPosition = -1;
-    private boolean adShown;
     /*private SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
         @Override
         public void onCountDownActive(@NotNull String time) {
@@ -73,13 +72,14 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
     public void addCallLogs(ArrayList<CallLogModel> callLogModels) {
         list.addAll(callLogModels);
+        showAds(callLogModels);
         notifyItemRangeInserted(getItemCount(), callLogModels.size());
-        showAds();
     }
 
     public void setCallLogs(ArrayList<CallLogModel> callLogModels) {
         list.clear();
         list.addAll(callLogModels);
+        showAds(callLogModels);
         notifyDataSetChanged();
     }
 
@@ -89,17 +89,10 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         }
     }*/
 
-    private void showAds() {
-        if (adShown)
-            return;
+    private void showAds(@NotNull ArrayList<CallLogModel> callLogModels) {
 
-        int adPosition = AdUtils.getRandomAdPositionForList(3, getItemCount());
-        try {
-            list.get(adPosition).showAd = true;
-            notifyItemChanged(adPosition);
-            adShown = true;
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+        for (int i = 0; i < callLogModels.size(); i++) {
+            callLogModels.get(i).showAd = i % 5 == 0;
         }
 
     }
