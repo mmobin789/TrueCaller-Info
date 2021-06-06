@@ -16,14 +16,19 @@ import android.text.TextUtils
 import android.util.Log
 import android.util.Patterns
 import com.magicbio.truename.TrueName
+import com.magicbio.truename.adapters.CallLogsAdapter
 import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.models.CallLogModel
+import com.magicbio.truename.models.GetNumberResponse
 import com.magicbio.truename.models.Sms
 import com.magicbio.truename.models.UploadContactsRequest
 import com.magicbio.truename.retrofit.ApiClient
 import com.magicbio.truename.retrofit.ApiInterface
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -56,10 +61,29 @@ object AppAsyncWorker {
         }
     }
 
-    fun addContactToDb(contact: Contact) {
-        val userId = TrueName.getUserId(context)
+    @JvmStatic
+    fun addContact(
+        holder: CallLogsAdapter.MyViewHolder,
+        number: String,
+        onSuccess: (Contact,CallLogsAdapter.MyViewHolder) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
+            val response = apiInterface.getNumberDetails(number, "92")?.execute()
+            if (response?.body() != null && response.body()?.status == true) {
+                val data = response.body()!!.data
+                val contact = Contact()
+                contact.name = data.name
+                contact.number = data.number
+                contactsDao.insert(contact)
+                withContext(Dispatchers.Main.immediate) {
+                    onSuccess(contact,holder)
+                }
 
+            }
+        }
     }
+
 
     private fun sendSMSToPhoneBook(
         apiInterface: ApiInterface,
@@ -392,7 +416,10 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 found = displayName == name && mimeType == callType
 
                 if (found) {
-                    Log.d(this@AppAsyncWorker.javaClass.simpleName, "$id $displayName $mimeType")
+                    Log.d(
+                        this@AppAsyncWorker.javaClass.simpleName,
+                        "$id $displayName $mimeType"
+                    )
                     callback(id)
                     break
                 }
@@ -470,7 +497,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
         return contactList!!
     }*/
 
-    fun getLastContact(uid:Int) {
+    fun getLastContact(uid: Int) {
         val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
         val cr = context.contentResolver
         val cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
@@ -539,7 +566,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 Log.d("New Contact Added", contact.contactId)
             }
 
-            apiInterface.uploadContactsSync(UploadContactsRequest(arrayListOf(contact),uid)).execute()
+            apiInterface.uploadContactsSync(UploadContactsRequest(arrayListOf(contact), uid))
+                .execute()
 
 
         }
@@ -556,7 +584,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             ContactsContract.Contacts.HAS_PHONE_NUMBER
         )
         val filter = "${ContactsContract.Contacts.DISPLAY_NAME} NOT LIKE '%@%'"
-        val order = String.format("%1\$s COLLATE NOCASE", ContactsContract.Contacts.DISPLAY_NAME)
+        val order =
+            String.format("%1\$s COLLATE NOCASE", ContactsContract.Contacts.DISPLAY_NAME)
         val cr = context.contentResolver
         val cursor: Cursor? =
             cr.query(ContactsContract.Contacts.CONTENT_URI, projection, filter, null, order)
@@ -572,8 +601,11 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 // get the user's email address
                 var email = ""
                 val ce: Cursor? = cr.query(
-                    ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf(id), null
+                    ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                    null,
+                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                    arrayOf(id),
+                    null
                 )
                 if (ce != null && ce.moveToFirst()) {
                     email =
@@ -608,8 +640,11 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     }
                 }
                 // if the user user has an email or phone then add it to contacts
-                if ((!TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-                            && !email.equals(name, ignoreCase = true)) || !TextUtils.isEmpty(phone)
+                if ((!TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email)
+                        .matches()
+                            && !email.equals(name, ignoreCase = true)) || !TextUtils.isEmpty(
+                        phone
+                    )
                 ) {
                     val contact = Contact()
                     contact.name = name
@@ -777,7 +812,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             var name = phoneNumber
             cursor.use { c ->
                 if (c.moveToFirst()) {
-                    name = c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME))
+                    name =
+                        c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME))
                 }
             }
             name
@@ -791,7 +827,13 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         val contacts = CallLog.Calls.CONTENT_URI
         @SuppressLint("MissingPermission") val managedCursor =
-            context.contentResolver.query(contacts, null, "number=?", arrayOf(numbers), "DATE asc")
+            context.contentResolver.query(
+                contacts,
+                null,
+                "number=?",
+                arrayOf(numbers),
+                "DATE asc"
+            )
         val number = managedCursor!!.getColumnIndex(CallLog.Calls.NUMBER)
         val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
         val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)

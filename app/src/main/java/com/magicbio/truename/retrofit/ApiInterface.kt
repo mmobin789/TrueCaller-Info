@@ -20,8 +20,8 @@ interface ApiInterface {
 
     @GET("number-detail")
     fun getNumberDetails(
-        @Query("number") number: String?,
-        @Query("code") countryId: String?
+        @Query("number") number: String,
+        @Query("code") countryId: String
     ): Call<GetNumberResponse?>?
 
     @POST("upload-numbers")

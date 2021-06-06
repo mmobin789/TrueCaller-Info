@@ -17,8 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
+import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
+import com.magicbio.truename.models.GetNumberResponse;
+import com.magicbio.truename.retrofit.ApiClient;
+import com.magicbio.truename.retrofit.ApiInterface;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
@@ -35,6 +39,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.magicbio.truename.utils.CommonAnimationUtils.slideFromRightToLeft;
 
@@ -66,6 +74,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
     public CallLogsAdapter(List<CallLogModel> list) {
         this.list = list;
+
 
     }
 
@@ -228,9 +237,18 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
         final CallLogModel model = list.get(position);
+        String name = model.getName();
+        String number = model.getPhNumber();
 
-        holder.txtName.setText(model.getName());
-        holder.txtNumber.setText(model.getPhNumber());
+        if (!ContactUtils.isContactName(name)) {
+            AppAsyncWorker.addContact(holder, number, (contact, mvh) -> {
+                mvh.txtName.setText(name);
+                return null;
+            });
+        }
+
+        holder.txtName.setText(name);
+        holder.txtNumber.setText(number);
         String time = formatDuration(model.getCallDuration()) + "\t" + formatTime(model.getCallDayTime());
         holder.txtDuration.setText(time);
 
@@ -317,7 +335,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         return null;
     }*/
 
-    static class MyViewHolder extends RecyclerView.ViewHolder {
+    static public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber, txtDuration;
         RelativeLayout rl;
         Button btnHistory, btnwa, btnSms, btnLocation, btnClose;
