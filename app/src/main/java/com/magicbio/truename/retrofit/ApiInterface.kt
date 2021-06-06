@@ -27,6 +27,9 @@ interface ApiInterface {
     @POST("upload-numbers")
     suspend fun uploadContacts(@Body uploadContactsRequest: UploadContactsRequest): UploadContactsResponse
 
+    @POST("upload-numbers")
+    fun uploadContactsSync(@Body uploadContactsRequest: UploadContactsRequest): Call<UploadContactsResponse>
+
     @GET("get-msg")
     suspend fun invite(@Query("type") type: String): InviteResponse
 }

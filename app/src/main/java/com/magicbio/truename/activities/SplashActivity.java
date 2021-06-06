@@ -106,7 +106,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
         if (requestCode == 3 && permissions.length == this.permissions.size()) {
-
+//todo
         }
     }
 /* @Override

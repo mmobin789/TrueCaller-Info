@@ -18,4 +18,7 @@ interface CallLogDao : BaseDAO<CallLogModel> {
     @Query("SELECT * FROM callLog WHERE name LIKE :name")
     fun findCallLogByName(name: String): Flow<List<CallLogModel>>
 
+    @Query("select * from callLog where _id = :id ")
+    fun findCallLogById(id: String): CallLogModel?
+
 }

@@ -1,5 +1,6 @@
 package com.magicbio.truename;
 
+import android.Manifest;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,6 +9,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.CallLog;
+import android.provider.ContactsContract;
 import android.util.Base64;
 import android.util.Log;
 import android.webkit.WebView;
@@ -17,6 +20,8 @@ import androidx.room.Room;
 import com.google.android.gms.ads.MobileAds;
 import com.google.gson.Gson;
 import com.magicbio.truename.db.AppDatabase;
+import com.magicbio.truename.observers.CallLogsObserver;
+import com.magicbio.truename.observers.ContactsObserver;
 
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -56,7 +61,7 @@ public class TrueName extends Application {
 
     public static int getUserId(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        return sp.getInt("uid",-1);
+        return sp.getInt("uid", -1);
     }
 
     @Override
@@ -71,7 +76,15 @@ public class TrueName extends Application {
         }
 
         MobileAds.initialize(this, getString(R.string.adMob_ID));
-       // printHashKey(this);
+        // printHashKey(this);
+        if (checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, new ContactsObserver(this));
+        }
+
+        if (checkSelfPermission(Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED) {
+            getContentResolver().registerContentObserver(CallLog.Calls.CONTENT_URI, true, new CallLogsObserver());
+        }
+
     }
 
     private static void printHashKey(Context pContext) {

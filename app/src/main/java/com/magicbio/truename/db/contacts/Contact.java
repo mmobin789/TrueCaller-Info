@@ -46,7 +46,7 @@ public class Contact {
     public String email;
 
     //@Column(name = "contactId")
-    public String userid;
+    public String contactId; // this is the id of this contact in the phonebook db.
 
 
     public boolean showAd;

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
  * Created by Ahmed Bilal on 12/14/2018.
  */
 @Entity(tableName = "callLog")
-public class CallLogModel  {
+public class CallLogModel {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
@@ -30,7 +30,7 @@ public class CallLogModel  {
     String image;
 
     //@Column(name = "_id")
-    public String _id;
+    public String _id;  // this is call log id in the phone book.
 
     public boolean areOptionsShown;
 
