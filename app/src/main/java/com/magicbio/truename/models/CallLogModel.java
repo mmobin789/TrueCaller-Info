@@ -1,6 +1,7 @@
 package com.magicbio.truename.models;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 /**
@@ -32,9 +33,12 @@ public class CallLogModel {
     //@Column(name = "_id")
     public String _id;  // this is call log id in the phone book.
 
+    @Ignore
     public boolean areOptionsShown;
-
+    @Ignore
     public boolean showAd;
+
+    public boolean numberByTrueName;
 
 
     public CallLogModel() {

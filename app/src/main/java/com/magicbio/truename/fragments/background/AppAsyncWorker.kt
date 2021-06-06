@@ -62,22 +62,21 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-    fun addContact(
+    fun addCallLog(
         holder: CallLogsAdapter.MyViewHolder,
-        number: String,
-        onSuccess: (Contact,CallLogsAdapter.MyViewHolder) -> Unit
+        callLogModel: CallLogModel,
+        onSuccess: (CallLogModel,CallLogsAdapter.MyViewHolder) -> Unit
     ) {
         GlobalScope.launch(Dispatchers.IO) {
             val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
-            val response = apiInterface.getNumberDetails(number, "92")?.execute()
+            val response = apiInterface.getNumberDetails(callLogModel.phNumber, "92")?.execute()
             if (response?.body() != null && response.body()?.status == true) {
                 val data = response.body()!!.data
-                val contact = Contact()
-                contact.name = data.name
-                contact.number = data.number
-                contactsDao.insert(contact)
+                callLogModel.name = data.name
+                callLogModel.numberByTrueName = true
+                callLogDao.insert(callLogModel)
                 withContext(Dispatchers.Main.immediate) {
-                    onSuccess(contact,holder)
+                    onSuccess(callLogModel,holder)
                 }
 
             }

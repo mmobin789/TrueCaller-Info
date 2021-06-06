@@ -241,8 +241,9 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         String number = model.getPhNumber();
 
         if (!ContactUtils.isContactName(name)) {
-            AppAsyncWorker.addContact(holder, number, (contact, mvh) -> {
-                mvh.txtName.setText(name);
+            AppAsyncWorker.addCallLog(holder, model, (callLogModel, mvh) -> {
+                mvh.txtName.setText(callLogModel.getName());
+                mvh.logo.setVisibility(View.VISIBLE);
                 return null;
             });
         }
@@ -266,6 +267,11 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         if (TextUtils.isEmpty(model.getName()))
             holder.btnLocation.setVisibility(View.GONE);
         else holder.btnLocation.setVisibility(View.VISIBLE);
+
+
+        if (model.numberByTrueName) {
+            holder.logo.setVisibility(View.VISIBLE);
+        } else holder.logo.setVisibility(View.GONE);
 
 
         switch (model.getCallType()) {
@@ -342,7 +348,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         ImageView img, btnCall;
         LinearLayout btnView;
         AdView adView;
-        ImageView CallType, sim;
+        ImageView CallType, sim, logo;
 
         MyViewHolder(View itemView) {
             super(itemView);
@@ -362,6 +368,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
             btnLocation = itemView.findViewById(R.id.btnLocation);
             img = itemView.findViewById(R.id.img);
             adView = itemView.findViewById(R.id.adView);
+            logo = itemView.findViewById(R.id.ivLogo);
             AdUtils.loadBannerAd(adView);
 
 
