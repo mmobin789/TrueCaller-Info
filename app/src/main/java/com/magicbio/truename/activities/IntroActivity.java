@@ -19,6 +19,7 @@ import com.hbb20.CountryCodePicker;
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
 import com.magicbio.truename.adapters.ViewPagerAdapter;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.SignUpResponse;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
@@ -91,12 +92,16 @@ public class IntroActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NotNull Call<SignUpResponse> call, @NotNull Response<SignUpResponse> response) {
                 if (response.body() != null && response.body().getStatus()) {
-                    TrueName.saveUserId(response.body().getId(), IntroActivity.this);
+                    int userId = response.body().getId();
+                    TrueName.saveUserId(userId, IntroActivity.this);
                     dialog.dismiss();
                     progressDialog.dismiss();
                     Intent intent = new Intent(IntroActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
+
+                    AppAsyncWorker.saveContactsToDb(apiInterface, userId);
+                    AppAsyncWorker.saveCallLogToDb();
                 }
 
 

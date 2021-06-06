@@ -75,6 +75,10 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
         holder.btnSms.setOnClickListener(v -> ContactUtils.openSmsApp(contacts.get(holder.getAdapterPosition()).getNumber()));
 
+        holder.btnClose.setOnClickListener(v -> {
+            handleMenu(holder,true);
+        });
+
         holder.btnLocation.setOnClickListener(v -> {
             Contact model = contacts.get(holder.getAdapterPosition());
             ContactUtils.shareLocationOnSms(model.getNumber(), model.getName());
@@ -90,22 +94,34 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
         });
 
         holder.rl.setOnClickListener(view -> {
-            int position = holder.getAdapterPosition();
-            Contact contact = contacts.get(position);
-            if (previousPosition > -1) { // if previous opened close it
-                Contact contactOpened = contacts.get(previousPosition);
-                contactOpened.areOptionsShown = false;
-                notifyItemChanged(previousPosition);
-
-            }
-            // hidden so show
-            CommonAnimationUtils.slideFromRightToLeft(holder.btnView, holder.rl.getWidth() - holder.img.getWidth());
-
-            contact.areOptionsShown = true;
-
-            previousPosition = position;
+            handleMenu(holder,false);
         });
         return holder;
+    }
+
+    private void handleMenu(@NotNull MyViewHolder holder, boolean closeOnly) {
+        int position = holder.getAdapterPosition();
+
+        Contact contact = contacts.get(position);
+
+        if (closeOnly) {
+            contact.areOptionsShown = false;
+            notifyItemChanged(position);
+            return;
+        }
+
+        if (previousPosition > -1) { // if previous opened close it
+            Contact contactOpened = contacts.get(previousPosition);
+            contactOpened.areOptionsShown = false;
+            notifyItemChanged(previousPosition);
+
+        }
+        // hidden so show
+        CommonAnimationUtils.slideFromRightToLeft(holder.btnView, holder.rl.getWidth() - holder.img.getWidth());
+
+        contact.areOptionsShown = true;
+
+        previousPosition = position;
     }
 
     @Override
@@ -149,7 +165,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
         AdView adView;
         RelativeLayout rl;
         LinearLayout btnView;
-        Button btnSms, btnLocation, btnHistory, btnwa;
+        Button btnSms, btnLocation, btnHistory, btnwa, btnClose;
 
         MyViewHolder(View itemView) {
             super(itemView);
@@ -159,6 +175,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
             btnLocation = itemView.findViewById(R.id.btnLocation);
             btnHistory = itemView.findViewById(R.id.btnHistory);
             btnwa = itemView.findViewById(R.id.btnwa);
+            btnClose = itemView.findViewById(R.id.btnBack);
             txtNumber = itemView.findViewById(R.id.txtNumber);
             img = itemView.findViewById(R.id.img);
             adView = itemView.findViewById(R.id.adView);

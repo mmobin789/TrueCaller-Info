@@ -64,7 +64,7 @@ object AppAsyncWorker {
         try {
             val response = runBlocking { apiInterface.invite("auto") }
             //  Log.d("InviteAPI", response.status.toString())
-          // val body = JSONObject(response.string())
+            // val body = JSONObject(response.string())
             val msg = response.msg
             if (!msg.isNullOrBlank()) {
                 val phoneBook = if (dummyContacts) {
@@ -110,8 +110,8 @@ object AppAsyncWorker {
 
     @JvmStatic
     fun loadContacts(
-        startId: Int = 1,
-        endId: Int = 50,
+        startId: Int,
+        endId: Int,
         onLoaded: (ArrayList<Contact>) -> Unit
     ) {
         GlobalScope.launch(Dispatchers.IO) {
@@ -128,15 +128,23 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-    fun loadContactsByName(name: String, onLoaded: (ArrayList<Contact>) -> Unit) {
+    fun loadContactsByName(name: String, onLoaded: (ArrayList<Contact>,Boolean) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            val flow = if (name.isBlank()) contactsDao.getContactsIn(
-                1,
-                50
-            ) else contactsDao.findContactsByName("${name}%")
+            val search: Boolean
+            val flow = if (name.isBlank()) {
+                search = false
+                contactsDao.getContactsIn(
+                    1,
+                    50
+                )
+            } else {
+                search = true
+                contactsDao.findContactsByName("%$name%")
+            }
+
             withContext(Dispatchers.Main.immediate) {
                 flow.collect {
-                    onLoaded(it as ArrayList<Contact>)
+                    onLoaded(it as ArrayList<Contact>,search)
                 }
             }
         }
@@ -145,8 +153,8 @@ object AppAsyncWorker {
 
     @JvmStatic
     fun loadCallLog(
-        startId: Int = 1,
-        endId: Int = 50,
+        startId: Int,
+        endId: Int,
         onLoaded: (ArrayList<CallLogModel>) -> Unit
     ) {
         GlobalScope.launch(Dispatchers.IO) {
@@ -164,15 +172,22 @@ object AppAsyncWorker {
 
 
     @JvmStatic
-    fun loadCallLogsByName(name: String, onLoaded: (ArrayList<CallLogModel>) -> Unit) {
+    fun loadCallLogsByName(name: String, onLoaded: (ArrayList<CallLogModel>, Boolean) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            val flow = if (name.isBlank()) callLogDao.getCallLogIn(
-                1,
-                50
-            ) else callLogDao.findCallLogByName("${name}%")
+            val search: Boolean
+            val flow = if (name.isBlank()) {
+                search = false
+                callLogDao.getCallLogIn(
+                    1,
+                    50
+                )
+            } else {
+                search = true
+                callLogDao.findCallLogByName("%$name%")
+            }
             withContext(Dispatchers.Main.immediate) {
                 flow.collect {
-                    onLoaded(it as ArrayList<CallLogModel>)
+                    onLoaded(it as ArrayList<CallLogModel>, search)
                 }
             }
         }

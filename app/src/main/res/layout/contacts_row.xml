@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorAccent">
+    android:background="@color/white">
 
     <ImageView
         android:id="@+id/imgE"
@@ -64,15 +64,16 @@
         android:layout_toStartOf="@id/btnCall"
         android:layout_toEndOf="@id/imgE"
         android:background="@color/white"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <Button
-            android:id="@+id/rec"
+            android:id="@+id/btnBack"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:background="@drawable/call_recording_btn"
-            android:visibility="gone" />
+            android:background="@drawable/ic_outline_exit_to_app_24" />
+
 
         <Button
             android:id="@+id/btnLocation"

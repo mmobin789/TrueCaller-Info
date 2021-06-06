@@ -91,15 +91,15 @@
         android:layout_toStartOf="@id/btnCall"
         android:layout_toEndOf="@id/imgE"
         android:background="@color/white"
+        tools:visibility="visible"
         android:visibility="gone">
 
         <Button
-            android:id="@+id/rec"
+            android:id="@+id/btnBack"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:background="@drawable/call_recording_btn"
-            android:visibility="gone" />
+            android:background="@drawable/ic_outline_exit_to_app_24" />
 
         <Button
             android:id="@+id/btnLocation"

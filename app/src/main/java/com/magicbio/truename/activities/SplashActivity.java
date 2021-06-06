@@ -8,15 +8,10 @@ import android.os.Bundle;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
-import com.magicbio.truename.fragments.background.AppAsyncWorker;
-import com.magicbio.truename.retrofit.ApiClient;
-import com.magicbio.truename.retrofit.ApiInterface;
-import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -25,8 +20,7 @@ import java.util.ArrayList;
 public class SplashActivity extends AppCompatActivity {
 
     ImageView btnGetStarted;
-    ApiInterface apiInterface;
-    private ArrayList<String> permissions = new ArrayList<>(9);
+    private final ArrayList<String> permissions = new ArrayList<>(9);
 
 
     @Override
@@ -112,9 +106,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
         if (requestCode == 3 && permissions.length == this.permissions.size()) {
-            apiInterface = ApiClient.getClient().create(ApiInterface.class);
-            AppAsyncWorker.saveContactsToDb(apiInterface, TrueName.getUserId(this));
-            AppAsyncWorker.saveCallLogToDb();
+
         }
     }
 /* @Override

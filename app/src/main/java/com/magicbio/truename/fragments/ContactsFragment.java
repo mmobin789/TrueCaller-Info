@@ -29,6 +29,7 @@ public class ContactsFragment extends Fragment {
     private TextView tvLoading;
     private int startId = 1;
     private int endId = 50;
+    private boolean search;
 
     public ContactsFragment() {
         // Required empty public constructor
@@ -53,7 +54,7 @@ public class ContactsFragment extends Fragment {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy) {
-                if (linearLayoutManager.findLastVisibleItemPosition() == contactsAdapter.getItemCount() - 1) {
+                if (dy > 0 && linearLayoutManager.findLastVisibleItemPosition() == contactsAdapter.getItemCount() - 1 && !search) {
                     loadContacts();
                 }
             }
@@ -67,17 +68,18 @@ public class ContactsFragment extends Fragment {
         AppAsyncWorker.loadContacts(startId, endId, contacts -> {
             tvLoading.setVisibility(View.GONE);
             contactsAdapter.addContacts(contacts);
-            startId = endId;
+            startId = endId + 1;
             endId += endId;
             return null;
         });
     }
 
     public void search(String newText) {
-        AppAsyncWorker.loadContactsByName(newText, contacts -> {
+        AppAsyncWorker.loadContactsByName(newText, (contacts,search) -> {
             contactsAdapter.setContacts(contacts);
             startId = 1;
             endId = 50;
+            this.search = search;
             return null;
         });
     }

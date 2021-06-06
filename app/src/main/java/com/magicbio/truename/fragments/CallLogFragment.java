@@ -30,6 +30,7 @@ public class CallLogFragment extends Fragment {
     private TextView tvLoading;
     private int startId = 1;
     private int endId = 50;
+    private boolean search;
 
     public CallLogFragment() {
         // Required empty public constructor
@@ -54,14 +55,12 @@ public class CallLogFragment extends Fragment {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy) {
-                if (linearLayoutManager.findLastVisibleItemPosition() == callLogsAdapter.getItemCount() - 1) {
+                if (dy > 0 && linearLayoutManager.findLastVisibleItemPosition() == callLogsAdapter.getItemCount() - 1 && !search) {
                     loadCallLog();
                 }
             }
         });
         setCallLogsAdapter();
-
-
 
 
     }
@@ -70,7 +69,7 @@ public class CallLogFragment extends Fragment {
         AppAsyncWorker.loadCallLog(startId, endId, callLog -> {
             tvLoading.setVisibility(View.GONE);
             callLogsAdapter.addCallLogs(callLog);
-            startId = endId;
+            startId = endId + 1;
             endId += endId;
             return null;
         });
@@ -85,13 +84,14 @@ public class CallLogFragment extends Fragment {
 
     public void search(String newText) {
 
-        if(callLogsAdapter == null)
+        if (callLogsAdapter == null)
             return;
 
-        AppAsyncWorker.loadCallLogsByName(newText, callLog -> {
+        AppAsyncWorker.loadCallLogsByName(newText, (callLog, search) -> {
             callLogsAdapter.setCallLogs(callLog);
             startId = 1;
             endId = 50;
+            this.search = search;
             return null;
         });
     }

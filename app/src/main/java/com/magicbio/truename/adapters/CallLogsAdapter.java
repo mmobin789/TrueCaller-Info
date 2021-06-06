@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
-import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
@@ -105,24 +104,10 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
         final MyViewHolder myViewHolder = new MyViewHolder(itemView);
 
-        myViewHolder.rl.setOnClickListener(v -> {
-            int position = myViewHolder.getAdapterPosition();
-            CallLogModel callLogModel = list.get(position);
-            if (previousPosition > -1) { // if previous opened close it
-                CallLogModel callLogModelOpened = list.get(previousPosition);
-                callLogModelOpened.areOptionsShown = false;
-                notifyItemChanged(previousPosition);
+        myViewHolder.rl.setOnClickListener(v -> handleMenu(myViewHolder, false));
 
-            }
-            // hidden so show
-            slideFromRightToLeft(myViewHolder.btnView, myViewHolder.rl.getWidth() - myViewHolder.img.getWidth());
+        myViewHolder.btnClose.setOnClickListener(v -> handleMenu(myViewHolder, true));
 
-            callLogModel.areOptionsShown = true;
-
-            previousPosition = position;
-
-
-        });
 
         myViewHolder.btnHistory.setOnClickListener(v -> {
             final CallLogModel model = list.get(myViewHolder.getAdapterPosition());
@@ -140,7 +125,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
             ContactUtils.callNumber(model.getPhNumber());
         });
 
-        myViewHolder.rec.setOnClickListener(v -> {
+        //  myViewHolder.rec.setOnClickListener(v -> {
          /*   CallLogModel model = CallLogModelList.get(myViewHolder.getAdapterPosition());
             RecordModel r = RecordModel.getRandom(model.get_Id());
             if (r != null) {
@@ -156,7 +141,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
                 Toast.makeText(v.getContext(), "recording not available", Toast.LENGTH_LONG).show();
             }*/
 
-        });
+        //    });
         myViewHolder.btnSms.setOnClickListener(v -> {
             CallLogModel model = list.get(myViewHolder.getAdapterPosition());
             Uri uri = Uri.parse("smsto:" + model.getPhNumber());
@@ -177,6 +162,31 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         });
 
         return myViewHolder;
+    }
+
+    private void handleMenu(@NotNull MyViewHolder myViewHolder, boolean closeOnly) {
+        int position = myViewHolder.getAdapterPosition();
+
+        CallLogModel callLogModel = list.get(position);
+
+        if (closeOnly) {
+            callLogModel.areOptionsShown = false;
+            notifyItemChanged(position);
+            return;
+        }
+
+        if (previousPosition > -1) { // if previous opened close it
+            CallLogModel callLogModelOpened = list.get(previousPosition);
+            callLogModelOpened.areOptionsShown = false;
+            notifyItemChanged(previousPosition);
+
+        }
+        // hidden so show
+        slideFromRightToLeft(myViewHolder.btnView, myViewHolder.rl.getWidth() - myViewHolder.img.getWidth());
+
+        callLogModel.areOptionsShown = true;
+
+        previousPosition = position;
     }
 
     @Nullable
@@ -310,7 +320,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
     static class MyViewHolder extends RecyclerView.ViewHolder {
         TextView txtName, txtNumber, txtDuration;
         RelativeLayout rl;
-        Button rec, btnHistory, btnwa, btnSms, btnLocation;
+        Button btnHistory, btnwa, btnSms, btnLocation, btnClose;
         ImageView img, btnCall;
         LinearLayout btnView;
         AdView adView;
@@ -324,7 +334,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
             txtDuration = itemView.findViewById(R.id.txtDuration);
             CallType = itemView.findViewById(R.id.callType);
             sim = itemView.findViewById(R.id.sim);
-            rec = itemView.findViewById(R.id.rec);
+            btnClose = itemView.findViewById(R.id.btnBack);
             btnView = itemView.findViewById(R.id.btnView);
             rl = itemView.findViewById(R.id.rl);
             btnHistory = itemView.findViewById(R.id.btnHistory);
