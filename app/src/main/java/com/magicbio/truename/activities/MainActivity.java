@@ -62,9 +62,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             return false;
         });
 
-        findViewById(R.id.rlSearch).setOnClickListener(view -> {
-            searchView.setIconified(false);
-        });
+        findViewById(R.id.rlSearch).setOnClickListener(view -> searchView.setIconified(false));
 
         searchView.setOnSearchClickListener(view -> logoView.setVisibility(View.GONE));
 

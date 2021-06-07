@@ -5,12 +5,8 @@
     <!-- TODO: Remove or change this placeholder text -->
 
     <string name="notifications_channel_description">popup</string>
-    <string name="facebook_app_id">1053236935209476</string>
-    <string name="fb_login_protocol_scheme">fb1053236935209476</string>
-    <string name="ACCOUNT_KIT_CLIENT_TOKEN">29acf493801b42cccd204f52806ef974</string>
 
     // if your Facebook App ID is 1234567, you should use ak1234567
-    <string name="ak_login_protocol_scheme">ak783529828667639</string>
 
 
     <string name="invite">Invite 0313 4536313 to True Name to \n send instantly flash message and \n get missed call reminder </string>
@@ -24,7 +20,6 @@
     <string name="duration_of_last_call">Duration of last call</string>
     <string name="in_your_contacts">In Your Contacts</string>
     <string name="pakistan">Pakistan</string>
-    <string name="hot_numbers">Hot Numbers</string>
     <string name="mobile">Mobile</string>
     <string name="in_your_call_history">In your call history</string>
     <string name="enter_phone_number">Enter Phone Number</string>
