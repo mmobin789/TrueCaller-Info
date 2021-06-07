@@ -71,31 +71,28 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
         final MyViewHolder holder = new MyViewHolder(itemView);
 
-        holder.btnCall.setOnClickListener(v -> ContactUtils.callNumber(contacts.get(holder.getBindingAdapterPosition()).getNumbers().get(0)));
+        holder.btnCall.setOnClickListener(v -> ContactUtils.callNumber(contacts.get(holder.getAdapterPosition()).getNumbers().get(0)));
 
-        holder.btnSms.setOnClickListener(v -> ContactUtils.openSmsApp(contacts.get(holder.getBindingAdapterPosition()).getNumbers().get(0)));
+        holder.btnSms.setOnClickListener(v -> ContactUtils.openSmsApp(contacts.get(holder.getAdapterPosition()).getNumbers().get(0)));
 
-        holder.btnClose.setOnClickListener(v -> {
-            handleMenu(holder, true);
-        });
+        holder.btnClose.setOnClickListener(v -> handleMenu(holder, true));
 
         holder.btnLocation.setOnClickListener(v -> {
-            Contact model = contacts.get(holder.getBindingAdapterPosition());
+            Contact model = contacts.get(holder.getAdapterPosition());
             ContactUtils.shareLocationOnSms(model.getNumbers().get(0), model.getName());
         });
 
         holder.btnwa.setOnClickListener(v -> {
-            Contact model = contacts.get(holder.getBindingAdapterPosition());
+            Contact model = contacts.get(holder.getAdapterPosition());
             ContactUtils.openWhatsAppChat(model.getNumbers().get(0));
         });
         holder.btnHistory.setOnClickListener(v -> {
-            Contact model = contacts.get(holder.getBindingAdapterPosition());
+            Contact model = contacts.get(holder.getAdapterPosition());
             ContactUtils.openCallDetailsActivity(model);
         });
 
-        holder.rl.setOnClickListener(view -> {
-            handleMenu(holder, false);
-        });
+        holder.rl.setOnClickListener(view -> handleMenu(holder, false));
+
         return holder;
     }
 

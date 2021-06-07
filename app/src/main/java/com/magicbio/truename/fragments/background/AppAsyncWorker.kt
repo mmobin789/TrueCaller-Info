@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.flowOn
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 
 object AppAsyncWorker {
@@ -316,7 +317,7 @@ object AppAsyncWorker {
         GlobalScope.launch(Dispatchers.IO) {
             val contacts = contactsDao.getAllContacts()
             contacts.find { contact ->
-                contact.numbers?.find {
+                contact.numbers.find {
                     number == it
                 } != null
             }.also(callback)
@@ -535,7 +536,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 contactId = id
                 email = contactEmail
                 name = contactName
-                numbers = contactNumbers
+                numbers = ArrayList(HashSet(contactNumbers))
             }
 
             contactsDao.findContactById(id)?.also {
@@ -613,7 +614,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                                 cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                             if (phone.isNullOrBlank())
                                 phone = phoneNumber
-                            numbers.add(phoneNumber.replace(" ", ""))
+                            if (phoneNumber.isNotBlank())
+                                numbers.add(phoneNumber.replace(" ", ""))
                         }
                         Log.i(javaClass.simpleName, "$name $phone")
                         cp.close()
@@ -632,7 +634,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     //    contact.number = phone
                     contact.image = image
                     contact.contactId = id
-                    contact.numbers = numbers
+                    contact.numbers = ArrayList(HashSet(numbers))
                     contacts.add(contact)
                     //  val cid = contact.save()
                     //Log.d("ContactID", cid.toString())
