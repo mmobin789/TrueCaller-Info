@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CallLogDao : BaseDAO<CallLogModel> {
     @Insert
-    suspend fun addCallLog(contacts: List<CallLogModel>): List<Long>
+    fun addCallLog(contacts: List<CallLogModel>): List<Long>
 
     @Query("select * from callLog where id between :startId and :endId")
-    fun getCallLogIn(startId: Int, endId: Int): Flow<List<CallLogModel>>
+    fun getCallLogIn(startId: Int, endId: Int): List<CallLogModel>
 
     @Query("SELECT * FROM callLog WHERE name LIKE :name")
-    fun findCallLogByName(name: String): Flow<List<CallLogModel>>
+    fun findCallLogByName(name: String): List<CallLogModel>
 
     @Query("select * from callLog where _id = :id ")
     fun findCallLogById(id: String): CallLogModel?

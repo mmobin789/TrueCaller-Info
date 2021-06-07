@@ -61,16 +61,15 @@ object AppAsyncWorker {
 
             }
 
-            callLogDao.getCallLogIn(1, 1).collect {
-                if (it.isEmpty()) {
-                    val ids = callLogDao.addCallLog(getCallDetails())
-                    Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
-                }
+            val logs = callLogDao.getCallLogIn(1, 1)
+            if (logs.isEmpty()) {
+                val ids = callLogDao.addCallLog(getCallDetails())
+                Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
+            }
 
-                withContext(Dispatchers.Main.immediate) {
-                    onCallLogReady()
-                    onContactsReady()
-                }
+            withContext(Dispatchers.Main.immediate) {
+                onCallLogReady()
+                onContactsReady()
             }
 
 
@@ -168,40 +167,29 @@ object AppAsyncWorker {
         endId: Int,
         onLoaded: (ArrayList<CallLogModel>) -> Unit
     ) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val flow = callLogDao.getCallLogIn(startId, endId)
-            withContext(Dispatchers.Main.immediate) {
-                flow.collect {
-                    if (it.isNotEmpty()) {
-                        Log.d("AppAsyncWorker", "Loaded Call logs from DB $startId to $endId")
-                        onLoaded(it as ArrayList<CallLogModel>)
-                    }
-                }
-            }
+        val list = callLogDao.getCallLogIn(startId, endId)
+        if (list.isNotEmpty()) {
+            Log.d("AppAsyncWorker", "Loaded Call logs from DB $startId to $endId")
+            onLoaded(list as ArrayList<CallLogModel>)
         }
     }
 
 
     @JvmStatic
     fun loadCallLogsByName(name: String, onLoaded: (ArrayList<CallLogModel>, Boolean) -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val search: Boolean
-            val flow = if (name.isBlank()) {
-                search = false
-                callLogDao.getCallLogIn(
-                    1,
-                    50
-                )
-            } else {
-                search = true
-                callLogDao.findCallLogByName("%$name%")
-            }
-            withContext(Dispatchers.Main.immediate) {
-                flow.collect {
-                    onLoaded(it as ArrayList<CallLogModel>, search)
-                }
-            }
+        val search: Boolean
+        val list = if (name.isBlank()) {
+            search = false
+            callLogDao.getCallLogIn(
+                1,
+                50
+            )
+        } else {
+            search = true
+            callLogDao.findCallLogByName("%$name%")
         }
+        onLoaded(list as ArrayList<CallLogModel>, search)
+
     }
 
     @SuppressLint("MissingPermission")

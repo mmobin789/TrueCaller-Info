@@ -8,7 +8,7 @@ import com.magicbio.truename.db.BaseDAO
 @Dao
 interface ContactDao : BaseDAO<Contact> {
     @Insert
-    suspend fun addContacts(contacts: List<Contact?>): List<Long>
+    fun addContacts(contacts: List<Contact?>): List<Long>
 
     @Query("select * from contacts where id between :startId and :endId")
     fun getContactsIn(startId: Int, endId: Int): List<Contact>
