@@ -17,12 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
-import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
-import com.magicbio.truename.models.GetNumberResponse;
-import com.magicbio.truename.retrofit.ApiClient;
-import com.magicbio.truename.retrofit.ApiInterface;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
@@ -39,10 +35,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static com.magicbio.truename.utils.CommonAnimationUtils.slideFromRightToLeft;
 

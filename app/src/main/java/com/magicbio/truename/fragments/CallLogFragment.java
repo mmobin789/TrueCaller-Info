@@ -65,7 +65,7 @@ public class CallLogFragment extends Fragment {
 
     }
 
-    private void loadCallLog() {
+    public void loadCallLog() {
         AppAsyncWorker.loadCallLog(startId, endId, callLog -> {
             tvLoading.setVisibility(View.GONE);
             callLogsAdapter.addCallLogs(callLog);
@@ -79,7 +79,6 @@ public class CallLogFragment extends Fragment {
     private void setCallLogsAdapter() {
         callLogsAdapter = new CallLogsAdapter(new ArrayList<>(500));
         recyclerView.setAdapter(callLogsAdapter);
-        loadCallLog();
     }
 
     public void search(String newText) {

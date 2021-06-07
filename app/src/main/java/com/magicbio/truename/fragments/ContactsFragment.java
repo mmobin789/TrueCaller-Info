@@ -6,17 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.ContactsAdapter;
+import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,13 +45,17 @@ public class ContactsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
-        init(view);
+        recyclerView = view.findViewById(R.id.recycler_View);
+        tvLoading = view.findViewById(R.id.tvLoading);
         return view;
     }
 
-    private void init(View v) {
-        recyclerView = v.findViewById(R.id.recycler_View);
-        tvLoading = v.findViewById(R.id.tvLoading);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        init();
+    }
+
+    private void init() {
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -59,12 +67,13 @@ public class ContactsFragment extends Fragment {
                 }
             }
         });
+
         setContactsAdapter();
 
 
     }
 
-    private void loadContacts() {
+    public void loadContacts() {
         AppAsyncWorker.loadContacts(startId, endId, contacts -> {
             tvLoading.setVisibility(View.GONE);
             contactsAdapter.addContacts(contacts);
@@ -74,30 +83,25 @@ public class ContactsFragment extends Fragment {
         });
     }
 
-    public void search(String newText) {
-        AppAsyncWorker.loadContactsByName(newText, (contacts,search) -> {
-            contactsAdapter.setContacts(contacts);
-            startId = 1;
-            endId = 50;
-            this.search = search;
-            return null;
-        });
+
+
+    public void search(@NotNull String newText) {
+        search = !newText.isEmpty();
+        contactsAdapter.setContacts(AppAsyncWorker.loadContactsByName(newText));
+        startId = 1;
+        endId = 50;
     }
 
 
     private void setContactsAdapter() {
         contactsAdapter = new ContactsAdapter(new ArrayList<>(500));
         recyclerView.setAdapter(contactsAdapter);
-        loadContacts();
 
     }
 
 
-        //  Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        // Log.i("Contacts_JSON", gson.toJson(contacts));
-
-
-
+    //  Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    // Log.i("Contacts_JSON", gson.toJson(contacts));
 
 
 }

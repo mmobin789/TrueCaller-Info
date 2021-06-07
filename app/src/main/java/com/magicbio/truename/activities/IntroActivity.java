@@ -19,7 +19,6 @@ import com.hbb20.CountryCodePicker;
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
 import com.magicbio.truename.adapters.ViewPagerAdapter;
-import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.SignUpResponse;
 import com.magicbio.truename.retrofit.ApiClient;
 import com.magicbio.truename.retrofit.ApiInterface;
@@ -99,9 +98,6 @@ public class IntroActivity extends AppCompatActivity {
                     Intent intent = new Intent(IntroActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
-
-                    AppAsyncWorker.saveContactsToDb(apiInterface, userId);
-                    AppAsyncWorker.saveCallLogToDb();
                 }
 
 

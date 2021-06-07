@@ -16,13 +16,17 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private ImageView btnCalls, btnMasseges, btnContacts;
-    private CallLogFragment callLogFragment = new CallLogFragment();
+    private final CallLogFragment callLogFragment = new CallLogFragment();
     //  private MessagesFragment messagesFragment = new MessagesFragment();
-    private ContactsFragment contactsFragment = new ContactsFragment();
+    private final ContactsFragment contactsFragment = new ContactsFragment();
     private View l1, l2, l3;
     private SearchView searchView;
     private ViewPager viewPager;
@@ -125,6 +129,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 }
         ).executeAsync();*/
         createExitDialog();
+
+        AppAsyncWorker.saveContactsAndCallLogToDb(() -> {
+            contactsFragment.loadContacts();
+            return null;
+        }, () -> {
+            callLogFragment.loadCallLog();
+            return null;
+        });
 
     }
 

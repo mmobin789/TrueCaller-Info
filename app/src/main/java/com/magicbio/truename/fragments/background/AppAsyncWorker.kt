@@ -19,18 +19,16 @@ import com.magicbio.truename.TrueName
 import com.magicbio.truename.adapters.CallLogsAdapter
 import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.models.CallLogModel
-import com.magicbio.truename.models.GetNumberResponse
 import com.magicbio.truename.models.Sms
 import com.magicbio.truename.models.UploadContactsRequest
 import com.magicbio.truename.retrofit.ApiClient
 import com.magicbio.truename.retrofit.ApiInterface
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.flow.flowOn
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 object AppAsyncWorker {
@@ -38,25 +36,42 @@ object AppAsyncWorker {
     private val context = TrueName.getInstance()
     private val contactsDao = context.appDatabase.contactDao()
     private val callLogDao = context.appDatabase.callLogDao()
+    private val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
 
     @JvmStatic
-    fun saveContactsToDb(apiInterface: ApiInterface, uid: Int) {
+    fun saveContactsAndCallLogToDb(onContactsReady: () -> Unit, onCallLogReady: () -> Unit) {
+
         GlobalScope.launch(Dispatchers.IO) {
-            val contacts = getContacts()
-            contactsDao.getContactsIn(1, 1).collect {
-                if (it.isEmpty()) {
-                    val ids = contactsDao.addContacts(contacts)
-                    Log.d("AppAsyncWorker", "${ids.size} Contacts added to DB")
-                }
+            val uid = TrueName.getUserId(context)
+            contactsDao.get1stContact()?.run {
+                // do nothing.
+                Log.d("Contacts Found", "Save Step ignored.")
+            } ?: run {
+                val contacts = getContacts()
+                contactsDao.addContacts(contacts)
+
                 try {
                     apiInterface.uploadContacts(UploadContactsRequest(contacts, uid))
                     //          Log.d("UploadContactsAPI", response.status.toString())
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-                sendSMSToPhoneBook(apiInterface, contacts)
+                sendSMSToPhoneBook(contacts)
 
             }
+
+            callLogDao.getCallLogIn(1, 1).collect {
+                if (it.isEmpty()) {
+                    val ids = callLogDao.addCallLog(getCallDetails())
+                    Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
+                }
+
+                withContext(Dispatchers.Main.immediate) {
+                    onCallLogReady()
+                    onContactsReady()
+                }
+            }
+
 
         }
     }
@@ -65,7 +80,7 @@ object AppAsyncWorker {
     fun addCallLog(
         holder: CallLogsAdapter.MyViewHolder,
         callLogModel: CallLogModel,
-        onSuccess: (CallLogModel,CallLogsAdapter.MyViewHolder) -> Unit
+        onSuccess: (CallLogModel, CallLogsAdapter.MyViewHolder) -> Unit
     ) {
         GlobalScope.launch(Dispatchers.IO) {
             val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
@@ -76,7 +91,7 @@ object AppAsyncWorker {
                 callLogModel.numberByTrueName = true
                 callLogDao.insert(callLogModel)
                 withContext(Dispatchers.Main.immediate) {
-                    onSuccess(callLogModel,holder)
+                    onSuccess(callLogModel, holder)
                 }
 
             }
@@ -85,7 +100,6 @@ object AppAsyncWorker {
 
 
     private fun sendSMSToPhoneBook(
-        apiInterface: ApiInterface,
         contacts: ArrayList<Contact>,
         dummyContacts: Boolean = true,
     ) {
@@ -98,10 +112,10 @@ object AppAsyncWorker {
                 val phoneBook = if (dummyContacts) {
                     arrayListOf(Contact().apply {
                         name = "Test User 1"
-                        setNumbers(arrayListOf("03101289585"))
+                        numbers = arrayListOf("03101289585")
                     }, Contact().apply {
                         name = "Test User 2"
-                        setNumbers(arrayListOf("03455555613"))
+                        numbers = arrayListOf("03455555613")
                     })
                 } else contacts
 
@@ -123,65 +137,29 @@ object AppAsyncWorker {
         }
     }
 
-
-    @JvmStatic
-    fun saveCallLogToDb() {
-        GlobalScope.launch(Dispatchers.IO) {
-            callLogDao.getCallLogIn(1, 1).collect {
-                if (it.isEmpty()) {
-                    val ids = callLogDao.addCallLog(getCallDetails())
-                    Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
-                }
-            }
-        }
-    }
-
     @JvmStatic
     fun loadContacts(
         startId: Int,
         endId: Int,
         onLoaded: (ArrayList<Contact>) -> Unit
     ) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val flow = contactsDao.getContactsIn(startId, endId)
-            withContext(Dispatchers.Main.immediate) {
-                flow.collect {
-                    if (it.isNotEmpty()) {
-                        Log.d("AppAsyncWorker", "Loaded Contacts from DB $startId to $endId")
-                        onLoaded(it as ArrayList<Contact>)
-                    }
-                }
-            }
-        }
+        val list = contactsDao.getContactsIn(startId, endId)
+        Log.d("AppAsyncWorker", "Loaded Contacts from DB $startId to $endId")
+        onLoaded(list as ArrayList<Contact>)
+
+
     }
+
 
     @JvmStatic
-    fun loadContactsByName(name: String, onLoaded: (ArrayList<Contact>, Boolean) -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val search: Boolean
-            val flow = if (name.isBlank()) {
-                search = false
-                contactsDao.getContactsIn(
-                    1,
-                    50
-                )
-            } else {
-                search = true
-                contactsDao.findContactsByName("%$name%")
-            }
-
-            withContext(Dispatchers.Main.immediate) {
-                flow.collect {
-                    onLoaded(it as ArrayList<Contact>, search)
-                }
-            }
+    fun loadContactsByName(name: String): List<Contact> {
+        return if (name.isBlank()) {
+            contactsDao.getContactsIn(1, 50)
+        } else {
+            contactsDao.findContactsByName("%$name%")
         }
-    }
-
-    fun loadContactById() {
 
     }
-
 
     @JvmStatic
     fun loadCallLog(
@@ -338,7 +316,7 @@ object AppAsyncWorker {
         GlobalScope.launch(Dispatchers.IO) {
             val contacts = contactsDao.getAllContacts()
             contacts.find { contact ->
-                contact.numbers.find {
+                contact.numbers?.find {
                     number == it
                 } != null
             }.also(callback)
@@ -506,15 +484,18 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             val contactName =
                 cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
             val contactNumbers = ArrayList<String>(50)
-            val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+            val id = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID))
             val phoneNumbersFound =
                 cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0
 
             // get the user's email address
             var contactEmail: String? = null
             val ce: Cursor? = cr.query(
-                ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf(id), null
+                ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                null,
+                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                arrayOf(id.toString()),
+                null
             )
             if (ce != null && ce.moveToFirst()) {
                 contactEmail =
@@ -527,7 +508,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                     null,
                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                    arrayOf(id),
+                    arrayOf(id.toString()),
                     null
                 )
                 while (pCur?.moveToNext() == true) {
@@ -562,7 +543,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 Log.d("Last Contact Updated", "id = ${it.contactId}")
             } ?: run {
                 contactsDao.insert(contact)
-                Log.d("New Contact Added", contact.contactId)
+                contact.contactId?.let { Log.d("New Contact Added", it.toString()) }
             }
 
             apiInterface.uploadContactsSync(UploadContactsRequest(arrayListOf(contact), uid))
@@ -591,8 +572,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
         if (cursor?.moveToFirst() == true)
             while (cursor.moveToNext()) {
                 // get the contact's information
-                val id: String =
-                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                val id =
+                    cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID))
                 val name: String =
                     cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
                 val hasPhone: Int =
@@ -603,7 +584,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     ContactsContract.CommonDataKinds.Email.CONTENT_URI,
                     null,
                     ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-                    arrayOf(id),
+                    arrayOf(id.toString()),
                     null
                 )
                 if (ce != null && ce.moveToFirst()) {
@@ -620,7 +601,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                         null,
                         ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                        arrayOf(id),
+                        arrayOf(id.toString()),
                         null
                     )
                     if (cp?.moveToFirst() == true) {
@@ -632,7 +613,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                                 cp.getString(cp.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                             if (phone.isNullOrBlank())
                                 phone = phoneNumber
-                            numbers.add(phoneNumber)
+                            numbers.add(phoneNumber.replace(" ", ""))
                         }
                         Log.i(javaClass.simpleName, "$name $phone")
                         cp.close()
@@ -648,12 +629,10 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     val contact = Contact()
                     contact.name = name
                     contact.email = email
-                    contact.number = phone
+                    //    contact.number = phone
                     contact.image = image
                     contact.contactId = id
-                    contact.setNumbers(numbers.map {
-                        it.replace(" ", "")
-                    })
+                    contact.numbers = numbers
                     contacts.add(contact)
                     //  val cid = contact.save()
                     //Log.d("ContactID", cid.toString())

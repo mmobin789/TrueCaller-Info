@@ -68,7 +68,7 @@ public class TrueName extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        appDatabase = Room.databaseBuilder(this, AppDatabase.class, "trueCaller").build();
+        appDatabase = Room.databaseBuilder(this, AppDatabase.class, "trueCaller").allowMainThreadQueries().build();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             String process = getProcessName();
             if (!getPackageName().equals(process)) WebView.setDataDirectorySuffix(process);

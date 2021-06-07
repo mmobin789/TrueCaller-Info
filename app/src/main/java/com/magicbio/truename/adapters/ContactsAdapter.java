@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.db.contacts.Contact;
-import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.CommonAnimationUtils;
 import com.magicbio.truename.utils.ContactUtils;
@@ -23,6 +22,7 @@ import com.magicbio.truename.utils.ContactUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.pixel.Pixel;
 import io.pixel.config.PixelOptions;
@@ -41,23 +41,23 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
         this.contacts = contacts;
     }
 
-    public void addContacts(ArrayList<Contact> contacts) {
+    public void addContacts(List<Contact> contacts) {
         this.contacts.addAll(contacts);
         showAds(contacts);
         notifyItemRangeInserted(getItemCount(), contacts.size());
     }
 
-    public void setContacts(ArrayList<Contact> contacts) {
+    public void setContacts(List<Contact> contacts) {
         this.contacts.clear();
         this.contacts.addAll(contacts);
         showAds(contacts);
         notifyDataSetChanged();
     }
 
-    private void showAds(@NotNull ArrayList<Contact> contacts) {
+    private void showAds(@NotNull List<Contact> contacts) {
 
         for (int i = 0; i < contacts.size(); i++) {
-            contacts.get(i).showAd = i % 5 == 0;
+            contacts.get(i).setShowAd(i % 5 == 0);
         }
 
     }
@@ -71,30 +71,30 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
         final MyViewHolder holder = new MyViewHolder(itemView);
 
-        holder.btnCall.setOnClickListener(v -> ContactUtils.callNumber(contacts.get(holder.getAdapterPosition()).getNumber()));
+        holder.btnCall.setOnClickListener(v -> ContactUtils.callNumber(contacts.get(holder.getBindingAdapterPosition()).getNumbers().get(0)));
 
-        holder.btnSms.setOnClickListener(v -> ContactUtils.openSmsApp(contacts.get(holder.getAdapterPosition()).getNumber()));
+        holder.btnSms.setOnClickListener(v -> ContactUtils.openSmsApp(contacts.get(holder.getBindingAdapterPosition()).getNumbers().get(0)));
 
         holder.btnClose.setOnClickListener(v -> {
-            handleMenu(holder,true);
+            handleMenu(holder, true);
         });
 
         holder.btnLocation.setOnClickListener(v -> {
-            Contact model = contacts.get(holder.getAdapterPosition());
-            ContactUtils.shareLocationOnSms(model.getNumber(), model.getName());
+            Contact model = contacts.get(holder.getBindingAdapterPosition());
+            ContactUtils.shareLocationOnSms(model.getNumbers().get(0), model.getName());
         });
 
         holder.btnwa.setOnClickListener(v -> {
-            Contact model = contacts.get(holder.getAdapterPosition());
-            ContactUtils.openWhatsAppChat(model.getNumber());
+            Contact model = contacts.get(holder.getBindingAdapterPosition());
+            ContactUtils.openWhatsAppChat(model.getNumbers().get(0));
         });
         holder.btnHistory.setOnClickListener(v -> {
-            Contact model = contacts.get(holder.getAdapterPosition());
+            Contact model = contacts.get(holder.getBindingAdapterPosition());
             ContactUtils.openCallDetailsActivity(model);
         });
 
         holder.rl.setOnClickListener(view -> {
-            handleMenu(holder,false);
+            handleMenu(holder, false);
         });
         return holder;
     }
@@ -105,21 +105,21 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
         Contact contact = contacts.get(position);
 
         if (closeOnly) {
-            contact.areOptionsShown = false;
+            contact.setAreOptionsShown(false);
             notifyItemChanged(position);
             return;
         }
 
         if (previousPosition > -1) { // if previous opened close it
             Contact contactOpened = contacts.get(previousPosition);
-            contactOpened.areOptionsShown = false;
+            contactOpened.setAreOptionsShown(false);
             notifyItemChanged(previousPosition);
 
         }
         // hidden so show
         CommonAnimationUtils.slideFromRightToLeft(holder.btnView, holder.rl.getWidth() - holder.img.getWidth());
 
-        contact.areOptionsShown = true;
+        contact.setAreOptionsShown(true);
 
         previousPosition = position;
     }
@@ -128,15 +128,15 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Contact contact = contacts.get(position);
         holder.txtName.setText(contact.getName());
-        holder.txtNumber.setText(contact.getNumber());
+        holder.txtNumber.setText(contact.getNumbers().get(0));
 
-        if (contact.areOptionsShown)
+        if (contact.getAreOptionsShown())
             holder.btnView.setVisibility(View.VISIBLE);
         else {
             holder.btnView.setVisibility(View.GONE);
         }
 
-        if (contact.showAd)
+        if (contact.getShowAd())
             holder.adView.setVisibility(View.VISIBLE);
         else holder.adView.setVisibility(View.GONE);
 
