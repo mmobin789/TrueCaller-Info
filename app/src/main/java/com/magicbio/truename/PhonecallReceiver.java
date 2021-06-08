@@ -48,8 +48,11 @@ public abstract class PhonecallReceiver extends BroadcastReceiver {
                     }
                 };
 
-
-                telephony.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+                try {
+                    telephony.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
