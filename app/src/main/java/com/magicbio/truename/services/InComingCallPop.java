@@ -63,8 +63,6 @@ import java.util.Date;
 import io.pixel.Pixel;
 import io.pixel.config.PixelConfiguration;
 import io.pixel.config.PixelOptions;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -304,19 +302,9 @@ public class InComingCallPop extends Service {
             ImageView ivWhatsApp = ivCrumpledPaper.findViewById(R.id.ivWta);
             Button ivLoc = ivCrumpledPaper.findViewById(R.id.ivLocation);
 
-            ivWhatsApp.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ContactUtils.openWhatsAppChat(number);
-                }
-            });
+            ivWhatsApp.setOnClickListener(view -> ContactUtils.openWhatsAppChat(number));
 
-            ivLoc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ContactUtils.shareLocationOnSms(number, txtName.getText().toString());
-                }
-            });
+            ivLoc.setOnClickListener(view -> ContactUtils.shareLocationOnSms(number, txtName.getText().toString()));
             CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
             if (callLogModel != null && !callLogModel.getCallDate().replace(" ", "").isEmpty())
                 txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(callLogModel.getCallDate()), "dd/MM/yyyy hh:mm:ss")));

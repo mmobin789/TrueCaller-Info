@@ -84,7 +84,7 @@ object AppAsyncWorker {
     ) {
         GlobalScope.launch(Dispatchers.IO) {
             val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
-            val response = apiInterface.getNumberDetails(callLogModel.phNumber, "92")?.execute()
+            val response = apiInterface.getNumberDetails(callLogModel.phNumber, "92").execute()
             if (response?.body() != null && response.body()?.status == true) {
                 val data = response.body()!!.data
                 callLogModel.name = data.name

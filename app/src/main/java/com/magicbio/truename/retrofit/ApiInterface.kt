@@ -18,7 +18,7 @@ interface ApiInterface {
     fun getNumberDetails(
         @Query("number") number: String,
         @Query("code") countryId: String
-    ): Call<GetNumberResponse?>?
+    ): Call<GetNumberResponse?>
 
     @POST("upload-numbers")
     suspend fun uploadContacts(@Body uploadContactsRequest: UploadContactsRequest): UploadContactsResponse

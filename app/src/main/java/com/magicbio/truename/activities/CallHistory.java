@@ -187,13 +187,6 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
     }*/
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        ContactUtils.onActivityResult(requestCode, resultCode, data);
-    }
-
-
 
   /*  private void stopLocation() {
         SmartLocation.with(this).location().stop();

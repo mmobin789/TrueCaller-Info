@@ -18,9 +18,6 @@ import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private ImageView btnCalls, btnMasseges, btnContacts;
@@ -129,10 +126,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         createExitDialog();
 
         AppAsyncWorker.saveContactsAndCallLogToDb(() -> {
-            contactsFragment.loadContacts();
+            runOnUiThread(contactsFragment::loadContacts);
             return null;
         }, () -> {
-            callLogFragment.loadCallLog();
+            runOnUiThread(callLogFragment::loadCallLog);
             return null;
         });
 

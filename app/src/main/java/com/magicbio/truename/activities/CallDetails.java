@@ -145,12 +145,6 @@ public class CallDetails extends AppCompatActivity {
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        ContactUtils.onActivityResult(requestCode, resultCode, data);
-    }
-
 
 
   /*  private void stopLocation() {
