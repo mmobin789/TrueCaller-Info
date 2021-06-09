@@ -11,12 +11,20 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.viewpager.widget.ViewPager;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
-import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.fragments.background.SaveCallLogsWorker;
+import com.magicbio.truename.fragments.background.SaveContactsWorker;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -28,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private SearchView searchView;
     private ViewPager viewPager;
     private AlertDialog alertDialog;
+    public String workTag = "w";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,13 +134,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         ).executeAsync();*/
         createExitDialog();
 
-        AppAsyncWorker.saveContactsAndCallLogToDb(() -> {
-            runOnUiThread(contactsFragment::loadContacts);
-            return null;
-        }, () -> {
-            runOnUiThread(callLogFragment::loadCallLog);
-            return null;
-        });
+        WorkRequest saveContactsRequest = new PeriodicWorkRequest.Builder(SaveContactsWorker.class, 1, TimeUnit.DAYS)
+                .addTag(workTag).build();
+        WorkRequest saveCallLogRequest = new PeriodicWorkRequest.Builder(SaveCallLogsWorker.class, 1, TimeUnit.DAYS)
+                .addTag(workTag).build();
+        WorkManager workManager = WorkManager.getInstance(this);
+        List<WorkRequest> workRequests = new ArrayList<>(2);
+        workRequests.add(saveContactsRequest);
+        workRequests.add(saveCallLogRequest);
+        workManager.enqueue(workRequests);
 
     }
 

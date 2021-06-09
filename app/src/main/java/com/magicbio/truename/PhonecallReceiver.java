@@ -50,7 +50,7 @@ public abstract class PhonecallReceiver extends BroadcastReceiver {
 
                 try {
                     telephony.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-                } catch (IllegalStateException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

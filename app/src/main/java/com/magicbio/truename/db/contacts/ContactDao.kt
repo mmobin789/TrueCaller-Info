@@ -24,4 +24,7 @@ interface ContactDao : BaseDAO<Contact> {
 
     @Query("select * from contacts where contactId = :id")
     fun findContactById(id: Int): Contact?
+
+    @Query("delete from contacts")
+    fun deleteAll()
 }

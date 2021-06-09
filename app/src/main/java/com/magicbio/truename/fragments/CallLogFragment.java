@@ -6,13 +6,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Data;
+import androidx.work.WorkManager;
 
 import com.magicbio.truename.R;
+import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.adapters.CallLogsAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
+import com.magicbio.truename.models.CallLogModel;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -65,12 +71,32 @@ public class CallLogFragment extends Fragment {
 
     }
 
-    public void loadCallLog() {
-        AppAsyncWorker.loadCallLog(startId, endId, callLog -> {
-            tvLoading.setVisibility(View.GONE);
-            callLogsAdapter.addCallLogs(callLog);
-            startId = endId + 1;
-            endId += endId;
+    @Override
+    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        MainActivity mainActivity = (MainActivity) requireActivity();
+        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData(mainActivity.workTag).observe(this, workInfo -> {
+            if (workInfo.get(0).getProgress() == Data.EMPTY)
+                loadCallLog();
+        });
+    }
+
+    private void setIds() {
+        CallLogModel callLogModel = AppAsyncWorker.get1stCallLog();
+        if (callLogModel != null) {
+            startId = callLogModel.id;
+            endId = startId + 49;
+        }
+    }
+
+    private void loadCallLog() {
+        setIds();
+        AppAsyncWorker.loadCallLog(startId, endId, (callLog) -> {
+            if (!callLog.isEmpty()) {
+                tvLoading.setVisibility(View.GONE);
+                callLogsAdapter.addCallLogs(callLog);
+                startId = endId + 1;
+                endId += endId;
+            }
             return null;
         });
     }
@@ -82,17 +108,13 @@ public class CallLogFragment extends Fragment {
     }
 
     public void search(String newText) {
-
-        if (callLogsAdapter == null)
-            return;
-
-        AppAsyncWorker.loadCallLogsByName(newText, (callLog, search) -> {
+        requireActivity().runOnUiThread(() -> AppAsyncWorker.loadCallLogsByName(newText, (callLog, search) -> {
             callLogsAdapter.setCallLogs(callLog);
-            startId = 1;
-            endId = 50;
             this.search = search;
+            setIds();
             return null;
-        });
+        }));
+
     }
 
 

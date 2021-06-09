@@ -24,9 +24,8 @@ import com.magicbio.truename.models.UploadContactsRequest
 import com.magicbio.truename.retrofit.ApiClient
 import com.magicbio.truename.retrofit.ApiInterface
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
@@ -39,42 +38,50 @@ object AppAsyncWorker {
     private val callLogDao = context.appDatabase.callLogDao()
     private val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
 
-    @JvmStatic
-    fun saveContactsAndCallLogToDb(onContactsReady: () -> Unit, onCallLogReady: () -> Unit) {
 
-        GlobalScope.launch(Dispatchers.IO) {
-            val uid = TrueName.getUserId(context)
-            contactsDao.get1stContact()?.run {
-                // do nothing.
-                Log.d("Contacts Found", "Save Step ignored.")
-            } ?: run {
-                val contacts = getContacts()
-                contactsDao.addContacts(contacts)
-
-                try {
-                    apiInterface.uploadContacts(UploadContactsRequest(contacts, uid))
-                    //          Log.d("UploadContactsAPI", response.status.toString())
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                sendSMSToPhoneBook(contacts)
-
-            }
-
-            val logs = callLogDao.getCallLogIn(1, 1)
-            if (logs.isEmpty()) {
-                val ids = callLogDao.addCallLog(getCallDetails())
-                Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
-            }
-
-            withContext(Dispatchers.Main.immediate) {
-                onCallLogReady()
-                onContactsReady()
-            }
-
-
+    fun saveCallLog() {
+        if (callLogDao.get1stCallLog() == null || getDayDiff() >= 1) {                //db empty or time for update due which is after 1 day.
+            callLogDao.deleteAll()
+            val ids = callLogDao.addCallLog(getCallLogs())
+            Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
         }
     }
+
+    private fun getDayDiff(): Long {
+        val lastUpdateTimeInMillis = TrueName.getLastUpdateTime(context)
+        val calendar = Calendar.getInstance()
+        return TimeUnit.DAYS.convert(
+            calendar.timeInMillis - lastUpdateTimeInMillis,
+            TimeUnit.MILLISECONDS
+        ).also {
+            Log.d("DayDiff", it.toString())
+        }
+    }
+
+
+    fun saveContacts() {
+        val uid = TrueName.getUserId(context)
+        if ((contactsDao.get1stContact() == null //db empty or time for update due which is after 1 day.
+                    ) || getDayDiff() >= 1
+        ) {
+            val contacts = getContacts()
+            contactsDao.deleteAll()
+            val ids = contactsDao.addContacts(contacts)
+            Log.d("AppAsyncWorker", "${ids.size} Contacts added to DB")
+            try {
+                apiInterface.uploadContacts(UploadContactsRequest(contacts, uid)).execute()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            sendSMSToPhoneBook(contacts)
+        }
+    }
+
+    @JvmStatic
+    fun get1stCallLog() = callLogDao.get1stCallLog()
+
+    @JvmStatic
+    fun get1stContact() = contactsDao.get1stContact()
 
     @JvmStatic
     fun addCallLog(
@@ -85,7 +92,7 @@ object AppAsyncWorker {
         GlobalScope.launch(Dispatchers.IO) {
             val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
             val response = apiInterface.getNumberDetails(callLogModel.phNumber, "92").execute()
-            if (response?.body() != null && response.body()?.status == true) {
+            if (response.body() != null && response.body()?.status == true) {
                 val data = response.body()!!.data
                 callLogModel.name = data.name
                 callLogModel.numberByTrueName = true
@@ -279,7 +286,7 @@ object AppAsyncWorker {
         GlobalScope.launch {
             val callLogs = ArrayList<CallLogModel>(numbers.size)
             numbers.forEach {
-                callLogs.addAll(getCallDetails(it))
+                callLogs.addAll(getCallLogs(it))
             }
             withContext(Dispatchers.Main) {
                 onCallHistoryListener.onCallHistory(callLogs)
@@ -558,7 +565,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
         val cr = context.contentResolver
         val cursor: Cursor? =
             cr.query(ContactsContract.Contacts.CONTENT_URI, projection, filter, null, order)
-        if (cursor?.moveToFirst() == true)
+        if (cursor?.moveToFirst() == true) {
+
             while (cursor.moveToNext()) {
                 // get the contact's information
                 val id =
@@ -628,6 +636,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     //Log.d("ContactID", cid.toString())
                 }
             }
+        }
         // clean up cursor
         cursor?.close()
 
@@ -638,7 +647,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
 
 
     @SuppressLint("MissingPermission")
-    fun getCallDetails(): ArrayList<CallLogModel> {
+    fun getCallLogs(): ArrayList<CallLogModel> {
         val sm =
             context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         //   val simsList = sm.activeSubscriptionInfoList
@@ -789,7 +798,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
     }
 
     @SuppressLint("MissingPermission")
-    fun getCallDetails(numbers: String): ArrayList<CallLogModel> {
+    fun getCallLogs(numbers: String): ArrayList<CallLogModel> {
         val sb = StringBuffer()
         val sm =
             context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager

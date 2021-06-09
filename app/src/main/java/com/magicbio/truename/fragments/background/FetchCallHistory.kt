@@ -6,7 +6,7 @@ import com.magicbio.truename.models.CallLogModel
 class FetchCallHistory(private val number: String, private val onCallHistoryListener: OnCallHistoryListener) : AsyncTask<Unit, Unit, ArrayList<CallLogModel>>() {
 
     override fun doInBackground(vararg params: Unit?): ArrayList<CallLogModel> {
-        return AppAsyncWorker.getCallDetails(number)
+        return AppAsyncWorker.getCallLogs(number)
     }
 
     override fun onPostExecute(result: ArrayList<CallLogModel>?) {

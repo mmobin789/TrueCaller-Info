@@ -11,8 +11,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Data;
+import androidx.work.WorkManager;
 
 import com.magicbio.truename.R;
+import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.adapters.ContactsAdapter;
 import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
@@ -20,7 +23,6 @@ import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,6 +55,12 @@ public class ContactsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         init();
+        MainActivity mainActivity = (MainActivity) requireActivity();
+        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData(mainActivity.workTag).observe(this, workInfo -> {
+            if (workInfo.get(0).getProgress() == Data.EMPTY)
+                loadContacts();
+
+        });
     }
 
     private void init() {
@@ -73,23 +81,40 @@ public class ContactsFragment extends Fragment {
 
     }
 
-    public void loadContacts() {
-        AppAsyncWorker.loadContacts(startId, endId, contacts -> {
-            tvLoading.setVisibility(View.GONE);
-            contactsAdapter.addContacts(contacts);
-            startId = endId + 1;
-            endId += endId;
+    private void setIds() {
+        Contact contact = AppAsyncWorker.get1stContact();
+        if (contact != null) {
+            startId = contact.getId();
+            endId = startId + 49;
+        }
+    }
+
+    private void incIds() {
+        startId = endId + 1;
+        endId += endId;
+    }
+
+    private void loadContacts() {
+        setIds();
+        AppAsyncWorker.loadContacts(startId, endId, (contacts) -> {
+            if (!contacts.isEmpty()) {
+                tvLoading.setVisibility(View.GONE);
+                contactsAdapter.addContacts(contacts);
+                incIds();
+            }
             return null;
         });
+
     }
 
 
-
     public void search(@NotNull String newText) {
-        search = !newText.isEmpty();
-        contactsAdapter.setContacts(AppAsyncWorker.loadContactsByName(newText));
-        startId = 1;
-        endId = 50;
+        requireActivity().runOnUiThread(() -> {
+            search = !newText.isEmpty();
+            contactsAdapter.setContacts(AppAsyncWorker.loadContactsByName(newText));
+            setIds();
+        });
+
     }
 
 

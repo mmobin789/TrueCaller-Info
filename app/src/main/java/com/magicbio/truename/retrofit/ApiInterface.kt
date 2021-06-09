@@ -21,7 +21,7 @@ interface ApiInterface {
     ): Call<GetNumberResponse?>
 
     @POST("upload-numbers")
-    suspend fun uploadContacts(@Body uploadContactsRequest: UploadContactsRequest): UploadContactsResponse
+    fun uploadContacts(@Body uploadContactsRequest: UploadContactsRequest): Call<UploadContactsResponse>
 
     @POST("upload-numbers")
     fun uploadContactsSync(@Body uploadContactsRequest: UploadContactsRequest): Call<UploadContactsResponse>

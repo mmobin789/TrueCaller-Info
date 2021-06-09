@@ -50,6 +50,21 @@ public class TrueName extends Application {
         editor.apply();
     }
 
+    public static void saveLastUpdateTime(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putLong("time", System.currentTimeMillis());
+        editor.apply();
+    }
+
+
+    public static long getLastUpdateTime(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getLong("time",0);
+    }
+
+
+
     public static void setLastCall(String Number, Date time, Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
