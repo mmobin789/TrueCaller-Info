@@ -22,7 +22,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
-import android.telephony.SmsManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -78,7 +77,7 @@ public class InComingCallPop extends Service {
     private NotificationManager nm;
     int MAX_CLICK_DURATION = 200;
     long startClickTime;
-    AdView mAdView;
+    AdView mAdView, adView1, adView2;
     InterstitialAd interstitialAd;
     String filepath;
     // variables
@@ -270,8 +269,10 @@ public class InComingCallPop extends Service {
             ivCrumpledPaper = li.inflate(R.layout.incoming_call_pop, null, false);
             txtName = ivCrumpledPaper.findViewById(R.id.txtName);
             ivAd = ivCrumpledPaper.findViewById(R.id.ivAd);
-            AdView adView = ivCrumpledPaper.findViewById(R.id.adView);
-            AdUtils.loadBannerAd(adView);
+            adView1 = ivCrumpledPaper.findViewById(R.id.adView);
+            adView2 = ivCrumpledPaper.findViewById(R.id.adView2);
+            AdUtils.loadBannerAd(adView1);
+            AdUtils.loadBannerAd(adView2);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
             //txtLastCall.setText(TrueName.getLastCall(number,getApplicationContext()));
             txtName.setText(ComFunc.getContactName(number, this));
@@ -286,8 +287,10 @@ public class InComingCallPop extends Service {
         } else if (ptype == 1) {
 
             ivCrumpledPaper = li.inflate(R.layout.after_call_pop, null, false);
-            AdView adView = ivCrumpledPaper.findViewById(R.id.adView);
-            AdUtils.loadBannerAd(adView);
+            adView1 = ivCrumpledPaper.findViewById(R.id.adView);
+            adView2 = ivCrumpledPaper.findViewById(R.id.adView2);
+            AdUtils.loadBannerAd(adView1);
+            AdUtils.loadBannerAd(adView2);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
             btnMessage = ivCrumpledPaper.findViewById(R.id.btnMessage);
             btnCall = ivCrumpledPaper.findViewById(R.id.btnCall);
@@ -470,7 +473,11 @@ public class InComingCallPop extends Service {
                     PixelConfiguration.setLoggingEnabled(true);
                     String url = data.image.replace("\"", "");
                     Log.d("ImageURL", url);
-                    Pixel.load(url,new PixelOptions.Builder().setPlaceholderResource(R.drawable.sms_connect_ad).build(),ivAd);
+                    if (data.type.equals("yes")) {
+                        Pixel.load(url, new PixelOptions.Builder().setPlaceholderResource(R.drawable.sms_connect_ad).build(), ivAd);
+                    } else {
+                        adView2.setVisibility(View.VISIBLE);
+                    }
                     txtNumber.setText(data.number);
                 }
             }

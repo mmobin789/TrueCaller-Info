@@ -74,7 +74,7 @@ public class CallLogFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         MainActivity mainActivity = (MainActivity) requireActivity();
-        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData(mainActivity.workTag).observe(this, workInfo -> {
+        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("cl").observe(this, workInfo -> {
             if (workInfo.get(0).getProgress() == Data.EMPTY)
                 loadCallLog();
         });

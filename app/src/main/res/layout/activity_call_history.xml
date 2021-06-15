@@ -165,9 +165,9 @@
                 android:layout_height="50dp"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
+                android:background="@drawable/block_btn_back"
                 android:contentDescription="@string/app_name"
-                android:scaleType="centerCrop"
-                android:src="@drawable/block_btn"
+                android:padding="5dp"
                 android:visibility="gone"
                 tools:visibility="visible" />
 

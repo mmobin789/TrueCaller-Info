@@ -56,7 +56,7 @@ public class ContactsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         init();
         MainActivity mainActivity = (MainActivity) requireActivity();
-        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData(mainActivity.workTag).observe(this, workInfo -> {
+        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("c").observe(this, workInfo -> {
             if (workInfo.get(0).getProgress() == Data.EMPTY)
                 loadContacts();
 

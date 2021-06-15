@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private SearchView searchView;
     private ViewPager viewPager;
     private AlertDialog alertDialog;
-    public String workTag = "w";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,9 +134,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         createExitDialog();
 
         WorkRequest saveContactsRequest = new PeriodicWorkRequest.Builder(SaveContactsWorker.class, 1, TimeUnit.DAYS)
-                .addTag(workTag).build();
+                .addTag("c").build();
         WorkRequest saveCallLogRequest = new PeriodicWorkRequest.Builder(SaveCallLogsWorker.class, 1, TimeUnit.DAYS)
-                .addTag(workTag).build();
+                .addTag("cl").build();
         WorkManager workManager = WorkManager.getInstance(this);
         List<WorkRequest> workRequests = new ArrayList<>(2);
         workRequests.add(saveContactsRequest);
