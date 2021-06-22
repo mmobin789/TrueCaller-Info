@@ -192,7 +192,12 @@ object AppAsyncWorker {
             callLogDao.getInitialCallLogs()
         } else {
             search = true
-            callLogDao.findCallLogs("%$query%")
+            val number = query.toIntOrNull()
+            if (number != null) {
+                callLogDao.findCallLogsByNumber("%$query%")
+            } else {
+                callLogDao.findCallLogsByName("%$query%")
+            }
         }
         onLoaded(list as ArrayList<CallLogModel>, search)
 

@@ -23,8 +23,11 @@ interface CallLogDao : BaseDAO<CallLogModel> {
     @Query("select * from callLog limit 1")
     fun get1stCallLog(): CallLogModel?
 
-    @Query("SELECT * FROM callLog WHERE name OR phNumber LIKE :query limit 50")
-    fun findCallLogs(query: String): List<CallLogModel>
+    @Query("SELECT * FROM callLog WHERE name LIKE :name limit 50")
+    fun findCallLogsByName(name: String): List<CallLogModel>
+
+    @Query("SELECT * FROM callLog WHERE phNumber LIKE :number limit 50")
+    fun findCallLogsByNumber(number: String): List<CallLogModel>
 
     @Query("select * from callLog where id = :id ")
     fun findCallLogById(id: Long): CallLogModel?

@@ -125,7 +125,9 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Contact contact = contacts.get(position);
         holder.txtName.setText(contact.getName());
-        holder.txtNumber.setText(contact.getNumbers().get(0));
+        ArrayList<String> numbers = contact.getNumbers();
+        if (!numbers.isEmpty())
+            holder.txtNumber.setText(numbers.get(0));
 
         if (contact.getAreOptionsShown())
             holder.btnView.setVisibility(View.VISIBLE);
