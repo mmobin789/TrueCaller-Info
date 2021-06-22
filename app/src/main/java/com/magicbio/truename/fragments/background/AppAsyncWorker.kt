@@ -149,7 +149,8 @@ object AppAsyncWorker {
         offset: Int,
         onLoaded: (ArrayList<Contact>) -> Unit
     ) {
-        val list = if (offset > 0) contactsDao.getContacts(offset) else contactsDao.getInitialContacts()
+        val list =
+            if (offset > 0) contactsDao.getContacts(offset) else contactsDao.getInitialContacts()
         onLoaded(list as ArrayList<Contact>)
 
 
@@ -161,7 +162,12 @@ object AppAsyncWorker {
         return if (query.isBlank()) {
             contactsDao.getInitialContacts()
         } else {
-            contactsDao.findContactsBy("%$query%")
+            val number = query.toIntOrNull()
+            if (number != null) {
+                contactsDao.findContactsByNumbers(listOf("%$query%"))
+            } else {
+                contactsDao.findContactsByName("%$query%")
+            }
         }
 
     }
@@ -186,7 +192,7 @@ object AppAsyncWorker {
             callLogDao.getInitialCallLogs()
         } else {
             search = true
-            callLogDao.findCallLog("%$query%")
+            callLogDao.findCallLogs("%$query%")
         }
         onLoaded(list as ArrayList<CallLogModel>, search)
 

@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.magicbio.truename.db.BaseDAO
 import com.magicbio.truename.models.CallLogModel
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CallLogDao : BaseDAO<CallLogModel> {
@@ -25,7 +24,7 @@ interface CallLogDao : BaseDAO<CallLogModel> {
     fun get1stCallLog(): CallLogModel?
 
     @Query("SELECT * FROM callLog WHERE name OR phNumber LIKE :query limit 50")
-    fun findCallLog(query: String): List<CallLogModel>
+    fun findCallLogs(query: String): List<CallLogModel>
 
     @Query("select * from callLog where id = :id ")
     fun findCallLogById(id: Long): CallLogModel?

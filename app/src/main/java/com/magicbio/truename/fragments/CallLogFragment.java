@@ -65,7 +65,6 @@ public class CallLogFragment extends Fragment {
                 boolean end = lastItemPosition == lastVisibleItem;
 
                 if (dy > 0 && end && !search) {
-                    offset += 50;
                     loadCallLog();
                 }
             }
@@ -91,6 +90,7 @@ public class CallLogFragment extends Fragment {
         tvLoading.setVisibility(View.VISIBLE);
         AppAsyncWorker.loadCallLog(offset, (callLog) -> {
             if(!callLog.isEmpty()) {
+                offset += 50;
                 tvLoading.setVisibility(View.GONE);
                 callLogsAdapter.addCallLogs(callLog);
             }
@@ -108,6 +108,7 @@ public class CallLogFragment extends Fragment {
         requireActivity().runOnUiThread(() -> AppAsyncWorker.loadCallLogsBy(newText, (callLog, search) -> {
             callLogsAdapter.setCallLogs(callLog);
             this.search = search;
+            offset = 0;
             return null;
         }));
 

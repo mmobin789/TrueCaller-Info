@@ -76,7 +76,6 @@ public class ContactsFragment extends Fragment {
                 boolean end = lastItemPosition == lastVisibleItem;
 
                 if (dy > 0 && end && !search) {
-                    offset += 50;
                     loadContacts();
                 }
             }
@@ -91,6 +90,7 @@ public class ContactsFragment extends Fragment {
         tvLoading.setVisibility(View.VISIBLE);
         AppAsyncWorker.loadContacts(offset, (contacts) -> {
             if (!contacts.isEmpty()) {
+                offset += 50;
                 tvLoading.setVisibility(View.GONE);
                 contactsAdapter.addContacts(contacts);
             }
@@ -104,6 +104,7 @@ public class ContactsFragment extends Fragment {
         requireActivity().runOnUiThread(() -> {
             search = !newText.isEmpty();
             contactsAdapter.setContacts(AppAsyncWorker.loadContactsBy(newText));
+            offset = 0;
         });
 
     }
