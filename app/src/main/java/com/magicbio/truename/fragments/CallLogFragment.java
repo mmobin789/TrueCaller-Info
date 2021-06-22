@@ -18,7 +18,6 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.adapters.CallLogsAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
-import com.magicbio.truename.models.CallLogModel;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -34,9 +33,8 @@ public class CallLogFragment extends Fragment {
     private RecyclerView recyclerView;
     private CallLogsAdapter callLogsAdapter;
     private TextView tvLoading;
-    private int startId = 1;
-    private int endId = 50;
-    private boolean search;
+    private boolean search, init = true;
+    private int offset;
 
     public CallLogFragment() {
         // Required empty public constructor
@@ -61,7 +59,13 @@ public class CallLogFragment extends Fragment {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy) {
-                if (dy > 0 && linearLayoutManager.findLastVisibleItemPosition() == callLogsAdapter.getItemCount() - 1 && !search) {
+
+                int lastItemPosition = callLogsAdapter.getItemCount() - 1;
+                int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+                boolean end = lastItemPosition == lastVisibleItem;
+
+                if (dy > 0 && end && !search) {
+                    offset += 50;
                     loadCallLog();
                 }
             }
@@ -74,29 +78,20 @@ public class CallLogFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         MainActivity mainActivity = (MainActivity) requireActivity();
-        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("cl").observe(this, workInfo -> {
-            if (workInfo.get(0).getProgress() == Data.EMPTY)
+        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("cl").observe(getViewLifecycleOwner(), workInfo -> {
+            if (workInfo.get(0).getProgress() == Data.EMPTY && init) {
+                init = false;
                 loadCallLog();
+            }
         });
     }
 
-    private void setIds() {
-        CallLogModel callLogModel = AppAsyncWorker.get1stCallLog();
-        if (callLogModel != null) {
-            startId = callLogModel.id;
-            endId = startId + 49;
-        }
-    }
 
     private void loadCallLog() {
-        setIds();
-        AppAsyncWorker.loadCallLog(startId, endId, (callLog) -> {
-            if (!callLog.isEmpty()) {
-                tvLoading.setVisibility(View.GONE);
-                callLogsAdapter.addCallLogs(callLog);
-                startId = endId + 1;
-                endId += endId;
-            }
+        tvLoading.setVisibility(View.VISIBLE);
+        AppAsyncWorker.loadCallLog(offset, (callLog) -> {
+            tvLoading.setVisibility(View.GONE);
+            callLogsAdapter.addCallLogs(callLog);
             return null;
         });
     }
@@ -108,10 +103,9 @@ public class CallLogFragment extends Fragment {
     }
 
     public void search(String newText) {
-        requireActivity().runOnUiThread(() -> AppAsyncWorker.loadCallLogsByName(newText, (callLog, search) -> {
+        requireActivity().runOnUiThread(() -> AppAsyncWorker.loadCallLogsBy(newText, (callLog, search) -> {
             callLogsAdapter.setCallLogs(callLog);
             this.search = search;
-            setIds();
             return null;
         }));
 

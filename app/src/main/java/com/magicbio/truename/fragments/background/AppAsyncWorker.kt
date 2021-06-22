@@ -146,12 +146,10 @@ object AppAsyncWorker {
 
     @JvmStatic
     fun loadContacts(
-        startId: Int,
-        endId: Int,
+        offset: Int,
         onLoaded: (ArrayList<Contact>) -> Unit
     ) {
-        val list = contactsDao.getContactsIn(startId, endId)
-        Log.d("AppAsyncWorker", "Loaded Contacts from DB $startId to $endId")
+        val list = if (offset > 0) contactsDao.getContacts(offset) else contactsDao.getInitialContacts()
         onLoaded(list as ArrayList<Contact>)
 
 
@@ -159,41 +157,36 @@ object AppAsyncWorker {
 
 
     @JvmStatic
-    fun loadContactsByName(name: String): List<Contact> {
-        return if (name.isBlank()) {
-            contactsDao.getContactsIn(1, 50)
+    fun loadContactsBy(query: String): List<Contact> {
+        return if (query.isBlank()) {
+            contactsDao.getInitialContacts()
         } else {
-            contactsDao.findContactsByName("%$name%")
+            contactsDao.findContactsBy("%$query%")
         }
 
     }
 
     @JvmStatic
     fun loadCallLog(
-        startId: Int,
-        endId: Int,
+        offset: Int,
         onLoaded: (ArrayList<CallLogModel>) -> Unit
     ) {
-        val list = callLogDao.getCallLogIn(startId, endId)
-        if (list.isNotEmpty()) {
-            Log.d("AppAsyncWorker", "Loaded Call logs from DB $startId to $endId")
-            onLoaded(list as ArrayList<CallLogModel>)
-        }
+        val list =
+            if (offset > 0) callLogDao.getCallLogs(offset) else callLogDao.getInitialCallLogs()
+        onLoaded(list as ArrayList<CallLogModel>)
+
     }
 
 
     @JvmStatic
-    fun loadCallLogsByName(name: String, onLoaded: (ArrayList<CallLogModel>, Boolean) -> Unit) {
+    fun loadCallLogsBy(query: String, onLoaded: (ArrayList<CallLogModel>, Boolean) -> Unit) {
         val search: Boolean
-        val list = if (name.isBlank()) {
+        val list = if (query.isBlank()) {
             search = false
-            callLogDao.getCallLogIn(
-                1,
-                50
-            )
+            callLogDao.getInitialCallLogs()
         } else {
             search = true
-            callLogDao.findCallLogByName("%$name%")
+            callLogDao.findCallLog("%$query%")
         }
         onLoaded(list as ArrayList<CallLogModel>, search)
 
@@ -229,7 +222,7 @@ object AppAsyncWorker {
             // long timestamp = convertDateToTimestamp(callDayTime);
             val callDuration = managedCursor.getString(duration)
             val subscriptionId = managedCursor.getString(subscriptionIdC)
-            val sid = managedCursor.getString(id)
+            val sid = managedCursor.getLong(id)
             val dircode = callType.toInt()
             val dir = when (dircode) {
                 CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
@@ -253,7 +246,7 @@ object AppAsyncWorker {
                 }
             }
             call.name = name
-            call._Id = sid
+            call.id = sid
             call.image = image
             // call.email = getEmail()
             val hours = Integer.valueOf(callDuration) / 3600
@@ -266,10 +259,10 @@ object AppAsyncWorker {
 //Log.d("sim",id);
             callLogDao.findCallLogById(sid)?.also {
                 callLogDao.update(call)
-                Log.d("Last Call Log Updated", "id = ${it._Id}")
+                Log.d("Last Call Log Updated", "id = ${it.id}")
             } ?: run {
                 callLogDao.insert(call)
-                Log.d("New Call Log Added", call._Id)
+                Log.d("New Call Log Added", call.id.toString())
             }
         }
         managedCursor.close()
@@ -630,7 +623,11 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     //    contact.number = phone
                     contact.image = image
                     contact.contactId = id
-                    contact.numbers = ArrayList(HashSet(numbers))
+                    val list = ArrayList(HashSet(numbers))
+                    contact.number1 = list[0]
+                    if (list.size > 1)
+                        contact.number2 = list[1]
+                    contact.numbers = list
                     contacts.add(contact)
                     //  val cid = contact.save()
                     //Log.d("ContactID", cid.toString())
@@ -677,7 +674,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             // long timestamp = convertDateToTimestamp(callDayTime);
             val callDuration = managedCursor.getString(duration)
             val subscriptionId = managedCursor.getString(subscriptionIdC)
-            val sid = managedCursor.getString(id)
+            val sid = managedCursor.getLong(id)
             val dircode = callType.toInt()
             val dir = when (dircode) {
                 CallLog.Calls.OUTGOING_TYPE -> "OUTGOING"
@@ -701,7 +698,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 }
             }
             call.name = name
-            call._Id = sid
+            call.id = sid
             call.image = image
             // call.email = getEmail()
             val hours = Integer.valueOf(callDuration) / 3600

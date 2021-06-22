@@ -9,9 +9,6 @@ import androidx.room.PrimaryKey;
  */
 @Entity(tableName = "callLog")
 public class CallLogModel {
-    @PrimaryKey(autoGenerate = true)
-    public int id;
-
     // @Column(name = "Name")
     String name;
     // @Column(name = "Number")
@@ -31,7 +28,8 @@ public class CallLogModel {
     String image;
 
     //@Column(name = "_id")
-    public String _id;  // this is call log id in the phone book.
+    @PrimaryKey
+    public long id;  // this is call log id in the phone book.
 
     @Ignore
     public boolean areOptionsShown;
@@ -53,12 +51,12 @@ public class CallLogModel {
         this.image = image;
     }
 
-    public String get_Id() {
-        return _id;
+    public long getId() {
+        return id;
     }
 
-    public void set_Id(String id) {
-        this._id = id;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

@@ -10,8 +10,11 @@ interface ContactDao : BaseDAO<Contact> {
     @Insert
     fun addContacts(contacts: List<Contact?>): List<Long>
 
-    @Query("select * from contacts where id between :startId and :endId")
-    fun getContactsIn(startId: Int, endId: Int): List<Contact>
+    @Query("select * from contacts order by name limit 50")
+    fun getInitialContacts(): List<Contact>
+
+    @Query("select * from contacts order by name limit 50 offset :offset")
+    fun getContacts(offset: Int): List<Contact>
 
     @Query("select * from contacts")
     fun getAllContacts(): List<Contact>
@@ -19,8 +22,8 @@ interface ContactDao : BaseDAO<Contact> {
     @Query("select * from contacts limit 1")
     fun get1stContact(): Contact?
 
-    @Query("SELECT * FROM contacts WHERE name LIKE :name")
-    fun findContactsByName(name: String): List<Contact>
+    @Query("SELECT * FROM contacts WHERE name or number1 or number2  LIKE :query limit 50")
+    fun findContactsBy(query: String): List<Contact>
 
     @Query("select * from contacts where contactId = :id")
     fun findContactById(id: Int): Contact?

@@ -17,7 +17,6 @@ import androidx.work.WorkManager;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.adapters.ContactsAdapter;
-import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 
 import org.jetbrains.annotations.NotNull;
@@ -33,9 +32,8 @@ public class ContactsFragment extends Fragment {
     private RecyclerView recyclerView;
     private ContactsAdapter contactsAdapter;
     private TextView tvLoading;
-    private int startId = 1;
-    private int endId = 50;
-    private boolean search;
+    private boolean search, init = true;
+    private int offset;
 
     public ContactsFragment() {
         // Required empty public constructor
@@ -56,9 +54,11 @@ public class ContactsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         init();
         MainActivity mainActivity = (MainActivity) requireActivity();
-        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("c").observe(this, workInfo -> {
-            if (workInfo.get(0).getProgress() == Data.EMPTY)
+        WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("c").observe(getViewLifecycleOwner(), workInfo -> {
+            if (workInfo.get(0).getProgress() == Data.EMPTY && init) {
+                init = false;
                 loadContacts();
+            }
 
         });
     }
@@ -70,7 +70,13 @@ public class ContactsFragment extends Fragment {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy) {
-                if (dy > 0 && linearLayoutManager.findLastVisibleItemPosition() == contactsAdapter.getItemCount() - 1 && !search) {
+
+                int lastItemPosition = contactsAdapter.getItemCount() - 1;
+                int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+                boolean end = lastItemPosition == lastVisibleItem;
+
+                if (dy > 0 && end && !search) {
+                    offset += 50;
                     loadContacts();
                 }
             }
@@ -81,27 +87,11 @@ public class ContactsFragment extends Fragment {
 
     }
 
-    private void setIds() {
-        Contact contact = AppAsyncWorker.get1stContact();
-        if (contact != null) {
-            startId = contact.getId();
-            endId = startId + 49;
-        }
-    }
-
-    private void incIds() {
-        startId = endId + 1;
-        endId += endId;
-    }
-
     private void loadContacts() {
-        setIds();
-        AppAsyncWorker.loadContacts(startId, endId, (contacts) -> {
-            if (!contacts.isEmpty()) {
-                tvLoading.setVisibility(View.GONE);
-                contactsAdapter.addContacts(contacts);
-                incIds();
-            }
+        tvLoading.setVisibility(View.VISIBLE);
+        AppAsyncWorker.loadContacts(offset, (contacts) -> {
+            tvLoading.setVisibility(View.GONE);
+            contactsAdapter.addContacts(contacts);
             return null;
         });
 
@@ -111,8 +101,7 @@ public class ContactsFragment extends Fragment {
     public void search(@NotNull String newText) {
         requireActivity().runOnUiThread(() -> {
             search = !newText.isEmpty();
-            contactsAdapter.setContacts(AppAsyncWorker.loadContactsByName(newText));
-            setIds();
+            contactsAdapter.setContacts(AppAsyncWorker.loadContactsBy(newText));
         });
 
     }

@@ -7,20 +7,31 @@ import com.google.gson.annotations.Expose
 
 @Entity(tableName = "contacts")
 data class Contact(
-    @PrimaryKey(autoGenerate = true)
-    var id:Int = 0,
     @Expose
     var name: String = "",
     @Expose
     var numbers: ArrayList<String> = arrayListOf(),
-
+    @Ignore
     var image: String? = null,
-
     var email: String? = null,
-
+    var number1: String? = null,
+    var number2: String? = null,
+    @PrimaryKey
     var contactId: Int = 0,       // this is the id of this contact in the phonebook db.
     @Ignore
     var showAd: Boolean = false,
     @Ignore
     var areOptionsShown: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+
+        if (other is Contact && other.name == name && other.numbers == numbers)
+            return true
+
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return contactId
+    }
+}

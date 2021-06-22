@@ -568,7 +568,7 @@ public class InComingCallPop extends Service {
                 // long timestamp = convertDateToTimestamp(callDayTime);
                 String callDuration = managedCursor.getString(duration);
                 String simn = managedCursor.getString(sim);
-                String sid = managedCursor.getString(id);
+                long sid = managedCursor.getLong(id);
                 String dir = null;
                 int dircode = Integer.parseInt(callType);
                 switch (dircode) {
@@ -596,7 +596,7 @@ public class InComingCallPop extends Service {
                 call.setPhNumber(phNumber);
                 call.setCallDayTime(callDayTime);
                 call.setSim(simn);
-                call.set_Id(sid);
+                call.setId(sid);
                 int hours = Integer.valueOf(callDuration) / 3600;
                 int minutes = (Integer.valueOf(callDuration) % 3600) / 60;
                 int seconds = Integer.valueOf(callDuration) % 60;

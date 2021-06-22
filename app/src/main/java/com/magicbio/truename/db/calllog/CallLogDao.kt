@@ -15,17 +15,20 @@ interface CallLogDao : BaseDAO<CallLogModel> {
     @Query("select * from callLog")
     fun getAllCallLog(): List<CallLogModel>
 
-    @Query("select * from callLog where id between :startId and :endId")
-    fun getCallLogIn(startId: Int, endId: Int): List<CallLogModel>
+    @Query("select * from callLog limit 50")
+    fun getInitialCallLogs(): List<CallLogModel>
+
+    @Query("select * from callLog limit 50 offset :offset")
+    fun getCallLogs(offset: Int = 0): List<CallLogModel>
 
     @Query("select * from callLog limit 1")
     fun get1stCallLog(): CallLogModel?
 
-    @Query("SELECT * FROM callLog WHERE name LIKE :name")
-    fun findCallLogByName(name: String): List<CallLogModel>
+    @Query("SELECT * FROM callLog WHERE name OR phNumber LIKE :query limit 50")
+    fun findCallLog(query: String): List<CallLogModel>
 
-    @Query("select * from callLog where _id = :id ")
-    fun findCallLogById(id: String): CallLogModel?
+    @Query("select * from callLog where id = :id ")
+    fun findCallLogById(id: Long): CallLogModel?
 
     @Query("delete from callLog")
     fun deleteAll()
