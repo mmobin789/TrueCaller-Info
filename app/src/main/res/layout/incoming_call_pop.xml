@@ -182,7 +182,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 ads:adSize="LARGE_BANNER"
-                ads:adUnitId="@string/test_banner_id"
+                ads:adUnitId="@string/banner_id_1"
                 tools:visibility="visible" />
 
             <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
@@ -192,7 +192,7 @@
                 android:layout_gravity="center"
                 android:visibility="gone"
                 ads:adSize="LARGE_BANNER"
-                ads:adUnitId="@string/test_banner_id"
+                ads:adUnitId="@string/banner_id_1"
                 tools:visibility="visible" />
         </LinearLayout>
 

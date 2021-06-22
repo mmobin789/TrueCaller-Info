@@ -38,10 +38,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activities.ComFunc;
 import com.magicbio.truename.models.CallLogModel;
@@ -78,7 +76,6 @@ public class InComingCallPop extends Service {
     int MAX_CLICK_DURATION = 200;
     long startClickTime;
     AdView mAdView, adView1, adView2;
-    InterstitialAd interstitialAd;
     String filepath;
     // variables
     private WindowManager mWindowManager;
@@ -315,7 +312,6 @@ public class InComingCallPop extends Service {
 
             setupClick();
             initAds();
-            showAds();
 
         } else if (ptype == 2) {
             ivCrumpledPaper = li.inflate(R.layout.invite_pop, null, false);
@@ -528,42 +524,10 @@ public class InComingCallPop extends Service {
         }
     }
 
-    void showAds() {
-        if (interstitialAd.isLoaded()) {
-            interstitialAd.show();
-        }
-    }
+    private void initAds() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
-    public void initAds() {
-        try {
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-
-
-            String deviceId = "84295E3E87EA7A5704A242894BA93601";
-
-            //MobileAds.initialize(this,"ca-app-pub-7945535077164107~1299784514");
-
-            interstitialAd = new InterstitialAd(this);
-            interstitialAd.setAdUnitId("ca-app-pub-7945535077164107/6944947141");
-            AdRequest adRequest1 = new AdRequest.Builder().build();
-            interstitialAd.loadAd(adRequest1);
-            interstitialAd.show();
-            interstitialAd.setAdListener(new AdListener() {
-                @Override
-                public void onAdLoaded() {
-                    // TODO Auto-generated method stub
-                    super.onAdLoaded();
-                    Toast.makeText(getApplicationContext(), "loaded", Toast.LENGTH_LONG).show();
-                    interstitialAd.show();
-                }
-            });
-            boolean isTestDevice = adRequest1.isTestDevice(this);
-
-            // Toast.makeText(getApplicationContext(), "is Admob Test Device ? "+deviceId+" "+isTestDevice,Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void sendSMS() {

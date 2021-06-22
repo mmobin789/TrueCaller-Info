@@ -79,10 +79,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            tools:text="Ahmed Bial"
             android:textColor="@color/black"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="Ahmed Bial" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -170,8 +170,9 @@
                 android:layout_height="50dp"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
+                android:background="@drawable/block_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp"
-                android:src="@drawable/ic_block"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
@@ -266,7 +267,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     ads:adSize="LARGE_BANNER"
-                    ads:adUnitId="@string/test_banner_id"
+                    ads:adUnitId="@string/banner_id_1"
                     tools:visibility="visible" />
 
 

@@ -7,6 +7,7 @@ import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,7 +30,7 @@ import io.nlopez.smartlocation.geofencing.utils.TransitionGeofence;
 
 public class CallHistory extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
     TextView txtName;
-    ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation;
+    ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation, btnWA, btnBlock;
     RecyclerView recyclerView;
     ArrayList<String> numbers;
     /*   private TextView locationText;
@@ -46,8 +47,8 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         btnInvite = findViewById(R.id.btnInvite);
         btnSave = findViewById(R.id.btnSave);
         btnLocation = findViewById(R.id.btnLocation);
-        ImageView btnBlock = findViewById(R.id.btnBlock);
-        ImageView btnWA = findViewById(R.id.btnwa);
+        btnBlock = findViewById(R.id.btnBlock);
+        btnWA = findViewById(R.id.btnwa);
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
@@ -73,10 +74,12 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
 
     private void setupClick(String number) {
 
-        findViewById(R.id.btnwa).setOnClickListener(v -> ContactUtils.openWhatsAppChat(number));
-
+        btnWA.setOnClickListener(v -> ContactUtils.openWhatsAppChat(number));
         btnMessage.setOnClickListener(v -> ContactUtils.openSmsApp(number));
         btnCall.setOnClickListener(v -> ContactUtils.openDialer(number));
+        btnBlock.setOnClickListener(v -> {
+            Toast.makeText(v.getContext(), "Clicked", Toast.LENGTH_SHORT).show();
+        });
         btnInvite.setOnClickListener(v -> {
 //                        Uri uri = Uri.parse("smsto:"+number);
 //                        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);

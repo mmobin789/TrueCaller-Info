@@ -18,13 +18,16 @@ import android.webkit.WebView;
 import androidx.room.Room;
 
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.gson.Gson;
 import com.magicbio.truename.db.AppDatabase;
 import com.magicbio.truename.observers.CallLogsObserver;
 import com.magicbio.truename.observers.ContactsObserver;
+import com.magicbio.truename.utils.AdUtils;
 
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -60,9 +63,8 @@ public class TrueName extends Application {
 
     public static long getLastUpdateTime(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        return sp.getLong("time",0);
+        return sp.getLong("time", 0);
     }
-
 
 
     public static void setLastCall(String Number, Date time, Context context) {
@@ -90,7 +92,8 @@ public class TrueName extends Application {
 
         }
 
-        MobileAds.initialize(this, getString(R.string.adMob_ID));
+        MobileAds.initialize(this);
+        MobileAds.setRequestConfiguration(new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList(AdUtils.getDeviceId(this))).build());
         // printHashKey(this);
         if (checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, new ContactsObserver(this));

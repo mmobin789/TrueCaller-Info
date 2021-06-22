@@ -14,15 +14,14 @@ import java.util.*
 object AdUtils {
     @JvmStatic
     fun loadBannerAd(adView: AdView) {
-        adView.apply {
-
-            loadAd(AdRequest.Builder().addTestDevice(getDeviceId(context)).build())
-        }
+        adView.loadAd(AdRequest.Builder().setAdString(getDeviceId(adView.context)).build())
     }
 
     @SuppressLint("HardwareIds")
-    private fun getDeviceId(context: Context): String {
-        val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+    @JvmStatic
+    fun getDeviceId(context: Context): String {
+        val androidId =
+            Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
         val testDeviceId = md5(androidId).toUpperCase(Locale.getDefault())
         Log.d("TestDeviceId", testDeviceId)
         return testDeviceId

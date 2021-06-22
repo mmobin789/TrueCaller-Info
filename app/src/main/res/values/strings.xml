@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">TrueCaller Info</string>
-    <string name="adMob_ID">ca-app-pub-2746915348369141~3037530958</string>
-    <string name="test_banner_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="adMob_ID">ca-app-pub-7945535077164107~9263830828</string>
+    <string name="banner_id_1">ca-app-pub-7945535077164107/9619054044</string>
     <!-- TODO: Remove or change this placeholder text -->
 
     <string name="notifications_channel_description">popup</string>

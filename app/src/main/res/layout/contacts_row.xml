@@ -72,7 +72,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:background="@drawable/ic_outline_exit_to_app_24" />
+            android:background="@drawable/arrow_back" />
 
 
         <Button
@@ -122,7 +122,7 @@
         android:layout_marginBottom="16dp"
         android:visibility="gone"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/test_banner_id"
+        ads:adUnitId="@string/banner_id_1"
         tools:visibility="visible" />
 
     <View
