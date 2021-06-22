@@ -85,6 +85,7 @@
             tools:text="Ahmed Bial" />
 
         <LinearLayout
+            android:id="@+id/llCountry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical">
@@ -95,11 +96,12 @@
                 android:background="@drawable/location_pin_1" />
 
             <TextView
+                android:id="@+id/tvCountry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="Pakistan"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                tools:text="Pakistan" />
         </LinearLayout>
 
         <!--  <ImageView

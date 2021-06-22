@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.Geofence;
+import com.hbb20.CCPCountry;
+import com.hbb20.CountryCodePicker;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallDetailsAdapter;
 import com.magicbio.truename.services.InComingCallPop;
@@ -45,6 +47,7 @@ public class CallDetails extends AppCompatActivity {
         btnSave = findViewById(R.id.btnSave);
         btnLocation = findViewById(R.id.btnLocation);
         ImageView btnBlock = findViewById(R.id.btnBlock);
+        TextView tvCountry = findViewById(R.id.tvCountry);
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
@@ -81,8 +84,16 @@ public class CallDetails extends AppCompatActivity {
         }
 
         setupClick(number);
+
+        CCPCountry ccpCountry = CCPCountry.getCountryForNumber(this, CountryCodePicker.Language.ENGLISH, number);
+
+        if (ccpCountry != null) {
+            tvCountry.setText(ccpCountry.getEnglishName());
+        } else findViewById(R.id.llCountry).setVisibility(View.GONE);
+
         init();
     }
+
 
     public void openCallHistory(View v) {
         startActivity(new Intent(v.getContext(), CallHistory.class).putStringArrayListExtra("numbers", numbers).putExtra("name", name));
