@@ -90,8 +90,10 @@ public class ContactsFragment extends Fragment {
     private void loadContacts() {
         tvLoading.setVisibility(View.VISIBLE);
         AppAsyncWorker.loadContacts(offset, (contacts) -> {
-            tvLoading.setVisibility(View.GONE);
-            contactsAdapter.addContacts(contacts);
+            if (!contacts.isEmpty()) {
+                tvLoading.setVisibility(View.GONE);
+                contactsAdapter.addContacts(contacts);
+            }
             return null;
         });
 

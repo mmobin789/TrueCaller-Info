@@ -92,7 +92,7 @@ public class TrueName extends Application {
 
         }
 
-        MobileAds.initialize(this);
+        MobileAds.initialize(this, initializationStatus -> Log.d("Ads", "Initialized"));
         MobileAds.setRequestConfiguration(new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList(AdUtils.getDeviceId(this))).build());
         // printHashKey(this);
         if (checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {

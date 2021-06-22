@@ -90,8 +90,10 @@ public class CallLogFragment extends Fragment {
     private void loadCallLog() {
         tvLoading.setVisibility(View.VISIBLE);
         AppAsyncWorker.loadCallLog(offset, (callLog) -> {
-            tvLoading.setVisibility(View.GONE);
-            callLogsAdapter.addCallLogs(callLog);
+            if(!callLog.isEmpty()) {
+                tvLoading.setVisibility(View.GONE);
+                callLogsAdapter.addCallLogs(callLog);
+            }
             return null;
         });
     }
