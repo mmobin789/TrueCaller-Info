@@ -28,4 +28,7 @@ interface ApiInterface {
 
     @GET("get-msg")
     suspend fun invite(@Query("type") type: String): InviteResponse
+
+    @GET("app-update-status")
+    suspend fun checkAppUpdate(): AppUpdateResponse
 }

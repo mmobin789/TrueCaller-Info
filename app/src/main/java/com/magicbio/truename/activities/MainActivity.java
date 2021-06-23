@@ -1,6 +1,9 @@
 package com.magicbio.truename.activities;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +22,7 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.MainPagerAdapter;
 import com.magicbio.truename.fragments.CallLogFragment;
 import com.magicbio.truename.fragments.ContactsFragment;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.fragments.background.SaveCallLogsWorker;
 import com.magicbio.truename.fragments.background.SaveContactsWorker;
 
@@ -143,6 +147,30 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         workRequests.add(saveCallLogRequest);
         workManager.enqueue(workRequests);
 
+
+        AppAsyncWorker.checkAppUpdate(() -> {
+            showAppUpdateDialog();
+            return null;
+        });
+
+    }
+
+    private void showAppUpdateDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.app_update_msg);
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            // take to play store.
+            String packageName = getPackageName();
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
+            } catch (ActivityNotFoundException e) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
+            }
+        });
+
+        builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss());
+
+        builder.show();
     }
 
     private void createExitDialog() {

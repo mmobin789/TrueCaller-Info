@@ -881,4 +881,17 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
 
         return callLogModelList
     }
+
+    @JvmStatic
+    fun checkAppUpdate(onSuccess: () -> Unit) {
+        GlobalScope.launch {
+            val appUpdate = withContext(Dispatchers.IO) { apiInterface.checkAppUpdate() }
+            withContext(Dispatchers.Main.immediate) {
+                if (appUpdate.status == "yes") {
+                    onSuccess()
+                }
+            }
+
+        }
+    }
 }
