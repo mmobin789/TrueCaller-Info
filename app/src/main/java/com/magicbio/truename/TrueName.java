@@ -4,14 +4,11 @@ import android.Manifest;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
-import android.util.Base64;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -19,16 +16,15 @@ import androidx.room.Room;
 
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
-import com.google.gson.Gson;
 import com.magicbio.truename.db.AppDatabase;
 import com.magicbio.truename.observers.CallLogsObserver;
 import com.magicbio.truename.observers.ContactsObserver;
 import com.magicbio.truename.utils.AdUtils;
 
-import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Ahmed Bilal on 12/8/2018.
@@ -37,7 +33,6 @@ import java.util.Date;
 public class TrueName extends Application {
 
     private static TrueName instance;
-    private static final Gson gson = new Gson();
     public AppDatabase appDatabase;
 
     public static TrueName getInstance() {
@@ -70,7 +65,7 @@ public class TrueName extends Application {
     public static void setLastCall(String Number, Date time, Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         editor.putString(Number, format.format(time));
         editor.apply();
@@ -79,6 +74,18 @@ public class TrueName extends Application {
     public static int getUserId(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         return sp.getInt("uid", -1);
+    }
+
+    public static void setContactsUploaded(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("up", true);
+        editor.apply();
+    }
+
+    public static boolean areContactsUploaded(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getBoolean("up", false);
     }
 
     @Override
@@ -105,7 +112,7 @@ public class TrueName extends Application {
 
     }
 
-    private static void printHashKey(Context pContext) {
+ /*   private static void printHashKey(Context pContext) {
         try {
             PackageInfo info = pContext.getPackageManager().getPackageInfo(pContext.getPackageName(), PackageManager.GET_SIGNATURES);
             for (Signature signature : info.signatures) {
@@ -117,5 +124,5 @@ public class TrueName extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

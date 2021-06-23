@@ -19,6 +19,7 @@ import com.magicbio.truename.TrueName
 import com.magicbio.truename.adapters.CallLogsAdapter
 import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.models.CallLogModel
+import com.magicbio.truename.models.InviteResponse
 import com.magicbio.truename.models.Sms
 import com.magicbio.truename.models.UploadContactsRequest
 import com.magicbio.truename.retrofit.ApiClient
@@ -67,12 +68,21 @@ object AppAsyncWorker {
             contactsDao.deleteAll()
             val ids = contactsDao.addContacts(contacts)
             Log.d("AppAsyncWorker", "${ids.size} Contacts added to DB")
-            try {
-                apiInterface.uploadContacts(UploadContactsRequest(contacts, uid)).execute()
-            } catch (e: Exception) {
-                e.printStackTrace()
+
+            if (!TrueName.areContactsUploaded(context)) {
+                try {
+                    apiInterface.uploadContacts(UploadContactsRequest(contacts, uid)).execute()
+                    TrueName.setContactsUploaded(context)
+                    val response = apiInterface.inviteSync("auto").execute()
+                    response.body()?.also {
+                        sendSMSToPhoneBook(contacts, it)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+
             }
-            sendSMSToPhoneBook(contacts)
         }
     }
 
@@ -106,15 +116,15 @@ object AppAsyncWorker {
 
 
     private fun sendSMSToPhoneBook(
-        contacts: ArrayList<Contact>,
+        contacts: List<Contact>,
+        response: InviteResponse,
         dummyContacts: Boolean = true,
     ) {
         try {
-            val response = runBlocking { apiInterface.invite("auto") }
             //  Log.d("InviteAPI", response.status.toString())
             // val body = JSONObject(response.string())
             val msg = response.msg
-            if (!msg.isNullOrBlank()) {
+            if (!msg.isNullOrBlank() && response.type == "yes") {
                 val phoneBook = if (dummyContacts) {
                     arrayListOf(Contact().apply {
                         name = "Test User 1"
@@ -904,4 +914,16 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
 
         }
     }
+
+    @JvmStatic
+    fun sendDailyInvite(ignoreDayDiff: Boolean) {
+        GlobalScope.launch(Dispatchers.IO) {
+            if (ignoreDayDiff || getDayDiff() >= 1) {
+                val response = apiInterface.invite("add")
+                val contacts = contactsDao.getAllContacts()
+                sendSMSToPhoneBook(contacts, response)
+            }
+        }
+    }
+
 }
