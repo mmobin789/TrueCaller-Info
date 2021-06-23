@@ -74,7 +74,7 @@ public class CallHistoryAdapter extends RecyclerView.Adapter<CallHistoryAdapter.
             holder.sim.setImageResource(R.drawable.sim1_dialed_call);
         }
 
-        holder.txtDate.setText(getDate(Long.parseLong(model.getCallDate())));
+        holder.txtDate.setText(getDate(model.getCallDate()));
 //        holder.itemView.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {

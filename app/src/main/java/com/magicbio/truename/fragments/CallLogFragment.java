@@ -32,6 +32,7 @@ import java.util.ArrayList;
 public class CallLogFragment extends Fragment {
     private RecyclerView recyclerView;
     private CallLogsAdapter callLogsAdapter;
+    private LinearLayoutManager layoutManager;
     private TextView tvLoading;
     private boolean search, init = true;
     private int offset;
@@ -54,14 +55,16 @@ public class CallLogFragment extends Fragment {
         recyclerView = v.findViewById(R.id.recycler_View);
         tvLoading = v.findViewById(R.id.tvLoading);
         recyclerView.setHasFixedSize(true);
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(linearLayoutManager);
+        layoutManager = new LinearLayoutManager(getActivity());
+       // reverseLayout();
+       // layoutManager.setReverseLayout(true);
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy) {
 
                 int lastItemPosition = callLogsAdapter.getItemCount() - 1;
-                int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
                 boolean end = lastItemPosition == lastVisibleItem;
 
                 if (dy > 0 && end && !search) {
@@ -78,7 +81,7 @@ public class CallLogFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         MainActivity mainActivity = (MainActivity) requireActivity();
         WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("cl").observe(getViewLifecycleOwner(), workInfo -> {
-            if (workInfo.get(0).getProgress() == Data.EMPTY && init) {
+            if (init && workInfo.get(0).getProgress() == Data.EMPTY) {
                 init = false;
                 loadCallLog();
             }
@@ -89,7 +92,7 @@ public class CallLogFragment extends Fragment {
     private void loadCallLog() {
         tvLoading.setVisibility(View.VISIBLE);
         AppAsyncWorker.loadCallLog(offset, (callLog) -> {
-            if(!callLog.isEmpty()) {
+            if (!callLog.isEmpty()) {
                 offset += 50;
                 tvLoading.setVisibility(View.GONE);
                 callLogsAdapter.addCallLogs(callLog);
@@ -105,7 +108,7 @@ public class CallLogFragment extends Fragment {
     }
 
     public void search(String newText) {
-        requireActivity().runOnUiThread(() -> AppAsyncWorker.loadCallLogsBy(newText, (callLog, search) -> {
+        requireActivity().runOnUiThread(() -> AppAsyncWorker.loadCallLogsBy(newText.trim(), (callLog, search) -> {
             callLogsAdapter.setCallLogs(callLog);
             this.search = search;
             offset = 0;

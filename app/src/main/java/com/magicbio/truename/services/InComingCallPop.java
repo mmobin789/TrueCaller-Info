@@ -278,8 +278,8 @@ public class InComingCallPop extends Service {
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
             recordCall(number);
             CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
-            if (callLogModel != null && !callLogModel.getCallDate().replace(" ", "").isEmpty())
-                txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(callLogModel.getCallDate()), "dd/MM/yyyy hh:mm:ss")));
+            if (callLogModel != null && callLogModel.getCallDate() != 0)
+                txtLastCall.setText(String.format("Last Call %s", getDate(callLogModel.getCallDate(), "dd/MM/yyyy hh:mm:ss")));
             getNumberDetails(number);
         } else if (ptype == 1) {
 
@@ -306,8 +306,8 @@ public class InComingCallPop extends Service {
 
             ivLoc.setOnClickListener(view -> ContactUtils.shareLocationOnSms(number, txtName.getText().toString()));
             CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
-            if (callLogModel != null && !callLogModel.getCallDate().replace(" ", "").isEmpty())
-                txtLastCall.setText(String.format("Last Call %s", getDate(Long.parseLong(callLogModel.getCallDate()), "dd/MM/yyyy hh:mm:ss")));
+            if (callLogModel != null && callLogModel.getCallDate() != 0)
+                txtLastCall.setText(String.format("Last Call %s", getDate(callLogModel.getCallDate(), "dd/MM/yyyy hh:mm:ss")));
             getNumberDetails(number);
 
             setupClick();
@@ -540,7 +540,7 @@ public class InComingCallPop extends Service {
 
     private CallLogModel getCallLast(Context context, String numbers) {
         try {
-            StringBuffer sb = new StringBuffer();
+           // StringBuffer sb = new StringBuffer();
 
             //  String selection = CallLog.Calls.NUMBER + " = " + numbers;
 
@@ -555,7 +555,7 @@ public class InComingCallPop extends Service {
             int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
             int sim = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID);
             int id = managedCursor.getColumnIndex(CallLog.Calls._ID);
-            sb.append("Call Details :");
+          //  sb.append("Call Details :");
             while (managedCursor.moveToNext()) {
 
                 //   HashMap rowDataCall = new HashMap<String, String>();
@@ -563,8 +563,8 @@ public class InComingCallPop extends Service {
 
                 String phNumber = managedCursor.getString(number);
                 String callType = managedCursor.getString(type);
-                String callDate = managedCursor.getString(date);
-                String callDayTime = new Date(Long.valueOf(callDate)).toString();
+                long callDate = managedCursor.getLong(date);
+              //  String callDayTime = new Date(callDate).toString();
                 // long timestamp = convertDateToTimestamp(callDayTime);
                 String callDuration = managedCursor.getString(duration);
                 String simn = managedCursor.getString(sim);
@@ -588,13 +588,13 @@ public class InComingCallPop extends Service {
                         break;
 
                 }
-                sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration);
-                sb.append("\n----------------------------------");
+          //      sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration);
+
 
                 call.setCallType(dir);
                 call.setCallDate(callDate);
                 call.setPhNumber(phNumber);
-                call.setCallDayTime(callDayTime);
+             //   call.setCallDayTime(callDayTime);
                 call.setSim(simn);
                 call.setId(sid);
                 int hours = Integer.valueOf(callDuration) / 3600;
@@ -611,7 +611,6 @@ public class InComingCallPop extends Service {
 
             }
             managedCursor.close();
-            System.out.println(sb);
             return callLogModelList;
         } catch (Exception e) {
             e.printStackTrace();

@@ -55,7 +55,7 @@ public class ContactsFragment extends Fragment {
         init();
         MainActivity mainActivity = (MainActivity) requireActivity();
         WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("c").observe(getViewLifecycleOwner(), workInfo -> {
-            if (workInfo.get(0).getProgress() == Data.EMPTY && init) {
+            if (init && workInfo.get(0).getProgress() == Data.EMPTY) {
                 init = false;
                 loadContacts();
             }
@@ -103,7 +103,7 @@ public class ContactsFragment extends Fragment {
     public void search(@NotNull String newText) {
         requireActivity().runOnUiThread(() -> {
             search = !newText.isEmpty();
-            contactsAdapter.setContacts(AppAsyncWorker.loadContactsBy(newText));
+            contactsAdapter.setContacts(AppAsyncWorker.loadContactsBy(newText.trim()));
             offset = 0;
         });
 

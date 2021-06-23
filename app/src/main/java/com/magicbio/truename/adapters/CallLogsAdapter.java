@@ -23,16 +23,13 @@ import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import kotlin.Unit;
 
@@ -70,13 +67,13 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
     }
 
-    public void addCallLogs(ArrayList<CallLogModel> callLogModels) {
+    public void addCallLogs(List<CallLogModel> callLogModels) {
         list.addAll(callLogModels);
         showAds(callLogModels);
         notifyItemRangeInserted(getItemCount(), callLogModels.size());
     }
 
-    public void setCallLogs(ArrayList<CallLogModel> callLogModels) {
+    public void setCallLogs(List<CallLogModel> callLogModels) {
         list.clear();
         list.addAll(callLogModels);
         showAds(callLogModels);
@@ -89,7 +86,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         }
     }*/
 
-    private void showAds(@NotNull ArrayList<CallLogModel> callLogModels) {
+    private void showAds(@NotNull List<CallLogModel> callLogModels) {
 
         for (int i = 0; i < callLogModels.size(); i++) {
             callLogModels.get(i).showAd = i % 5 == 0;
@@ -190,7 +187,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         previousPosition = position;
     }
 
-    @Nullable
+    /*@Nullable
     private String formatTime(String time) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE MMM dd H:mm:s z yyyy", Locale.getDefault());
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -204,7 +201,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
             e.printStackTrace();
         }
         return null;
-    }
+    }*/
 
     private String formatDuration(String duration) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:s", Locale.getDefault());
@@ -242,7 +239,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
         holder.txtName.setText(name);
         holder.txtNumber.setText(number);
-        String time = formatDuration(model.getCallDuration()) + "\t" + formatTime(model.getCallDayTime());
+        String time = formatDuration(model.getCallDuration()) + "\t" + model.getCallDayTime();
         holder.txtDuration.setText(time);
 
         if (model.areOptionsShown)

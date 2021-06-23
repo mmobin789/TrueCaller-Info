@@ -27,7 +27,6 @@ import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
 
@@ -224,8 +223,8 @@ object AppAsyncWorker {
             val call = CallLogModel()
             val phNumber = managedCursor.getString(number)
             val callType = managedCursor.getString(type)
-            val callDate = managedCursor.getString(date)
-            val callDayTime = Date(callDate.toLong()).toString()
+            val callDate = managedCursor.getLong(date)
+            //  val callDayTime = Date(callDate).toString()
             val name =
                 managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
             val image =
@@ -247,7 +246,6 @@ object AppAsyncWorker {
             call.callType = dir
             call.callDate = callDate
             call.phNumber = phNumber
-            call.callDayTime = callDayTime
             call.sim = "0"
             if (sm.activeSubscriptionInfoCount > 1) {
                 sm.activeSubscriptionInfoList.find {
@@ -536,6 +534,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 email = contactEmail
                 name = contactName
                 numbers = ArrayList(HashSet(contactNumbers))
+                if (numbers.isNotEmpty())
+                    number1 = contactNumbers[0]
             }
 
             contactsDao.findContactById(id)?.also {
@@ -543,7 +543,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 Log.d("Last Contact Updated", "id = ${it.contactId}")
             } ?: run {
                 contactsDao.insert(contact)
-                contact.contactId?.let { Log.d("New Contact Added", it.toString()) }
+                contact.contactId.let { Log.d("New Contact Added", it.toString()) }
             }
 
             apiInterface.uploadContactsSync(UploadContactsRequest(arrayListOf(contact), uid))
@@ -660,10 +660,14 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         //   val simsList = sm.activeSubscriptionInfoList
 
-
-        val contacts = CallLog.Calls.CONTENT_URI
         @SuppressLint("MissingPermission") val managedCursor =
-            context.contentResolver.query(contacts, null, null, null, "DATE desc")
+            context.contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                null,
+                null,
+                null,
+                CallLog.Calls.NUMBER + "," + CallLog.Calls.DATE + " DESC"
+            )
         val callLogModelList = ArrayList<CallLogModel>(managedCursor!!.count)
         val number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER)
         val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
@@ -676,8 +680,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             val call = CallLogModel()
             val phNumber = managedCursor.getString(number)
             val callType = managedCursor.getString(type)
-            val callDate = managedCursor.getString(date)
-            val callDayTime = Date(callDate.toLong()).toString()
+            val callDate = managedCursor.getLong(date)
+            // val callDayTime = Date(callDate).toString()
             val name =
                 managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
             val image =
@@ -699,7 +703,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             call.callType = dir
             call.callDate = callDate
             call.phNumber = phNumber
-            call.callDayTime = callDayTime
+            // call.callDayTime = callDayTime
             call.sim = "0"
             if (sm.activeSubscriptionInfoCount > 1) {
                 sm.activeSubscriptionInfoList.find {
@@ -807,7 +811,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
 
     @SuppressLint("MissingPermission")
     fun getCallLogs(numbers: String): ArrayList<CallLogModel> {
-        val sb = StringBuffer()
+        // val sb = StringBuffer()
         val sm =
             context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         val contacts = CallLog.Calls.CONTENT_URI
@@ -824,15 +828,15 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
         val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
         val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
         val subscriptionIdC = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
-        sb.append("Call Details :")
+        // sb.append("Call Details :")
         val callLogModelList = ArrayList<CallLogModel>(managedCursor.count)
         while (managedCursor.moveToNext()) {
-            val rowDataCall: HashMap<*, *> = HashMap<String, String>()
+            //   val rowDataCall: HashMap<*, *> = HashMap<String, String>()
             val call = CallLogModel()
             val phNumber = managedCursor.getString(number)
             val callType = managedCursor.getString(type)
-            val callDate = managedCursor.getString(date)
-            val callDayTime = Date(java.lang.Long.valueOf(callDate)).toString()
+            val callDate = managedCursor.getLong(date)
+            //  val callDayTime = Date(callDate).toString()
             val name =
                 managedCursor.getString(managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME))
             // long timestamp = convertDateToTimestamp(callDayTime);
@@ -845,15 +849,15 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 CallLog.Calls.MISSED_TYPE -> "MISSED"
                 else -> "OUTGOING"
             }
-            sb.append(
+            /*sb.append(
                 "\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration
                         + " \nname :--- " + name
-            )
-            sb.append("\n----------------------------------")
+            )*/
+            //sb.append("\n----------------------------------")
             call.callType = dir
             call.callDate = callDate
             call.phNumber = phNumber
-            call.callDayTime = callDayTime
+            // call.callDayTime = callDayTime
             call.sim = "0"
             if (sm.activeSubscriptionInfoCount > 1) {
                 sm.activeSubscriptionInfoList.find {
@@ -863,7 +867,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 }
             }
             call.name = name
-            val hours = Integer.valueOf(callDuration) / 3600
+            // val hours = Integer.valueOf(callDuration) / 3600
             val minutes = Integer.valueOf(callDuration) % 3600 / 60
             val seconds = Integer.valueOf(callDuration) % 60
             call.callDuration = String.format("%02d:%02d", minutes, seconds)

@@ -176,25 +176,20 @@ object ContactUtils {
 
     @JvmStatic
     fun openWhatsAppChat(number: String) {
-
         //   val whatsAppPackage = "com.whatsapp"
+            val numberWithCountryCodeNoPlus = number.replace(" ", "").removePrefix("+")
+            var fixedNumber = numberWithCountryCodeNoPlus
+            if (!numberWithCountryCodeNoPlus.startsWith("92"))
+                fixedNumber = "92${numberWithCountryCodeNoPlus.substring(1)}"
+            // val sendIntent = Intent("$whatsAppPackage.Conversation")
+            //  sendIntent.component = ComponentName("com.whatsapp", "com.whatsapp.Conversation")
+            val sendIntent = Intent(Intent.ACTION_VIEW)
+            sendIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            //  sendIntent.`package` = whatsAppPackage  // by not setting this option user will also get option in system picker for whatsapp business as well.
+            sendIntent.data = Uri.parse("http://api.whatsapp.com/send?phone=$fixedNumber")
+            // sendIntent.putExtra("jid", "$fixedNumber@s.whatsapp.net")
+            context.startActivity(sendIntent)
 
-        if (!isWhatsAppInstalled()) {
-            return
-        }
-
-        val numberWithCountryCodeNoPlus = number.replace(" ", "").removePrefix("+")
-        var fixedNumber = numberWithCountryCodeNoPlus
-        if (!numberWithCountryCodeNoPlus.startsWith("92"))
-            fixedNumber = "92${numberWithCountryCodeNoPlus.substring(1)}"
-        // val sendIntent = Intent("$whatsAppPackage.Conversation")
-        //  sendIntent.component = ComponentName("com.whatsapp", "com.whatsapp.Conversation")
-        val sendIntent = Intent(Intent.ACTION_VIEW)
-        sendIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        //  sendIntent.`package` = whatsAppPackage  // by not setting this option user will also get option in system picker for whatsapp business as well.
-        sendIntent.data = Uri.parse("http://api.whatsapp.com/send?phone=$fixedNumber")
-        // sendIntent.putExtra("jid", "$fixedNumber@s.whatsapp.net")
-        context.startActivity(sendIntent)
 
     }
 
@@ -223,7 +218,7 @@ object ContactUtils {
         smartLocation.location(provider).start {
             onSuccess(it)
         }
-       
+
         // Create some geofences
         /* val geoFence = GeofenceModel.Builder("1").setTransition(Geofence.GEOFENCE_TRANSITION_ENTER)
              .setLatitude(39.47453120000001).setLongitude(-0.358065799999963).setRadius(500f).build()

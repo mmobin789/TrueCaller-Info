@@ -1,8 +1,11 @@
 package com.magicbio.truename.models;
 
+import android.icu.text.SimpleDateFormat;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Ahmed Bilal on 12/14/2018.
@@ -16,9 +19,8 @@ public class CallLogModel {
     //  @Column(name = "CallType")
     String callType;
     // @Column(name = "CallDate")
-    String callDate;
+    long callDate;
     //  @Column(name = "CallDateTime")
-    String callDayTime;
     // @Column(name = "CallDuration")
     String callDuration;
     //  @Column(name = "CallSim")
@@ -37,11 +39,6 @@ public class CallLogModel {
     public boolean showAd;
 
     public boolean numberByTrueName;
-
-
-    public CallLogModel() {
-        super();
-    }
 
     public String getImage() {
         return image;
@@ -95,22 +92,17 @@ public class CallLogModel {
         this.callType = callType;
     }
 
-    public String getCallDate() {
-        if (callDate == null)
-            return "";
+    public long getCallDate() {
         return callDate;
     }
 
-    public void setCallDate(String callDate) {
+    public void setCallDate(long callDate) {
         this.callDate = callDate;
     }
 
     public String getCallDayTime() {
-        return callDayTime;
-    }
-
-    public void setCallDayTime(String callDayTime) {
-        this.callDayTime = callDayTime;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:aa", Locale.getDefault());
+        return simpleDateFormat.format(new Date(callDate));
     }
 
     public String getCallDuration() {
