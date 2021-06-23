@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         btnMasseges = findViewById(R.id.btnMessages);
         viewPager = findViewById(R.id.vp);
         viewPager.setAdapter(new MainPagerAdapter(callLogFragment, contactsFragment, getSupportFragmentManager()));
-        viewPager.setOffscreenPageLimit(2);
+        //viewPager.setOffscreenPageLimit(2);
         l1 = findViewById(R.id.l1);
         l2 = findViewById(R.id.l2);
         l3 = findViewById(R.id.l3);
@@ -85,10 +85,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             public void onPageSelected(int position) {
 
                 if (position == 0)
-                    tab1();
-                else if (position == 1)
                     tab2();
-                else tab3();
+                else if (position == 1)
+                    tab3();
+                else tab1();
 
             }
 
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         v2.setOnClickListener(v -> {
             tab2();
-            viewPager.setCurrentItem(1);
+            viewPager.setCurrentItem(0);
         });
 
         v1.setOnClickListener(v -> {
@@ -110,31 +110,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         v3.setOnClickListener(v -> {
             tab3();
-            viewPager.setCurrentItem(2);
+            viewPager.setCurrentItem(1);
         });
 
-        viewPager.setCurrentItem(1);
-
-        //   Info info = TrueName.getUserInfo(getApplicationContext());
-        //getCallDetails();
-
-//      if(com.facebook.AccessToken.getCurrentAccessToken()==null)
-//      {
-//          startActivity(facebookActivity.getIntent());
-//      }
-
-
-      /*  new GraphRequest(
-                com.facebook.AccessToken.getCurrentAccessToken(),
-                "/263866514295586/",
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        Log.d("apiresponse", response.toString());
-                    }
-                }
-        ).executeAsync();*/
+        //viewPager.setCurrentItem(1);
         createExitDialog();
 
         WorkRequest saveContactsRequest = new PeriodicWorkRequest.Builder(SaveContactsWorker.class, 1, TimeUnit.DAYS)
@@ -296,9 +275,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
     private void search(String newText) {
-        if (viewPager.getCurrentItem() == 1) {
+        if (viewPager.getCurrentItem() == 0) {
             callLogFragment.search(newText);
-        } else if (viewPager.getCurrentItem() == 2) {
+        } else if (viewPager.getCurrentItem() == 1) {
             contactsFragment.search(newText);
         }
     }

@@ -137,6 +137,7 @@ public class CallDetails extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
             intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
+            intent.putExtra(ContactsContract.Intents.Insert.NAME, name);
             startActivity(intent);
         });
         btnLocation.setOnClickListener(v -> ContactUtils.shareLocationOnSms(number, txtName.getText().toString()));
