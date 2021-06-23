@@ -34,7 +34,7 @@ public class CallLogFragment extends Fragment {
     private CallLogsAdapter callLogsAdapter;
     private LinearLayoutManager layoutManager;
     private TextView tvLoading;
-    private boolean search, init = true;
+    private boolean search, init;
     private int offset;
 
     public CallLogFragment() {
@@ -81,8 +81,7 @@ public class CallLogFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         MainActivity mainActivity = (MainActivity) requireActivity();
         WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("cl").observe(getViewLifecycleOwner(), workInfo -> {
-            if (init && workInfo.get(0).getProgress() == Data.EMPTY) {
-                init = false;
+            if (!init && workInfo.get(0).getProgress() == Data.EMPTY) {
                 loadCallLog();
             }
         });
@@ -96,6 +95,7 @@ public class CallLogFragment extends Fragment {
                 offset += 50;
                 tvLoading.setVisibility(View.GONE);
                 callLogsAdapter.addCallLogs(callLog);
+                init = true;
             }
             return null;
         });

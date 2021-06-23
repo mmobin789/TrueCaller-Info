@@ -32,7 +32,7 @@ public class ContactsFragment extends Fragment {
     private RecyclerView recyclerView;
     private ContactsAdapter contactsAdapter;
     private TextView tvLoading;
-    private boolean search, init = true;
+    private boolean search, init;
     private int offset;
 
     public ContactsFragment() {
@@ -55,8 +55,7 @@ public class ContactsFragment extends Fragment {
         init();
         MainActivity mainActivity = (MainActivity) requireActivity();
         WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("c").observe(getViewLifecycleOwner(), workInfo -> {
-            if (init && workInfo.get(0).getProgress() == Data.EMPTY) {
-                init = false;
+            if (!init && workInfo.get(0).getProgress() == Data.EMPTY) {
                 loadContacts();
             }
 
@@ -93,6 +92,7 @@ public class ContactsFragment extends Fragment {
                 offset += 50;
                 tvLoading.setVisibility(View.GONE);
                 contactsAdapter.addContacts(contacts);
+                init = true;
             }
             return null;
         });
