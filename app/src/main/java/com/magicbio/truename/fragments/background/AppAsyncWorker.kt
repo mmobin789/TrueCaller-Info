@@ -311,8 +311,8 @@ object AppAsyncWorker {
 
     @JvmStatic
     fun getContactByNumber(number: String, callback: (Contact?) -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val contacts = contactsDao.getAllContacts()
+        GlobalScope.launch {
+            val contacts = contactsDao.findContactsByNumbers(listOf("%$number%"))
             contacts.find { contact ->
                 contact.numbers.find {
                     number == it
@@ -321,6 +321,16 @@ object AppAsyncWorker {
         }
 
     }
+
+    @JvmStatic
+    fun getCallLogByNumber(id: Long, callback: (CallLogModel?) -> Unit) {
+        GlobalScope.launch {
+            val callLogModel = callLogDao.findCallLogById(id)
+            callLogModel?.also(callback)
+        }
+
+    }
+
 
 /* @JvmStatic
  fun getContactByName(name: String, callback: (Contact?) -> Unit) {

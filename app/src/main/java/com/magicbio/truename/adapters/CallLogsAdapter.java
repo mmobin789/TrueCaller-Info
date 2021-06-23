@@ -109,9 +109,9 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
         myViewHolder.btnHistory.setOnClickListener(v -> {
             final CallLogModel model = list.get(myViewHolder.getAdapterPosition());
-            AppAsyncWorker.getContactByNumber(model.getPhNumber(), contact -> {
-                if (contact != null)
-                    ContactUtils.openCallDetailsActivity(contact);
+            AppAsyncWorker.getCallLogByNumber(model.id, callLogModel -> {
+                if (callLogModel != null)
+                    ContactUtils.openCallDetailsActivity(callLogModel);
                 else ContactUtils.openCallDetailsActivity(model.getPhNumber());
                 return Unit.INSTANCE;
             });

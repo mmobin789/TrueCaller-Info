@@ -9,7 +9,7 @@
     // if your Facebook App ID is 1234567, you should use ak1234567
 
 
-    <string name="invite">Invite 0313 4536313 to True Name to \n send instantly flash message and \n get missed call reminder </string>
+    <string name="invite">Invite 0313 4536313 to True Caller Info to \n send instant message.</string>
     <string name="share_my_location">Share My\nLocation</string>
     <string name="facebook">Facebook</string>
     <string name="instagram">Instagram</string>
@@ -27,4 +27,5 @@
     <string name="loading">Loading…</string>
     <string name="app_update_msg">True Caller Info App Update Available.</string>
     <string name="view_call_history">View call history</string>
+    <string name="invite_by_sms">Invite by SMS</string>
 </resources>

@@ -11,6 +11,7 @@ import com.magicbio.truename.TrueName
 import com.magicbio.truename.activities.CallDetails
 import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.fragments.background.AppAsyncWorker
+import com.magicbio.truename.models.CallLogModel
 import com.magicbio.truename.retrofit.ApiClient
 import com.magicbio.truename.retrofit.ApiInterface
 import io.nlopez.smartlocation.SmartLocation
@@ -33,6 +34,15 @@ object ContactUtils {
         intent.putExtra("name", contact.name)
         intent.putStringArrayListExtra("numbers", contact.numbers)
         intent.putExtra("email", contact.email)
+        context.startActivity(intent)
+    }
+
+    @JvmStatic
+    fun openCallDetailsActivity(callLogModel: CallLogModel) {
+        val intent =
+            Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra("name", callLogModel.name)
+        intent.putStringArrayListExtra("numbers", arrayListOf(callLogModel.phNumber))
         context.startActivity(intent)
     }
 
