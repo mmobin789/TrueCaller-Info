@@ -43,6 +43,7 @@ object ContactUtils {
             Intent(context, CallDetails::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra("name", callLogModel.name)
         intent.putStringArrayListExtra("numbers", arrayListOf(callLogModel.phNumber))
+        intent.putExtra("by-true-name", callLogModel.numberByTrueName)
         context.startActivity(intent)
     }
 
@@ -187,18 +188,18 @@ object ContactUtils {
     @JvmStatic
     fun openWhatsAppChat(number: String) {
         //   val whatsAppPackage = "com.whatsapp"
-            val numberWithCountryCodeNoPlus = number.replace(" ", "").removePrefix("+")
-            var fixedNumber = numberWithCountryCodeNoPlus
-            if (!numberWithCountryCodeNoPlus.startsWith("92"))
-                fixedNumber = "92${numberWithCountryCodeNoPlus.substring(1)}"
-            // val sendIntent = Intent("$whatsAppPackage.Conversation")
-            //  sendIntent.component = ComponentName("com.whatsapp", "com.whatsapp.Conversation")
-            val sendIntent = Intent(Intent.ACTION_VIEW)
-            sendIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            //  sendIntent.`package` = whatsAppPackage  // by not setting this option user will also get option in system picker for whatsapp business as well.
-            sendIntent.data = Uri.parse("http://api.whatsapp.com/send?phone=$fixedNumber")
-            // sendIntent.putExtra("jid", "$fixedNumber@s.whatsapp.net")
-            context.startActivity(sendIntent)
+        val numberWithCountryCodeNoPlus = number.replace(" ", "").removePrefix("+")
+        var fixedNumber = numberWithCountryCodeNoPlus
+        if (!numberWithCountryCodeNoPlus.startsWith("92"))
+            fixedNumber = "92${numberWithCountryCodeNoPlus.substring(1)}"
+        // val sendIntent = Intent("$whatsAppPackage.Conversation")
+        //  sendIntent.component = ComponentName("com.whatsapp", "com.whatsapp.Conversation")
+        val sendIntent = Intent(Intent.ACTION_VIEW)
+        sendIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        //  sendIntent.`package` = whatsAppPackage  // by not setting this option user will also get option in system picker for whatsapp business as well.
+        sendIntent.data = Uri.parse("http://api.whatsapp.com/send?phone=$fixedNumber")
+        // sendIntent.putExtra("jid", "$fixedNumber@s.whatsapp.net")
+        context.startActivity(sendIntent)
 
 
     }

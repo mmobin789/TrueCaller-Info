@@ -230,14 +230,15 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         String number = model.getPhNumber();
 
         if (!ContactUtils.isContactName(name)) {
+            holder.txtName.setText(number);
             AppAsyncWorker.addCallLog(holder, model, (callLogModel, mvh) -> {
                 mvh.txtName.setText(callLogModel.getName());
                 mvh.logo.setVisibility(View.VISIBLE);
                 return null;
             });
+        } else {
+            holder.txtName.setText(name);
         }
-
-        holder.txtName.setText(name);
         holder.txtNumber.setText(number);
         String time = formatDuration(model.getCallDuration()) + "\t" + model.getCallDayTime();
         holder.txtDuration.setText(time);

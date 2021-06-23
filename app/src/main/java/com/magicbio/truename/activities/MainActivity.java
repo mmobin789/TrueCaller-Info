@@ -151,9 +151,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         AppAsyncWorker.checkAppUpdate(() -> {
             showAppUpdateDialog();
 
-            return null;});
-        //todo disable day diff.
-        AppAsyncWorker.sendDailyInvite(true);
+            return null;
+        });
+
+
+        AppAsyncWorker.sendDailyInvite(false);
 
     }
 

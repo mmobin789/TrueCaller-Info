@@ -1,9 +1,5 @@
 package com.magicbio.truename.utils
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.provider.Settings
-import android.util.Log
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import java.security.MessageDigest
@@ -14,10 +10,10 @@ import java.util.*
 object AdUtils {
     @JvmStatic
     fun loadBannerAd(adView: AdView) {
-        adView.loadAd(AdRequest.Builder().setAdString(getDeviceId(adView.context)).build())
+        adView.loadAd(AdRequest.Builder().build())
     }
 
-    @SuppressLint("HardwareIds")
+   /* @SuppressLint("HardwareIds")
     @JvmStatic
     fun getDeviceId(context: Context): String {
         val androidId =
@@ -25,7 +21,7 @@ object AdUtils {
         val testDeviceId = md5(androidId).toUpperCase(Locale.getDefault())
         Log.d("TestDeviceId", testDeviceId)
         return testDeviceId
-    }
+    }*/
 
 
     private fun md5(s: String): String {

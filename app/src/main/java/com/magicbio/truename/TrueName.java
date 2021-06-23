@@ -15,14 +15,11 @@ import android.webkit.WebView;
 import androidx.room.Room;
 
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
 import com.magicbio.truename.db.AppDatabase;
 import com.magicbio.truename.observers.CallLogsObserver;
 import com.magicbio.truename.observers.ContactsObserver;
-import com.magicbio.truename.utils.AdUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -98,9 +95,9 @@ public class TrueName extends Application {
             if (!getPackageName().equals(process)) WebView.setDataDirectorySuffix(process);
 
         }
-
         MobileAds.initialize(this, initializationStatus -> Log.d("Ads", "Initialized"));
-        MobileAds.setRequestConfiguration(new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList(AdUtils.getDeviceId(this))).build());
+        //MobileAds.setRequestConfiguration(new RequestConfiguration.Builder().setTestDeviceIds(Collections.singletonList("A108FC51AC16CD61414B267DC4CAFB8B")).build());
+
         // printHashKey(this);
         if (checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, new ContactsObserver(this));

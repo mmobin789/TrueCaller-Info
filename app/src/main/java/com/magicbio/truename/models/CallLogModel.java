@@ -1,9 +1,11 @@
 package com.magicbio.truename.models;
 
 import android.icu.text.SimpleDateFormat;
+
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+
 import java.util.Date;
 import java.util.Locale;
 
@@ -57,11 +59,7 @@ public class CallLogModel {
     }
 
     public String getName() {
-        if (name == null) {
-            return phNumber;
-        } else {
-            return name;
-        }
+        return name;
     }
 
     public void setName(String name) {

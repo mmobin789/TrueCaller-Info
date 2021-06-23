@@ -84,7 +84,7 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
-            tools:text="Ahmed Bial" />
+            tools:text="Mobin Munir" />
 
         <LinearLayout
             android:id="@+id/llCountry"

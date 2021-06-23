@@ -105,7 +105,7 @@ object AppAsyncWorker {
                 val data = response.body()!!.data
                 callLogModel.name = data.name
                 callLogModel.numberByTrueName = true
-                callLogDao.insert(callLogModel)
+                callLogDao.update(callLogModel)
                 withContext(Dispatchers.Main.immediate) {
                     onSuccess(callLogModel, holder)
                 }

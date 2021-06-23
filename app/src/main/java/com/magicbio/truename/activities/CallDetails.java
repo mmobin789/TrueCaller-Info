@@ -54,8 +54,7 @@ public class CallDetails extends AppCompatActivity {
         activityText = findViewById(R.id.sample);*/
         name = getIntent().getStringExtra("name");
         numbers = getIntent().getStringArrayListExtra("numbers");
-        txtName.setText(name);
-
+        boolean byTrueName = getIntent().getBooleanExtra("by-true-name", false);
         String number = numbers.get(0);
         TextView tvWTAMessage = findViewById(R.id.tvMessageWhatsApp);
         TextView tvWTAAudio = findViewById(R.id.tvAudioWhatsApp);
@@ -72,17 +71,20 @@ public class CallDetails extends AppCompatActivity {
             tvEmail.setVisibility(View.GONE);
         }
 
-        if (ContactUtils.isContactName(name)) {
+        if (ContactUtils.isContactName(name) && !byTrueName) {  // always true condition for contacts.
             btnSave.setVisibility(View.GONE);
             btnBlock.setVisibility(View.VISIBLE);
             btnBlock.setBackgroundResource(R.drawable.block_btn);
-        } else {
+        } else {  // might be false for call logs.
             btnSave.setVisibility(View.VISIBLE);
             btnBlock.setVisibility(View.GONE);
             btnBlock.setBackgroundResource(R.drawable.unblock_btn);
             findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
-            txtName.setText(number);
         }
+
+        if (ContactUtils.isContactName(name))
+            txtName.setText(name);
+        else txtName.setText(number);
 
         setupClick(number);
 
