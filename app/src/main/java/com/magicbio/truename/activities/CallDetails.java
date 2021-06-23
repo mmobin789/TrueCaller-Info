@@ -48,6 +48,7 @@ public class CallDetails extends AppCompatActivity {
         btnLocation = findViewById(R.id.btnLocation);
         ImageView btnBlock = findViewById(R.id.btnBlock);
         TextView tvCountry = findViewById(R.id.tvCountry);
+        TextView tvCountryBottom = findViewById(R.id.tvCountryBottom);
       /*  locationText = findViewById(R.id.sample);
         geofenceText = findViewById(R.id.sample);
         activityText = findViewById(R.id.sample);*/
@@ -89,6 +90,7 @@ public class CallDetails extends AppCompatActivity {
 
         if (ccpCountry != null) {
             tvCountry.setText(ccpCountry.getEnglishName());
+            tvCountryBottom.setText(ccpCountry.getEnglishName());
         } else findViewById(R.id.llCountry).setVisibility(View.GONE);
 
         init();

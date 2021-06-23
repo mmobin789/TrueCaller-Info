@@ -35,6 +35,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="48dp"
                 android:layout_marginTop="20dp"
+                android:contentDescription="@string/app_name"
                 android:src="@drawable/logo_new" />
 
 
@@ -71,7 +72,8 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginTop="20dp"
-            android:background="@drawable/profile_image_1" />
+            android:background="@drawable/profile_image_1"
+            android:contentDescription="@string/app_name" />
 
         <TextView
             android:id="@+id/txtName"
@@ -93,7 +95,8 @@
             <ImageView
                 android:layout_width="10dp"
                 android:layout_height="15dp"
-                android:background="@drawable/location_pin_1" />
+                android:background="@drawable/location_pin_1"
+                android:contentDescription="@string/app_name" />
 
             <TextView
                 android:id="@+id/tvCountry"
@@ -137,6 +140,7 @@
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:background="@drawable/call_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -146,6 +150,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/msg_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -155,6 +160,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/invite_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -164,6 +170,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/save_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
             <ImageView
@@ -185,6 +192,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/location_btn_back"
+                android:contentDescription="@string/app_name"
                 android:padding="5dp" />
 
         </LinearLayout>
@@ -237,6 +245,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
+                        android:contentDescription="@string/app_name"
                         android:src="@drawable/history_icon" />
 
                     <TextView
@@ -247,7 +256,7 @@
                         android:paddingStart="16dp"
                         android:paddingTop="8dp"
                         android:paddingEnd="16dp"
-                        android:text="View call history"
+                        android:text="@string/view_call_history"
                         android:textColor="@color/white"
                         android:textStyle="bold" />
 
@@ -281,26 +290,27 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/dark_grey_border"
-                    android:drawableStart="@drawable/ic_email_black_24dp"
                     android:drawablePadding="16dp"
                     android:padding="16dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
+                    app:drawableStartCompat="@drawable/ic_email_black_24dp"
                     tools:text="email@email.com" />
 
 
                 <TextView
+                    android:id="@+id/tvCountryBottom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:background="@drawable/dark_grey_border"
-                    android:drawableStart="@drawable/ic_location_dark_grey"
                     android:drawablePadding="16dp"
-                    android:drawableTint="@color/dark_gray"
                     android:padding="16dp"
                     android:text="@string/pakistan"
                     android:textColor="@color/black"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:drawableStartCompat="@drawable/ic_location_dark_grey"
+                    app:drawableTint="@color/dark_gray" />
 
                 <LinearLayout
                     android:id="@+id/llwhatsApp"
@@ -320,6 +330,7 @@
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:contentDescription="@string/app_name"
                             android:src="@drawable/whatsapp" />
 
                         <TextView
@@ -350,6 +361,7 @@
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:contentDescription="@string/app_name"
                             android:src="@drawable/whatsapp" />
 
                         <TextView
@@ -380,6 +392,7 @@
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:contentDescription="@string/app_name"
                             android:src="@drawable/whatsapp" />
 
                         <TextView
@@ -407,6 +420,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/app_name"
                         android:src="@drawable/facebook_blue" />
 
                     <TextView
@@ -433,6 +447,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/app_name"
                         android:src="@drawable/instagaram" />
 
                     <TextView
@@ -458,6 +473,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/app_name"
                         android:src="@drawable/skype" />
 
                     <TextView
@@ -484,6 +500,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/app_name"
                         android:src="@drawable/twitter" />
 
                     <TextView
@@ -509,6 +526,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/app_name"
                         android:src="@drawable/linkedin" />
 
                     <TextView
@@ -536,6 +554,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/app_name"
                         android:src="@drawable/viber" />
 
                     <TextView

@@ -26,4 +26,5 @@
     <string name="login">login</string>
     <string name="loading">Loading…</string>
     <string name="app_update_msg">True Caller Info App Update Available.</string>
+    <string name="view_call_history">View call history</string>
 </resources>
