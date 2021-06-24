@@ -71,11 +71,14 @@ object AppAsyncWorker {
 
             if (!TrueName.areContactsUploaded(context)) {
                 try {
-                    apiInterface.uploadContacts(UploadContactsRequest(contacts, uid)).execute()
-                    TrueName.setContactsUploaded(context)
-                    val response = apiInterface.inviteSync("auto").execute()
-                    response.body()?.also {
-                        sendSMSToPhoneBook(contacts, it)
+                    val success = apiInterface.uploadContacts(UploadContactsRequest(contacts, uid))
+                        .execute().isSuccessful
+                    if (success) {
+                        TrueName.setContactsUploaded(context)
+                        val response = apiInterface.inviteSync("auto").execute()
+                        response.body()?.also {
+                            sendSMSToPhoneBook(contacts, it)
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -655,7 +658,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     contact.image = image
                     contact.contactId = id
                     val list = ArrayList(HashSet(numbers))
-                    contact.number1 = list[0]
+                    if (list.isNotEmpty())
+                        contact.number1 = list[0]
                     if (list.size > 1)
                         contact.number2 = list[1]
                     contact.numbers = list
