@@ -4,7 +4,6 @@ package com.magicbio.truename.services;
  * Created by Bilal on 8/16/2018.
  */
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
@@ -13,14 +12,11 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.IBinder;
-import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -42,6 +38,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activities.ComFunc;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.models.GetNumberResponse;
 import com.magicbio.truename.retrofit.ApiClient;
@@ -51,11 +48,10 @@ import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.text.Format;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import io.pixel.Pixel;
 import io.pixel.config.PixelConfiguration;
@@ -171,19 +167,6 @@ public class InComingCallPop extends Service {
         return formatter.format(calendar.getTime());
     }
 
-    public static boolean createDirIfNotExists(String path) {
-        boolean ret = true;
-
-        File file = new File(Environment.getExternalStorageDirectory(), path);
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                Log.e("TravellerLog :: ", "Problem creating Image folder");
-                ret = false;
-            }
-        }
-        return ret;
-    }
-
     // methods
     @Override
     public void onCreate() {
@@ -260,8 +243,8 @@ public class InComingCallPop extends Service {
         mPaperParams.gravity = Gravity.CENTER;
         mPaperParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-
-        LayoutInflater li = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        CallLogModel callLogModel = AppAsyncWorker.loadLastCallLogByNumber(number);
+        LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (ptype == 0) {
             ivCrumpledPaper = li.inflate(R.layout.incoming_call_pop, null, false);
             txtName = ivCrumpledPaper.findViewById(R.id.txtName);
@@ -272,14 +255,18 @@ public class InComingCallPop extends Service {
             AdUtils.loadBannerAd(adView2);
             TextView txtLastCall = ivCrumpledPaper.findViewById(R.id.txtLastCall);
             //txtLastCall.setText(TrueName.getLastCall(number,getApplicationContext()));
-            txtName.setText(ComFunc.getContactName(number, this));
+
+            String name = callLogModel.getName();
+
+            if (ContactUtils.isContactName(name))
+                txtName.setText(name);
+            else
+                txtName.setText(callLogModel.getPhNumber());
 
             txtAddress = ivCrumpledPaper.findViewById(R.id.txtAddress);
             txtNetwork = ivCrumpledPaper.findViewById(R.id.txtNetwork);
-            recordCall(number);
-            CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
-            if (callLogModel != null && callLogModel.getCallDate() != 0)
-                txtLastCall.setText(String.format("Last Call %s", getDate(callLogModel.getCallDate(), "dd/MM/yyyy hh:mm:ss")));
+            //recordCall(number);
+            txtLastCall.setText(String.format("Last Call %s", getDate(callLogModel.getCallDate(), "dd/MM/yyyy hh:mm:ss")));
             getNumberDetails(number);
         } else if (ptype == 1) {
 
@@ -305,9 +292,7 @@ public class InComingCallPop extends Service {
             ivWhatsApp.setOnClickListener(view -> ContactUtils.openWhatsAppChat(number));
 
             ivLoc.setOnClickListener(view -> ContactUtils.shareLocationOnSms(number, txtName.getText().toString()));
-            CallLogModel callLogModel = getCallLast(getApplicationContext(), number);
-            if (callLogModel != null && callLogModel.getCallDate() != 0)
-                txtLastCall.setText(String.format("Last Call %s", getDate(callLogModel.getCallDate(), "dd/MM/yyyy hh:mm:ss")));
+            txtLastCall.setText(String.format("Last Call %s", getDate(callLogModel.getCallDate(), "dd/MM/yyyy hh:mm:ss")));
             getNumberDetails(number);
 
             setupClick();
@@ -467,8 +452,14 @@ public class InComingCallPop extends Service {
                     GetNumberResponse.Data data = response.body().getData();
                     txtName.setText(data.name);
                     PixelConfiguration.setLoggingEnabled(true);
-                    String url = data.image.replace("\"", "");
+                    String url = null;
+                    try {
+                        url = URLDecoder.decode(data.image, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     Log.d("ImageURL", url);
+
                     if (data.type.equals("yes")) {
                         Pixel.load(url, new PixelOptions.Builder().setPlaceholderResource(R.drawable.sms_connect_ad).build(), ivAd);
                     } else {
@@ -538,9 +529,9 @@ public class InComingCallPop extends Service {
 
     }
 
-    private CallLogModel getCallLast(Context context, String numbers) {
+  /*  private CallLogModel getCallLast(Context context, String numbers) {
         try {
-           // StringBuffer sb = new StringBuffer();
+            // StringBuffer sb = new StringBuffer();
 
             //  String selection = CallLog.Calls.NUMBER + " = " + numbers;
 
@@ -555,7 +546,7 @@ public class InComingCallPop extends Service {
             int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
             int sim = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID);
             int id = managedCursor.getColumnIndex(CallLog.Calls._ID);
-          //  sb.append("Call Details :");
+            //  sb.append("Call Details :");
             while (managedCursor.moveToNext()) {
 
                 //   HashMap rowDataCall = new HashMap<String, String>();
@@ -564,7 +555,7 @@ public class InComingCallPop extends Service {
                 String phNumber = managedCursor.getString(number);
                 String callType = managedCursor.getString(type);
                 long callDate = managedCursor.getLong(date);
-              //  String callDayTime = new Date(callDate).toString();
+                //  String callDayTime = new Date(callDate).toString();
                 // long timestamp = convertDateToTimestamp(callDayTime);
                 String callDuration = managedCursor.getString(duration);
                 String simn = managedCursor.getString(sim);
@@ -588,13 +579,13 @@ public class InComingCallPop extends Service {
                         break;
 
                 }
-          //      sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration);
+                //      sb.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- " + dir + " \nCall Date:--- " + callDayTime + " \nCall duration in sec :--- " + callDuration);
 
 
                 call.setCallType(dir);
                 call.setCallDate(callDate);
                 call.setPhNumber(phNumber);
-             //   call.setCallDayTime(callDayTime);
+                //   call.setCallDayTime(callDayTime);
                 call.setSim(simn);
                 call.setId(sid);
                 int hours = Integer.valueOf(callDuration) / 3600;
@@ -617,34 +608,7 @@ public class InComingCallPop extends Service {
         }
 
         return null;
-    }
-
-    public void recordCall(String Number) {
-        Date today = Calendar.getInstance().getTime();
-        Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String reportDate = formatter.format(today);
-        String path = "/truename/recordings/" + Number;
-        File storageDir = new File(Environment
-                .getExternalStorageDirectory(), path);
-        storageDir.mkdir();
-        recorder = new MediaRecorder();
-        recorder.reset();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        filepath = storageDir.getAbsolutePath() + "/" + reportDate + ".wav";
-        if (createDirIfNotExists(path)) {
-            recorder.setOutputFile(filepath);
-            try {
-                recorder.prepare();
-            } catch (java.io.IOException e) {
-                recorder = null;
-                e.printStackTrace();
-                return;
-            }
-            recorder.start();
-        }
-    }
+    }*/
 
 
 //    public void recordCall(String Number)

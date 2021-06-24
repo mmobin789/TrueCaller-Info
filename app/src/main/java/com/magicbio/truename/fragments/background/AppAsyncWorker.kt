@@ -170,6 +170,12 @@ object AppAsyncWorker {
 
 
     @JvmStatic
+    fun loadLastCallLogByNumber(number: String): CallLogModel {
+        return callLogDao.findLastCallLogByNumber(number)
+    }
+
+
+    @JvmStatic
     fun loadContactsBy(query: String): List<Contact> {
         return if (query.isBlank()) {
             contactsDao.getInitialContacts()
