@@ -23,6 +23,7 @@ import com.magicbio.truename.models.GetNumberResponse
 import com.magicbio.truename.retrofit.ApiClient
 import com.magicbio.truename.retrofit.ApiInterface
 import com.magicbio.truename.utils.AdUtils
+import com.magicbio.truename.utils.ContactUtils
 import com.magicbio.truename.utils.ContactUtils.isContactName
 import com.magicbio.truename.utils.ContactUtils.openWhatsAppChat
 import com.magicbio.truename.utils.ContactUtils.shareLocationOnSms
@@ -32,9 +33,6 @@ import io.pixel.config.PixelOptions
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.UnsupportedEncodingException
-import java.net.URLDecoder
-import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -96,7 +94,7 @@ class CallsListener : PhoneStateListener() {
         beforeCallPopUpShown = true
     }
 
-    private fun showAfterCallPopUpWindow(phoneNumber: String?) {
+    private fun showAfterCallPopUpWindow(phoneNumber: String) {
         if (afterCallPopUpShown)
             return
         afterCallPopupView = layoutInflater.inflate(R.layout.after_call_pop, null)
@@ -130,94 +128,90 @@ class CallsListener : PhoneStateListener() {
             txtLastCall.text = getDateFormatted(callLog.callDate)
 
             txtNumber.text = number
-
-            getNumberDetails(number, txtName, txtNumber, ivAd, adView2)
         }
+
+        getNumberDetails(number, txtName, txtNumber, ivAd, adView2)
 
     }
 
-    private fun showInfoOnPopUpAfterCall(number: String?) {
-        number?.let {
-            loadLastCallLogByNumber(it)
-            val view = afterCallPopupView!!
-            val ivAd = view.findViewById<ImageView>(R.id.ivAd)
-            val adView1 = view.findViewById<AdView>(R.id.adView)
-            val adView2 = view.findViewById<AdView>(R.id.adView2)
-            val txtNumber = view.findViewById<TextView>(R.id.txtNumber)
-            val txtLastCall = view.findViewById<TextView>(R.id.txtLastCall)
-            val txtName = view.findViewById<TextView>(R.id.txtName)
-            val btnCall = view.findViewById<ImageView>(R.id.btnCall)
-            val btnInvite = view.findViewById<ImageView>(R.id.btnInvite)
-            val btnSave = view.findViewById<ImageView>(R.id.btnSave)
-            val btnMessage = view.findViewById<ImageView>(R.id.btnMessage)
-            val ivWhatsApp = view.findViewById<ImageView>(R.id.ivWta)
-            val ivLoc = view.findViewById<Button>(R.id.ivLocation)
-            val cross = view.findViewById<ImageView>(R.id.cross)
-            AdUtils.loadBannerAd(adView1)
-            AdUtils.loadBannerAd(adView2)
+    private fun showInfoOnPopUpAfterCall(number: String) {
+        val view = afterCallPopupView!!
+        val ivAd = view.findViewById<ImageView>(R.id.ivAd)
+        val adView1 = view.findViewById<AdView>(R.id.adView)
+        val adView2 = view.findViewById<AdView>(R.id.adView2)
+        val txtNumber = view.findViewById<TextView>(R.id.txtNumber)
+        val txtLastCall = view.findViewById<TextView>(R.id.txtLastCall)
+        val txtName = view.findViewById<TextView>(R.id.txtName)
+        val btnCall = view.findViewById<ImageView>(R.id.btnCall)
+        val btnInvite = view.findViewById<ImageView>(R.id.btnInvite)
+        val btnSave = view.findViewById<ImageView>(R.id.btnSave)
+        val btnMessage = view.findViewById<ImageView>(R.id.btnMessage)
+        val ivWhatsApp = view.findViewById<ImageView>(R.id.ivWta)
+        val ivLoc = view.findViewById<Button>(R.id.ivLocation)
+        val cross = view.findViewById<ImageView>(R.id.cross)
+        AdUtils.loadBannerAd(adView1)
+        AdUtils.loadBannerAd(adView2)
 
-            cross.setOnClickListener {
-                windowManager.removeView(view)
-                afterCallPopUpShown = false
-            }
+        cross.setOnClickListener {
+            windowManager.removeView(view)
+            afterCallPopUpShown = false
+        }
 
 
-            btnInvite.setOnClickListener {
+        btnInvite.setOnClickListener { v ->
+            ContactUtils.sendInvite(number, v.context)
+        }
 
-            }
+        btnCall.setOnClickListener {
+            val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null))
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        }
 
-            btnCall.setOnClickListener {
-                val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null))
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                context.startActivity(intent)
-            }
+        btnMessage.setOnClickListener {
+            val uri = Uri.parse("smsto:$number")
+            val intent = Intent(Intent.ACTION_SENDTO, uri)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.putExtra("sms_body", "The SMS text")
+            context.startActivity(intent)
+        }
 
-            btnMessage.setOnClickListener {
-                val uri = Uri.parse("smsto:$number")
-                val intent = Intent(Intent.ACTION_SENDTO, uri)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                intent.putExtra("sms_body", "The SMS text")
-                context.startActivity(intent)
-            }
+        ivWhatsApp.setOnClickListener {
+            openWhatsAppChat(number)
+        }
 
-            ivWhatsApp.setOnClickListener {
-                openWhatsAppChat(number)
-            }
-
-            ivLoc.setOnClickListener {
-                shareLocationOnSms(
-                    number,
-                    txtName.text.toString()
-                )
-            }
+        ivLoc.setOnClickListener {
+            shareLocationOnSms(
+                number,
+                txtName.text.toString()
+            )
+        }
 
 
-            val name = loadLastCallLogByNumber(number)?.let { callLog ->
-                val name = callLog.name
-                txtName.text = if (isContactName(name))
-                    name
-                else callLog.phNumber
-
-                txtLastCall.text = getDateFormatted(callLog.callDate)
-
-                txtNumber.text = number
-
-                getNumberDetails(number, txtName, txtNumber, ivAd, adView2)
-
+        val name = loadLastCallLogByNumber(number)?.let { callLog ->
+            val name = callLog.name
+            txtName.text = if (isContactName(name))
                 name
+            else callLog.phNumber
 
-            }
+            txtLastCall.text = getDateFormatted(callLog.callDate)
 
-            btnSave.setOnClickListener {
-                val intent = Intent(Intent.ACTION_INSERT)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                intent.type = ContactsContract.Contacts.CONTENT_TYPE
-                intent.putExtra(ContactsContract.Intents.Insert.PHONE, number)
-                intent.putExtra(ContactsContract.Intents.Insert.NAME, name)
-                context.startActivity(intent)
-            }
+            txtNumber.text = number
+
+            name
 
         }
+
+        btnSave.setOnClickListener {
+            val intent = Intent(Intent.ACTION_INSERT)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.type = ContactsContract.Contacts.CONTENT_TYPE
+            intent.putExtra(ContactsContract.Intents.Insert.PHONE, number)
+            intent.putExtra(ContactsContract.Intents.Insert.NAME, name)
+            context.startActivity(intent)
+        }
+
+        getNumberDetails(number, txtName, txtNumber, ivAd, adView2)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -329,9 +323,9 @@ class CallsListener : PhoneStateListener() {
     override fun onCallStateChanged(state: Int, phoneNumber: String) {
 
         try {
-          //  removePopUpViews()
+            //  removePopUpViews()
 
-            if (phoneNumber.length > 2)
+            if (phoneNumber.isNotBlank())
                 lastNumber = phoneNumber
 
             if (lastNumber.isBlank())
