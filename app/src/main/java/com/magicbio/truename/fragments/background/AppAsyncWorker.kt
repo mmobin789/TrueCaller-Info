@@ -342,10 +342,9 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-    fun getCallLogByNumber(id: Long, callback: (CallLogModel?) -> Unit) {
+     fun getCallLogByNumber(id: Long, callback: (CallLogModel) -> Unit) {
         GlobalScope.launch {
-            val callLogModel = callLogDao.findCallLogById(id)
-            callLogModel?.also(callback)
+            callLogDao.findCallLogById(id)?.also(callback)
         }
 
     }

@@ -124,7 +124,7 @@ object ContactUtils {
     }
 
     private fun String.isNameOnly(): Boolean {
-        return matches("[a-z A-Z]+".toRegex())
+        return matches("[a-zA-Z0-9 ]+".toRegex())
     }
 
     @JvmStatic

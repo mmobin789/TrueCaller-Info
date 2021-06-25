@@ -23,6 +23,8 @@ import com.magicbio.truename.adapters.CallDetailsAdapter;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
 public class CallDetails extends AppCompatActivity {
@@ -98,7 +100,7 @@ public class CallDetails extends AppCompatActivity {
     }
 
 
-    public void openCallHistory(View v) {
+    public void openCallHistory(@NotNull View v) {
         startActivity(new Intent(v.getContext(), CallHistory.class).putStringArrayListExtra("numbers", numbers).putExtra("name", name));
     }
 

@@ -23,6 +23,7 @@ import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -203,11 +204,13 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         return null;
     }*/
 
+    @Nullable
     private String formatDuration(String duration) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:s", Locale.getDefault());
         try {
             Date date = simpleDateFormat.parse(duration);
             Calendar calendar = Calendar.getInstance();
+            assert date != null;
             calendar.setTime(date);
             int hours = calendar.get(Calendar.HOUR);
             int minutes = calendar.get(Calendar.MINUTE);
