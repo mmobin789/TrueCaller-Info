@@ -18,7 +18,6 @@ import com.google.android.gms.location.Geofence;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallHistoryAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
-import com.magicbio.truename.services.InComingCallPop;
 import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
@@ -87,10 +86,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
 //                        intent.putExtra("sms_body", "Invite Text");
 //                        startActivity(intent);
 
-            final Intent i = InComingCallPop.getIntent(CallHistory.this);
-            i.putExtra("number", number);
-            i.putExtra("ptype", 2);
-            startService(i);
+           ContactUtils.sendInvite(number,v.getContext());
 
         });
         btnSave.setOnClickListener(v -> {

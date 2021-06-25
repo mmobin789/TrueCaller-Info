@@ -33,7 +33,7 @@ interface CallLogDao : BaseDAO<CallLogModel> {
     fun findCallLogById(id: Long): CallLogModel?
 
     @Query("SELECT * FROM callLog WHERE phNumber = :number order by callDate desc limit 1")
-    fun findLastCallLogByNumber(number: String): CallLogModel
+    fun findLastCallLogByNumber(number: String): CallLogModel?
 
     @Query("delete from callLog")
     fun deleteAll()

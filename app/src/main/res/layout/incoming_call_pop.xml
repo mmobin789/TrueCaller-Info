@@ -202,6 +202,7 @@
             android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="15dp"
+            android:contentDescription="@string/app_name"
             android:src="@drawable/pop_close_green" />
     </RelativeLayout>
 

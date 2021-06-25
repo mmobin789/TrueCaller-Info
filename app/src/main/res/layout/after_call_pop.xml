@@ -38,14 +38,6 @@
                         android:layout_height="match_parent"
                         android:src="@drawable/profile_image_avatar" />
 
-                    <pl.droidsonroids.gif.GifImageView
-                        android:id="@+id/engIcon"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:padding="3dp"
-                        android:src="@drawable/caller_gif"
-                        android:visibility="gone" />
                 </RelativeLayout>
 
                 <LinearLayout
@@ -128,8 +120,8 @@
                             android:id="@+id/txtNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:text="0345 5555613"
+                            android:layout_marginStart="10dp"
+                            tools:text="0345 5555613"
                             android:textColor="@color/black"
                             android:textSize="14sp"
                             android:textStyle="bold" />

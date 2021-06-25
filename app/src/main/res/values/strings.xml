@@ -4,12 +4,10 @@
     <string name="banner_id_1">ca-app-pub-7945535077164107/9835682059</string>
     <!-- TODO: Remove or change this placeholder text -->
 
-    <string name="notifications_channel_description">popup</string>
-
     // if your Facebook App ID is 1234567, you should use ak1234567
 
 
-    <string name="invite">Invite 0313 4536313 to True Caller Info to \n send instant message.</string>
+    <string name="invite">Invite %1$s to True Caller Info to \n send instant message.</string>
     <string name="share_my_location">Share My\nLocation</string>
     <string name="facebook">Facebook</string>
     <string name="instagram">Instagram</string>

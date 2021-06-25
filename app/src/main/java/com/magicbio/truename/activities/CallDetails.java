@@ -20,7 +20,6 @@ import com.hbb20.CCPCountry;
 import com.hbb20.CountryCodePicker;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallDetailsAdapter;
-import com.magicbio.truename.services.InComingCallPop;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 
@@ -120,16 +119,7 @@ public class CallDetails extends AppCompatActivity {
         btnCall.setOnClickListener(v -> ContactUtils.openDialer(number));
 
         btnInvite.setOnClickListener(v -> {
-//                        Uri uri = Uri.parse("smsto:"+number);
-//                        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        intent.putExtra("sms_body", "Invite Text");
-//                        startActivity(intent);
-
-            final Intent i = InComingCallPop.getIntent(CallDetails.this);
-            i.putExtra("number", number);
-            i.putExtra("ptype", 2);
-            startService(i);
+            ContactUtils.sendInvite(number,v.getContext());
 
         });
         btnSave.setOnClickListener(v -> {

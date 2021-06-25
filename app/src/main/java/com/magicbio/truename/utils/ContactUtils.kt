@@ -1,12 +1,20 @@
 package com.magicbio.truename.utils
 
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.net.Uri
 import android.telephony.SmsManager
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
+import com.magicbio.truename.R
 import com.magicbio.truename.TrueName
 import com.magicbio.truename.activities.CallDetails
 import com.magicbio.truename.db.contacts.Contact
@@ -237,9 +245,10 @@ object ContactUtils {
     }
 
     @JvmStatic
-    fun sendSMSToNumber(apiInterface: ApiInterface, number: String, onSent: () -> Unit) {
+    fun sendSMSToNumber(number: String, onSent: () -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
+                val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
                 val response = apiInterface.invite("self")
                 //   Log.d("InviteAPI", response.status.toString())
                 val msg = response.msg
@@ -263,6 +272,32 @@ object ContactUtils {
             }
 
         }
+    }
+
+    @JvmStatic
+    fun sendInvite(number: String, context: Context) {
+        val dialog = Dialog(context)
+        dialog.window?.run {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        dialog.setContentView(R.layout.invite_pop)
+        val btnInvite = dialog.findViewById<Button>(R.id.btnInvite)
+        val text = dialog.findViewById<TextView>(R.id.text)
+        val txtNumber = dialog.findViewById<TextView>(R.id.txtNumber)
+        text.text = context.getString(R.string.invite, number)
+        txtNumber.text = number
+
+        dialog.findViewById<ImageView>(R.id.cross).setOnClickListener {
+            dialog.dismiss()
+        }
+        btnInvite.setOnClickListener {
+            sendSMSToNumber(number) {
+                Toast.makeText(it.context, "Invite SMS Sent", Toast.LENGTH_LONG).show()
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
     }
 
 

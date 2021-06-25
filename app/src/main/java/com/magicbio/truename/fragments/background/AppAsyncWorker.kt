@@ -170,7 +170,7 @@ object AppAsyncWorker {
 
 
     @JvmStatic
-    fun loadLastCallLogByNumber(number: String): CallLogModel {
+    fun loadLastCallLogByNumber(number: String): CallLogModel? {
         return callLogDao.findLastCallLogByNumber(number)
     }
 
@@ -502,6 +502,10 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
     }*/
 
     fun getLastContact(uid: Int) {
+
+        if (uid == -1)
+            return
+
         val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
         val cr = context.contentResolver
         val cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
