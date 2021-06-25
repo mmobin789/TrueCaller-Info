@@ -68,11 +68,13 @@ public class CallDetails extends AppCompatActivity {
         String email = getIntent().getStringExtra("email");
         tvEmail.setText(email);
 
+        boolean validName = ContactUtils.isContactName(name);
+
         if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             tvEmail.setVisibility(View.GONE);
         }
 
-        if (ContactUtils.isContactName(name) && !byTrueName) {  // always true condition for contacts.
+        if (validName && !byTrueName) {  // always true condition for contacts.
             btnSave.setVisibility(View.GONE);
             btnBlock.setVisibility(View.VISIBLE);
             btnBlock.setBackgroundResource(R.drawable.block_btn);
@@ -83,7 +85,7 @@ public class CallDetails extends AppCompatActivity {
             findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
         }
 
-        if (ContactUtils.isContactName(name))
+        if (validName)
             txtName.setText(name);
         else txtName.setText(number);
 
@@ -121,7 +123,7 @@ public class CallDetails extends AppCompatActivity {
         btnCall.setOnClickListener(v -> ContactUtils.openDialer(number));
 
         btnInvite.setOnClickListener(v -> {
-            ContactUtils.sendInvite(number,v.getContext());
+            ContactUtils.sendInvite(number, v.getContext());
 
         });
         btnSave.setOnClickListener(v -> {

@@ -120,12 +120,12 @@ object ContactUtils {
 
     @JvmStatic
     fun isContactName(name: String?): Boolean {
-        return !name.isNullOrBlank() && name.isNameOnly()
+        return !name.isNullOrBlank()
     }
 
-    private fun String.isNameOnly(): Boolean {
+  /*  private fun String.isNameOnly(): Boolean {
         return matches("[a-zA-Z0-9 ]+".toRegex())
-    }
+    }*/
 
     @JvmStatic
     @SuppressLint("MissingPermission")
