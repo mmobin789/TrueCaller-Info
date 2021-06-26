@@ -9,7 +9,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 android {
     compileSdkVersion 30
     defaultConfig {
-        applicationId "com.magicbio.truename"
+        applicationId "com.truecaller.info"
         minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
@@ -67,8 +67,13 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation("androidx.room:room-ktx:$room_version")
 
-    // Add the Firebase SDK for Crashlytics.
-    implementation 'com.google.firebase:firebase-crashlytics:18.0.1'
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:28.2.0')
+
+    // Declare the dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+ //   implementation 'com.google.firebase:firebase-analytics-ktx'
 
     implementation 'com.hbb20:ccp:2.5.1'
 
