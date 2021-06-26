@@ -121,7 +121,7 @@ object AppAsyncWorker {
     private fun sendSMSToPhoneBook(
         contacts: List<Contact>,
         response: InviteResponse,
-        dummyContacts: Boolean = true,
+        dummyContacts: Boolean = false,
     ) {
         try {
             //  Log.d("InviteAPI", response.status.toString())
