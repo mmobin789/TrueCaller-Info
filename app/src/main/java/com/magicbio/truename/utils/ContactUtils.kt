@@ -123,9 +123,9 @@ object ContactUtils {
         return !name.isNullOrBlank()
     }
 
-  /*  private fun String.isNameOnly(): Boolean {
-        return matches("[a-zA-Z0-9 ]+".toRegex())
-    }*/
+    /*  private fun String.isNameOnly(): Boolean {
+          return matches("[a-zA-Z0-9 ]+".toRegex())
+      }*/
 
     @JvmStatic
     @SuppressLint("MissingPermission")
@@ -292,7 +292,11 @@ object ContactUtils {
         }
         btnInvite.setOnClickListener {
             sendSMSToNumber(number) {
-                Toast.makeText(it.context, "Invite SMS Sent", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    it.context,
+                    context.getString(R.string.invite_sms_sent, number),
+                    Toast.LENGTH_LONG
+                ).show()
                 dialog.dismiss()
             }
         }

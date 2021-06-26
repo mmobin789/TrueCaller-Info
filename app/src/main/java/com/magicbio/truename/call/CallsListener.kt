@@ -16,6 +16,7 @@ import android.view.View.OnTouchListener
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.google.android.gms.ads.AdView
 import com.magicbio.truename.R
 import com.magicbio.truename.fragments.background.AppAsyncWorker.loadLastCallLogByNumber
@@ -159,7 +160,13 @@ class CallsListener : PhoneStateListener() {
 
 
         btnInvite.setOnClickListener { v ->
-            ContactUtils.sendInvite(number, v.context)
+            ContactUtils.sendSMSToNumber(number) {
+                Toast.makeText(
+                    v.context,
+                    context.getString(R.string.invite_sms_sent, number),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
         btnCall.setOnClickListener {
