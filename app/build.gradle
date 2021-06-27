@@ -9,7 +9,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 android {
     compileSdkVersion 30
     defaultConfig {
-        applicationId "com.truecaller.info"
+        applicationId "com.magicbio.truename"
         minSdkVersion 24
         targetSdkVersion 30
         versionCode 1

@@ -7,13 +7,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.magicbio.truename.R;
 import com.magicbio.truename.TrueName;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -103,12 +100,12 @@ public class SplashActivity extends AppCompatActivity {
 
     }
 
-    @Override
+ /*   @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
         if (requestCode == 3 && permissions.length == this.permissions.size()) {
 //todo
         }
-    }
+    }*/
 /* @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

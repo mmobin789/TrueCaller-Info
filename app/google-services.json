@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1018763275069:android:086d9be84b29f29fa3f354",
+        "mobilesdk_app_id": "1:1018763275069:android:f8c271f2d6eea383a3f354",
         "android_client_info": {
-          "package_name": "com.truecaller.info"
+          "package_name": "com.magicbio.truename"
         }
       },
       "oauth_client": [
