@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 public class CallDetails extends AppCompatActivity {
     TextView txtName;
-    ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation;
+    ImageView btnMessage, btnCall, btnInvite, btnSave, btnLocation, btnBlock;
     RecyclerView recyclerView;
     String name;
     ArrayList<String> numbers;
@@ -47,7 +47,7 @@ public class CallDetails extends AppCompatActivity {
         btnInvite = findViewById(R.id.btnInvite);
         btnSave = findViewById(R.id.btnSave);
         btnLocation = findViewById(R.id.btnLocation);
-        ImageView btnBlock = findViewById(R.id.btnBlock);
+        btnBlock = findViewById(R.id.btnBlock);
         TextView tvCountry = findViewById(R.id.tvCountry);
         TextView tvCountryBottom = findViewById(R.id.tvCountryBottom);
       /*  locationText = findViewById(R.id.sample);
@@ -77,13 +77,20 @@ public class CallDetails extends AppCompatActivity {
         if (validName && !byTrueName) {  // always true condition for contacts.
             btnSave.setVisibility(View.GONE);
             btnBlock.setVisibility(View.VISIBLE);
-            btnBlock.setBackgroundResource(R.drawable.block_btn);
+
         } else {  // might be false for call logs.
             btnSave.setVisibility(View.VISIBLE);
             btnBlock.setVisibility(View.GONE);
-            btnBlock.setBackgroundResource(R.drawable.unblock_btn);
+
             findViewById(R.id.llwhatsApp).setVisibility(View.GONE);
         }
+
+
+     /*   if (blocked)
+            btnBlock.setBackgroundResource(R.drawable.unblock_btn);
+        else
+            btnBlock.setBackgroundResource(R.drawable.block_btn);*/
+
 
         if (validName)
             txtName.setText(name);
@@ -96,9 +103,14 @@ public class CallDetails extends AppCompatActivity {
         if (ccpCountry != null) {
             tvCountry.setText(ccpCountry.getEnglishName());
             tvCountryBottom.setText(ccpCountry.getEnglishName());
-        } else findViewById(R.id.llCountry).setVisibility(View.GONE);
+        } else
+
+            findViewById(R.id.llCountry).
+
+                    setVisibility(View.GONE);
 
         init();
+
     }
 
 
@@ -115,6 +127,8 @@ public class CallDetails extends AppCompatActivity {
     }
 
     private void setupClick(String number) {
+
+        btnBlock.setOnClickListener(v -> ContactUtils.openSystemBlockingApp());
 
         findViewById(R.id.llChat).setOnClickListener(v -> ContactUtils.openWhatsAppChat(number));
 

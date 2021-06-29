@@ -2,6 +2,7 @@ package com.magicbio.truename.utils
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +10,8 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.net.Uri
+import android.provider.BlockedNumberContract.BlockedNumbers
+import android.telecom.TelecomManager
 import android.telephony.SmsManager
 import android.widget.Button
 import android.widget.ImageView
@@ -32,8 +35,80 @@ import kotlinx.coroutines.withContext
 
 object ContactUtils {
     private val context = TrueName.getInstance()
-    //  private val fbCallbackManager = CallbackManager.Factory.create()
 
+    @JvmStatic
+    fun openSystemBlockingApp() {
+        val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+        val intent = telecomManager.createManageBlockedNumbersIntent()
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(intent)
+    }
+
+    //  private val fbCallbackManager = CallbackManager.Factory.create()
+    /* @JvmStatic
+     fun isNumberBlocked(number: String, onBlocked: (Boolean) -> Unit) {
+         GlobalScope.launch {
+             val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+             val intent = telecomManager.createManageBlockedNumbersIntent()
+             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+             context.startActivity(intent)
+             var blocked = false
+             context.contentResolver.query(
+                 BlockedNumbers.CONTENT_URI, arrayOf(
+                     BlockedNumbers.COLUMN_ID,
+                     BlockedNumbers.COLUMN_ORIGINAL_NUMBER,
+                     BlockedNumbers.COLUMN_E164_NUMBER
+                 ), null, null, null
+             )?.run {
+                 if (count > 0) {
+                     while (moveToNext()) {
+                         val blockedNumber =
+                             getString(getColumnIndex(BlockedNumbers.COLUMN_ORIGINAL_NUMBER))
+                         if (number == blockedNumber) {
+                             blocked = true
+                         }
+                     }
+
+                 }
+                 close()
+                 withContext(Dispatchers.Main.immediate) {
+                     onBlocked(blocked)
+                 }
+             }
+
+         }
+
+     }*/
+    /* @JvmStatic
+     fun isNumberBlocked(number: String) = BlockedNumberContract.isBlocked(context, number)
+
+
+     @JvmStatic
+     fun blockNumber(number: String) {
+         val values = ContentValues()
+         values.put(BlockedNumbers.COLUMN_ORIGINAL_NUMBER, number)
+         val uri: Uri? = context.contentResolver.insert(BlockedNumbers.CONTENT_URI, values)
+         val blocked = uri != null
+         if (blocked)
+             Toast.makeText(context, context.getString(R.string.blocked, number), Toast.LENGTH_SHORT)
+                 .show()
+        // return blocked
+     }*/
+
+    @JvmStatic
+    fun unBlockNumber(number: String) {
+        val values = ContentValues()
+        values.put(BlockedNumbers.COLUMN_ORIGINAL_NUMBER, number)
+        val contentResolver = context.contentResolver
+        contentResolver.insert(BlockedNumbers.CONTENT_URI, values)?.let {
+            if (contentResolver.delete(it, null, null) > 0)
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.unblocked, number),
+                    Toast.LENGTH_SHORT
+                ).show()
+        }
+    }
 
     @JvmStatic
     fun openCallDetailsActivity(contact: Contact) {

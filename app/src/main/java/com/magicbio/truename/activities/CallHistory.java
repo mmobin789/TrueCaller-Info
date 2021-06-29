@@ -7,7 +7,6 @@ import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -68,6 +67,14 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
             btnWA.setVisibility(View.GONE);
             txtName.setText(number);
         }
+
+
+       /* blocked = ContactUtils.isNumberBlocked(number);
+
+        if (blocked)
+            btnBlock.setBackgroundResource(R.drawable.unblock_btn);
+        else
+            btnBlock.setBackgroundResource(R.drawable.block_btn);*/
     }
 
 
@@ -76,9 +83,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
         btnWA.setOnClickListener(v -> ContactUtils.openWhatsAppChat(number));
         btnMessage.setOnClickListener(v -> ContactUtils.openSmsApp(number));
         btnCall.setOnClickListener(v -> ContactUtils.openDialer(number));
-        btnBlock.setOnClickListener(v -> {
-            Toast.makeText(v.getContext(), "Clicked", Toast.LENGTH_SHORT).show();
-        });
+        btnBlock.setOnClickListener(v -> ContactUtils.openSystemBlockingApp());
         btnInvite.setOnClickListener(v -> {
 //                        Uri uri = Uri.parse("smsto:"+number);
 //                        Intent intent = new Intent(Intent.ACTION_SENDTO, uri);

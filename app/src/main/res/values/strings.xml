@@ -8,6 +8,8 @@
 
 
     <string name="invite">Invite %1$s to True Caller Info to \n send instant message.</string>
+    <string name="blocked">The phone number %1$s is now blocked.</string>
+    <string name="unblocked">The phone number %1$s is now unblocked.</string>
     <string name="share_my_location">Share My\nLocation</string>
     <string name="facebook">Facebook</string>
     <string name="instagram">Instagram</string>
