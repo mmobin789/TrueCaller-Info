@@ -31,7 +31,7 @@ public class GetNumberResponse {
 
     public static class Data {
         @Expose
-        public String number, name, image,type;
+        public String number, name, image,type,link;
     }
 
 }

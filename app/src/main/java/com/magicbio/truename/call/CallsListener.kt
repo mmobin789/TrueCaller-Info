@@ -34,9 +34,11 @@ import io.pixel.config.PixelOptions
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.net.URLDecoder
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+
 
 class CallsListener : PhoneStateListener() {
 
@@ -46,6 +48,7 @@ class CallsListener : PhoneStateListener() {
     private lateinit var windowParams: WindowManager.LayoutParams
     private var beforeCallPopupView: View? = null
     private var afterCallPopupView: View? = null
+    private val popUpDuration = 120L // seconds
     private val apiInterface by lazy {
         ApiClient.getClient().create(
             ApiInterface::
@@ -97,11 +100,13 @@ class CallsListener : PhoneStateListener() {
         beforeCallPopupView?.postDelayed({
             try {
                 windowManager.removeView(beforeCallPopupView)
-                beforeCallPopUpShown = false
             } catch (e: Exception) {
                 e.printStackTrace()
+
+            } finally {
+                beforeCallPopUpShown = false
             }
-        }, TimeUnit.SECONDS.toMillis(15))
+        }, TimeUnit.SECONDS.toMillis(popUpDuration))
     }
 
     private fun showAfterCallPopUpWindow(phoneNumber: String) {
@@ -116,11 +121,12 @@ class CallsListener : PhoneStateListener() {
         afterCallPopupView?.postDelayed({
             try {
                 windowManager.removeView(afterCallPopupView)
-                afterCallPopUpShown = false
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                afterCallPopUpShown = false
             }
-        }, TimeUnit.SECONDS.toMillis(15))
+        }, TimeUnit.SECONDS.toMillis(popUpDuration))
     }
 
     private fun showInfoOnPopUpBeforeCall(number: String) {
@@ -315,24 +321,48 @@ class CallsListener : PhoneStateListener() {
                         txtName.text = data.name
                         setLoggingEnabled(true)
                         if (data.type == "yes") {
-                            Pixel.load(
-                                data.image,
-                                PixelOptions.Builder()
-                                    .setPlaceholderResource(R.drawable.sms_connect_ad)
-                                    .build(),
-                                ivAd
-                            )
+                            try {
+                                val imageUrl = data.image
+                                Pixel.load(
+                                    URLDecoder.decode(imageUrl, Charsets.UTF_8.name()),
+                                    PixelOptions.Builder()
+                                        .setPlaceholderResource(R.drawable.sms_connect_ad).build(),
+                                    ivAd
+                                )
+                                ivAd.setOnClickListener {
+                                    openBrowser(data.link)
+                                }
+
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
                         } else {
                             adView2.visibility = View.VISIBLE
+                            ivAd.setOnClickListener {
+                                openBrowser()
+                            }
                         }
+
+
                         txtNumber.text = data.number
                     }
                 }
 
                 override fun onFailure(call: Call<GetNumberResponse?>, t: Throwable) {
                     t.printStackTrace()
+                    adView2.visibility = View.VISIBLE
+                    ivAd.setOnClickListener {
+                        openBrowser()
+                    }
                 }
             })
+    }
+
+    private fun openBrowser(link: String = context.getString(R.string.default_url)) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse(link)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(intent)
     }
 
 
@@ -359,31 +389,33 @@ class CallsListener : PhoneStateListener() {
         try {
             //  removePopUpViews()
 
-            if (phoneNumber.isNotBlank())
-                lastNumber = phoneNumber
 
-            if (lastNumber.isBlank())
+            if (lastNumber.isBlank() && phoneNumber.isBlank())
                 return
+
+            val number = if (phoneNumber.isBlank())
+                lastNumber else phoneNumber
 
             when (state) {
                 TelephonyManager.CALL_STATE_RINGING -> {
                     Log.d("IncomingCall", "Incoming")
-                    showBeforeCallPopUpWindow(lastNumber)
+                    showBeforeCallPopUpWindow(number)
                 }
 
                 TelephonyManager.CALL_STATE_OFFHOOK -> {
                     Log.d("OutgoingCall", "Outgoing")
-                    showBeforeCallPopUpWindow(lastNumber)
+                    showBeforeCallPopUpWindow(number)
 
                 }
                 TelephonyManager.CALL_STATE_IDLE -> {
-                    showAfterCallPopUpWindow(lastNumber)
+                    showAfterCallPopUpWindow(number)
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+        lastNumber = phoneNumber
 
         // lastState = state
     }
