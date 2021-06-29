@@ -36,6 +36,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class CallsListener : PhoneStateListener() {
 
@@ -93,6 +94,14 @@ class CallsListener : PhoneStateListener() {
         addOnTouchListener(beforeCallPopupView)
         windowManager.addView(beforeCallPopupView, windowParams)
         beforeCallPopUpShown = true
+        beforeCallPopupView?.postDelayed({
+            try {
+                windowManager.removeView(beforeCallPopupView)
+                beforeCallPopUpShown = false
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }, TimeUnit.SECONDS.toMillis(15))
     }
 
     private fun showAfterCallPopUpWindow(phoneNumber: String) {
@@ -103,6 +112,15 @@ class CallsListener : PhoneStateListener() {
         addOnTouchListener(afterCallPopupView)
         windowManager.addView(afterCallPopupView, windowParams)
         afterCallPopUpShown = true
+
+        afterCallPopupView?.postDelayed({
+            try {
+                windowManager.removeView(afterCallPopupView)
+                afterCallPopUpShown = false
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }, TimeUnit.SECONDS.toMillis(15))
     }
 
     private fun showInfoOnPopUpBeforeCall(number: String) {
@@ -129,6 +147,10 @@ class CallsListener : PhoneStateListener() {
             txtLastCall.text = getDateFormatted(callLog.callDate)
 
             txtNumber.text = number
+        } ?: run {
+            txtName.text = lastNumber
+            txtNumber.text = lastNumber
+            txtLastCall.text = context.getString(R.string.new_caller)
         }
 
         getNumberDetails(number, txtName, txtNumber, ivAd, adView2)
@@ -207,6 +229,11 @@ class CallsListener : PhoneStateListener() {
 
             name
 
+        } ?: run {
+            txtName.text = lastNumber
+            txtNumber.text = lastNumber
+            txtLastCall.text = context.getString(R.string.new_caller)
+            null
         }
 
         btnSave.setOnClickListener {

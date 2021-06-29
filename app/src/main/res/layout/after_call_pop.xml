@@ -50,7 +50,7 @@
                         android:id="@+id/txtLastCall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Last call 0 min. ago "
+                        tools:text="Last call 0 min. ago "
                         android:textColor="@color/black" />
 
                     <LinearLayout
@@ -65,7 +65,7 @@
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
                             android:singleLine="true"
-                            android:text="unknown"
+                            tools:text="unknown"
                             android:textColor="@color/black"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -181,8 +181,8 @@
                         android:id="@+id/txtAddress"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:text="unknown"
+                        android:layout_marginStart="10dp"
+                        tools:text="unknown"
                         android:textColor="@color/black"
                         android:textSize="18sp"
                         android:textStyle="bold" />

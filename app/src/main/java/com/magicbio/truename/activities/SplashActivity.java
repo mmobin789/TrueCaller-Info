@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class SplashActivity extends AppCompatActivity {
 
     ImageView btnGetStarted;
-    private final ArrayList<String> permissions = new ArrayList<>(9);
+    private final ArrayList<String> permissions = new ArrayList<>(10);
 
 
     @Override
@@ -55,22 +55,17 @@ public class SplashActivity extends AppCompatActivity {
             permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
 
-        if (notHasPermission(Manifest.permission.READ_CALL_LOG)) {
-            permissions.add(Manifest.permission.READ_CALL_LOG);
+        if (notHasPermission(Manifest.permission.INTERNET)) {
+            permissions.add(Manifest.permission.INTERNET);
         }
 
-        if (notHasPermission(Manifest.permission.WRITE_CALL_LOG)) {
-            permissions.add(Manifest.permission.WRITE_CALL_LOG);
+        if (notHasPermission(Manifest.permission.READ_CALL_LOG)) {
+            permissions.add(Manifest.permission.READ_CALL_LOG);
         }
 
         if (notHasPermission(Manifest.permission.READ_CONTACTS)) {
             permissions.add(Manifest.permission.READ_CONTACTS);
         }
-
-        if (notHasPermission(Manifest.permission.READ_SMS)) {
-            permissions.add(Manifest.permission.READ_SMS);
-        }
-
 
         if (notHasPermission(Manifest.permission.SEND_SMS)) {
             permissions.add(Manifest.permission.SEND_SMS);
@@ -80,15 +75,24 @@ public class SplashActivity extends AppCompatActivity {
             permissions.add(Manifest.permission.READ_PHONE_STATE);
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notHasPermission(Manifest.permission.READ_PHONE_NUMBERS)) {
+            permissions.add(Manifest.permission.READ_PHONE_NUMBERS);
+        }
+
         if (notHasPermission(Manifest.permission.CALL_PHONE)) {
             permissions.add(Manifest.permission.CALL_PHONE);
 
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && notHasPermission(Manifest.permission.ACTIVITY_RECOGNITION)) {
-            permissions.add(Manifest.permission.ACTIVITY_RECOGNITION);
+        if (notHasPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)) {
+            permissions.add(Manifest.permission.SYSTEM_ALERT_WINDOW);
 
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && notHasPermission(Manifest.permission.FOREGROUND_SERVICE)) {
+            permissions.add(Manifest.permission.FOREGROUND_SERVICE);
+        }
+
 
         if (permissions.isEmpty()) {
             return;
