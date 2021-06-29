@@ -33,5 +33,9 @@ interface ApiInterface {
     fun inviteSync(@Query("type") type: String): Call<InviteResponse>
 
     @GET("app-update-status")
-    suspend fun checkAppUpdate(): AppUpdateResponse
+    suspend fun checkAppUpdate(@Query("user_id") userId: Int): AppUpdateResponse
+
+    @GET("update-app-status?status=no")
+    suspend fun notifyAppUpToDate(@Query("user_id") userId: Int): AppUpdateResponse
+
 }

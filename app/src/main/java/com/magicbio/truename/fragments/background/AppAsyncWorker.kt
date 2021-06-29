@@ -3,6 +3,7 @@ package com.magicbio.truename.fragments.background
 import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.DatabaseUtils
 import android.net.Uri
@@ -342,7 +343,7 @@ object AppAsyncWorker {
     }
 
     @JvmStatic
-     fun getCallLogByNumber(id: Long, callback: (CallLogModel) -> Unit) {
+    fun getCallLogByNumber(id: Long, callback: (CallLogModel) -> Unit) {
         GlobalScope.launch {
             callLogDao.findCallLogById(id)?.also(callback)
         }
@@ -918,10 +919,25 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
     @JvmStatic
     fun checkAppUpdate(onSuccess: () -> Unit) {
         GlobalScope.launch {
-            val appUpdate = withContext(Dispatchers.IO) { apiInterface.checkAppUpdate() }
+            val userId = TrueName.getUserId(context)
+            val manager = context.packageManager
+            val info = manager.getPackageInfo(context.packageName, PackageManager.GET_ACTIVITIES)
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                info.longVersionCode
+            } else {
+                info.versionCode.toLong()
+            }
+
+            val appUpdate = withContext(Dispatchers.IO) { apiInterface.checkAppUpdate(userId) }
             withContext(Dispatchers.Main.immediate) {
-                if (appUpdate.status == "yes") {
-                    onSuccess()
+                if (appUpdate.status == "yes" && versionCode < appUpdate.version) {
+                    onSuccess()   // app update
+                } else {
+                    try {
+                        apiInterface.notifyAppUpToDate(userId)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
 
