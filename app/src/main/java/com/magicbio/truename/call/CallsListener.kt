@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.ads.AdView
 import com.magicbio.truename.R
+import com.magicbio.truename.fragments.background.AppAsyncWorker.findContactByNumber
 import com.magicbio.truename.fragments.background.AppAsyncWorker.loadLastCallLogByNumber
 import com.magicbio.truename.models.GetNumberResponse
 import com.magicbio.truename.retrofit.ApiClient
@@ -145,22 +146,54 @@ class CallsListener : PhoneStateListener() {
             beforeCallPopUpShown = false
         }
 
-        loadLastCallLogByNumber(number)?.let { callLog ->
-            txtName.text = if (isContactName(callLog.name))
-                callLog.name
-            else callLog.phNumber
-
-            txtLastCall.text = getDateFormatted(callLog.callDate)
-
-            txtNumber.text = number
-        } ?: run {
-            txtName.text = lastNumber
-            txtNumber.text = lastNumber
-            txtLastCall.text = context.getString(R.string.new_caller)
-        }
+        showInfo(number, txtName, txtNumber, txtLastCall)
 
         getNumberDetails(number, txtName, txtNumber, ivAd, adView2)
 
+    }
+
+
+    private fun showInfo(
+        number: String,
+        txtName: TextView,
+        txtNumber: TextView,
+        txtLastCall: TextView
+    ): String? {
+
+        var name: String? = null
+        val newCaller = context.getString(R.string.new_caller)
+
+        loadLastCallLogByNumber(number)?.let { callLog ->
+            val contact = findContactByNumber(number)
+            name = when {
+                isContactName(callLog.name) -> {
+                    txtLastCall.text = getDateFormatted(callLog.callDate)
+                    callLog.name
+                }
+                contact != null -> {
+                    txtLastCall.text = getDateFormatted(callLog.callDate)
+                    contact.name
+                }
+                else -> {
+                    txtLastCall.text = newCaller
+                    callLog.phNumber
+                }
+            }
+            txtName.text = name
+            txtNumber.text = number
+
+        } ?: findContactByNumber(number)?.let {
+            name = it.name
+            txtName.text = name
+            txtNumber.text = number
+            txtLastCall.text = newCaller
+        } ?: run {
+            txtName.text = lastNumber
+            txtNumber.text = lastNumber
+            txtLastCall.text = newCaller
+        }
+
+        return name
     }
 
     private fun showInfoOnPopUpAfterCall(number: String) {
@@ -223,24 +256,7 @@ class CallsListener : PhoneStateListener() {
         }
 
 
-        val name = loadLastCallLogByNumber(number)?.let { callLog ->
-            val name = callLog.name
-            txtName.text = if (isContactName(name))
-                name
-            else callLog.phNumber
-
-            txtLastCall.text = getDateFormatted(callLog.callDate)
-
-            txtNumber.text = number
-
-            name
-
-        } ?: run {
-            txtName.text = lastNumber
-            txtNumber.text = lastNumber
-            txtLastCall.text = context.getString(R.string.new_caller)
-            null
-        }
+        val name = showInfo(number, txtName, txtNumber, txtLastCall)
 
         btnSave.setOnClickListener {
             val intent = Intent(Intent.ACTION_INSERT)
