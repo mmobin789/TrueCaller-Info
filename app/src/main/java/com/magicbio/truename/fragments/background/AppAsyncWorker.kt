@@ -177,7 +177,7 @@ object AppAsyncWorker {
 
     @JvmStatic
     fun findContactByNumber(number: String): Contact? {
-        return contactsDao.findContactByNumber(listOf(number))
+        return contactsDao.findContactByNumber(listOf("%$number%"))
     }
 
 
