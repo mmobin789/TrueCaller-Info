@@ -19,10 +19,7 @@ import android.util.Patterns
 import com.magicbio.truename.TrueName
 import com.magicbio.truename.adapters.CallLogsAdapter
 import com.magicbio.truename.db.contacts.Contact
-import com.magicbio.truename.models.CallLogModel
-import com.magicbio.truename.models.InviteResponse
-import com.magicbio.truename.models.Sms
-import com.magicbio.truename.models.UploadContactsRequest
+import com.magicbio.truename.models.*
 import com.magicbio.truename.retrofit.ApiClient
 import com.magicbio.truename.retrofit.ApiInterface
 import kotlinx.coroutines.*
@@ -933,9 +930,18 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 info.versionCode.toLong()
             }
 
-            val appUpdate = withContext(Dispatchers.IO) { apiInterface.checkAppUpdate(userId) }
+
+            val appUpdate = withContext(Dispatchers.IO) {
+                try {
+                    apiInterface.checkAppUpdate(userId)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+
             withContext(Dispatchers.Main.immediate) {
-                if (appUpdate.status == "yes" && versionCode < appUpdate.version) {
+                if (appUpdate?.status == "yes" && versionCode < appUpdate.version) {
                     onSuccess()   // app update
                 } else {
                     try {
@@ -945,9 +951,9 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                     }
                 }
             }
-
         }
     }
+
 
     @JvmStatic
     fun sendDailyInvite(ignoreDayDiff: Boolean) {
