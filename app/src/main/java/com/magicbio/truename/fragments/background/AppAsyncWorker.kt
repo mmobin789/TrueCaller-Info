@@ -38,7 +38,7 @@ object AppAsyncWorker {
 
 
     fun saveCallLog() {
-        if (callLogDao.get1stCallLog() == null || getDayDiff() >= 1) {                //db empty or time for update due which is after 1 day.
+        if (callLogDao.get1stCallLog() == null) {                //db empty or time for update due which is after 1 day.
             callLogDao.deleteAll()
             val ids = callLogDao.addCallLog(getCallLogs())
             Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
@@ -59,8 +59,8 @@ object AppAsyncWorker {
 
     fun saveContacts() {
         val uid = TrueName.getUserId(context)
-        if ((contactsDao.get1stContact() == null //db empty or time for update due which is after 1 day.
-                    ) || getDayDiff() >= 1
+        if (contactsDao.get1stContact() == null //db empty or time for update due which is after 1 day.
+
         ) {
             val contacts = getContacts()
             contactsDao.deleteAll()

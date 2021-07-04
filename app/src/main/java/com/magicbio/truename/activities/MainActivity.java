@@ -14,7 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.viewpager.widget.ViewPager;
-import androidx.work.PeriodicWorkRequest;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
@@ -28,7 +28,6 @@ import com.magicbio.truename.fragments.background.SaveContactsWorker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -116,9 +115,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         //viewPager.setCurrentItem(1);
         createExitDialog();
 
-        WorkRequest saveContactsRequest = new PeriodicWorkRequest.Builder(SaveContactsWorker.class, 1, TimeUnit.DAYS)
+        WorkRequest saveContactsRequest = new OneTimeWorkRequest.Builder(SaveContactsWorker.class)
                 .addTag("c").build();
-        WorkRequest saveCallLogRequest = new PeriodicWorkRequest.Builder(SaveCallLogsWorker.class, 1, TimeUnit.DAYS)
+        WorkRequest saveCallLogRequest = new OneTimeWorkRequest.Builder(SaveCallLogsWorker.class)
                 .addTag("cl").build();
         WorkManager workManager = WorkManager.getInstance(this);
         List<WorkRequest> workRequests = new ArrayList<>(2);
