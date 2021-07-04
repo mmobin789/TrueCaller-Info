@@ -49,7 +49,7 @@ class CallsListener : PhoneStateListener() {
     private lateinit var windowParams: WindowManager.LayoutParams
     private var beforeCallPopupView: View? = null
     private var afterCallPopupView: View? = null
-    private val popUpDuration = 120L // seconds
+    private val popUpDuration = 30L // seconds
     private val apiInterface by lazy {
         ApiClient.getClient().create(
             ApiInterface::
@@ -401,16 +401,18 @@ class CallsListener : PhoneStateListener() {
     }*/
 
     override fun onCallStateChanged(state: Int, phoneNumber: String) {
+        val isBlank = phoneNumber.isBlank()
 
         try {
             //  removePopUpViews()
-
-
-            if (lastNumber.isBlank() && phoneNumber.isBlank())
+            if (lastNumber.isBlank() && isBlank)
                 return
 
-            val number = if (phoneNumber.isBlank())
+            val number = if (isBlank)
                 lastNumber else phoneNumber
+
+            if (number.isBlank())
+                return
 
             when (state) {
                 TelephonyManager.CALL_STATE_RINGING -> {
@@ -429,9 +431,10 @@ class CallsListener : PhoneStateListener() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            if (!isBlank)
+                lastNumber = phoneNumber
         }
-
-        lastNumber = phoneNumber
 
         // lastState = state
     }
