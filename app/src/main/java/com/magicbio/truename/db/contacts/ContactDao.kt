@@ -28,8 +28,8 @@ interface ContactDao : BaseDAO<Contact> {
     @Query("SELECT * FROM contacts WHERE numbers LIKE :numbers LIMIT 50")
     fun findContactsByNumbers(numbers: List<String>): List<Contact>
 
-    @Query("SELECT * FROM contacts where numbers like :numbers limit 1")
-    fun findContactByNumber(numbers: List<String>): Contact?
+    @Query("SELECT * FROM contacts where number1 = :number or number2 = :number")
+    fun findContactByNumber(number: String): Contact?
 
     @Query("select * from contacts where contactId = :id")
     fun findContactById(id: Int): Contact?
