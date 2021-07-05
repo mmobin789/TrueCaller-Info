@@ -59,7 +59,7 @@ class CallsListener : PhoneStateListener() {
 
     companion object {
         //  private var lastState = TelephonyManager.CALL_STATE_IDLE
-        private var lastNumber = ""
+        //private var lastNumber = ""
         private var beforeCallPopUpShown = false
         private var afterCallPopUpShown = false
     }
@@ -188,8 +188,8 @@ class CallsListener : PhoneStateListener() {
             txtNumber.text = number
             txtLastCall.text = newCaller
         } ?: run {
-            txtName.text = lastNumber
-            txtNumber.text = lastNumber
+            txtName.text = number
+            txtNumber.text = number
             txtLastCall.text = newCaller
         }
 
@@ -401,39 +401,29 @@ class CallsListener : PhoneStateListener() {
     }*/
 
     override fun onCallStateChanged(state: Int, phoneNumber: String) {
-        val isBlank = phoneNumber.isBlank()
 
         try {
             //  removePopUpViews()
-            if (lastNumber.isBlank() && isBlank)
-                return
-
-            val number = if (isBlank)
-                lastNumber else phoneNumber
-
-            if (number.isBlank())
+            if (phoneNumber.isBlank())
                 return
 
             when (state) {
                 TelephonyManager.CALL_STATE_RINGING -> {
                     Log.d("IncomingCall", "Incoming")
-                    showBeforeCallPopUpWindow(number)
+                    showBeforeCallPopUpWindow(phoneNumber)
                 }
 
                 TelephonyManager.CALL_STATE_OFFHOOK -> {
                     Log.d("OutgoingCall", "Outgoing")
-                    showBeforeCallPopUpWindow(number)
+                    showBeforeCallPopUpWindow(phoneNumber)
 
                 }
                 TelephonyManager.CALL_STATE_IDLE -> {
-                    showAfterCallPopUpWindow(number)
+                    showAfterCallPopUpWindow(phoneNumber)
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-        } finally {
-            if (!isBlank)
-                lastNumber = phoneNumber
         }
 
         // lastState = state
