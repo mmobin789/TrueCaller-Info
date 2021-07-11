@@ -56,8 +56,8 @@ public class CallLogFragment extends Fragment {
         tvLoading = v.findViewById(R.id.tvLoading);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getActivity());
-       // reverseLayout();
-       // layoutManager.setReverseLayout(true);
+        // reverseLayout();
+        // layoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -81,10 +81,17 @@ public class CallLogFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         MainActivity mainActivity = (MainActivity) requireActivity();
         WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("cl").observe(getViewLifecycleOwner(), workInfo -> {
-            if (!init && workInfo.get(0).getProgress() == Data.EMPTY) {
+            if (!init && !workInfo.isEmpty() && workInfo.get(0).getProgress() == Data.EMPTY) {
                 loadCallLog();
             }
         });
+    }
+
+    public void showPermissionView() {
+        if (getView() == null)
+            return;
+
+        tvLoading.setText(R.string.grant_numbers_permission);
     }
 
 
@@ -103,17 +110,19 @@ public class CallLogFragment extends Fragment {
 
 
     private void setCallLogsAdapter() {
-        callLogsAdapter = new CallLogsAdapter(new ArrayList<>(500));
+        callLogsAdapter = new CallLogsAdapter(new ArrayList<>(500), (MainActivity) getActivity());
         recyclerView.setAdapter(callLogsAdapter);
     }
 
     public void search(String newText) {
-        requireActivity().runOnUiThread(() -> AppAsyncWorker.loadCallLogsBy(newText.trim(), (callLog, search) -> {
+        if (getView() == null)
+            return;
+        AppAsyncWorker.loadCallLogsBy(newText.trim(), (callLog, search) -> {
             callLogsAdapter.setCallLogs(callLog);
             this.search = search;
             offset = 0;
             return null;
-        }));
+        });
 
     }
 

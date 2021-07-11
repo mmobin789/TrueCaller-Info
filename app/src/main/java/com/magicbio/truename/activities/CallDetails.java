@@ -22,6 +22,7 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallDetailsAdapter;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
+import com.magicbio.truename.utils.PermissionsUtil;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -136,10 +137,8 @@ public class CallDetails extends AppCompatActivity {
 
         btnCall.setOnClickListener(v -> ContactUtils.openDialer(number));
 
-        btnInvite.setOnClickListener(v -> {
-            ContactUtils.sendInvite(number, v.getContext());
+        btnInvite.setOnClickListener(v -> ContactUtils.sendInvite(number, this));
 
-        });
         btnSave.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_INSERT);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -148,7 +147,7 @@ public class CallDetails extends AppCompatActivity {
             intent.putExtra(ContactsContract.Intents.Insert.NAME, name);
             startActivity(intent);
         });
-        btnLocation.setOnClickListener(v -> ContactUtils.shareLocationOnSms(number, txtName.getText().toString()));
+        btnLocation.setOnClickListener(v -> ContactUtils.shareLocationOnSms(this, number, txtName.getText().toString()));
 
     }
 
@@ -163,15 +162,18 @@ public class CallDetails extends AppCompatActivity {
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CallDetails.this);
         recyclerView.setLayoutManager(linearLayoutManager);
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
-        recyclerView.setAdapter(new CallDetailsAdapter(numbers));
+        recyclerView.setAdapter(new CallDetailsAdapter(this, numbers));
 
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionsUtil.onPermissionsResult(requestCode, permissions, grantResults, null);
+    }
 
-
-
-  /*  private void stopLocation() {
+    /*  private void stopLocation() {
         SmartLocation.with(this).location().stop();
         locationText.setText("Location stopped!");
 

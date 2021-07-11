@@ -50,12 +50,19 @@ public class ContactsFragment extends Fragment {
         return view;
     }
 
+    public void showPermissionView() {
+        if (getView() == null)
+            return;
+
+        tvLoading.setText(R.string.grant_numbers_permission);
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         init();
         MainActivity mainActivity = (MainActivity) requireActivity();
         WorkManager.getInstance(mainActivity).getWorkInfosByTagLiveData("c").observe(getViewLifecycleOwner(), workInfo -> {
-            if (!init && workInfo.get(0).getProgress() == Data.EMPTY) {
+            if (!init && !workInfo.isEmpty() && workInfo.get(0).getProgress() == Data.EMPTY) {
                 loadContacts();
             }
 
@@ -101,17 +108,17 @@ public class ContactsFragment extends Fragment {
 
 
     public void search(@NotNull String newText) {
-        requireActivity().runOnUiThread(() -> {
-            search = !newText.isEmpty();
-            contactsAdapter.setContacts(AppAsyncWorker.loadContactsBy(newText.trim()));
-            offset = 0;
-        });
+        if (getView() == null)
+            return;
 
+        search = !newText.isEmpty();
+        contactsAdapter.setContacts(AppAsyncWorker.loadContactsBy(newText.trim()));
+        offset = 0;
     }
 
 
     private void setContactsAdapter() {
-        contactsAdapter = new ContactsAdapter(new ArrayList<>(500));
+        contactsAdapter = new ContactsAdapter((MainActivity) getActivity(), new ArrayList<>(500));
         recyclerView.setAdapter(contactsAdapter);
 
     }

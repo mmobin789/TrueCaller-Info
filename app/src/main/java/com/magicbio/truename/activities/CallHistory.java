@@ -18,6 +18,9 @@ import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallHistoryAdapter;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.utils.ContactUtils;
+import com.magicbio.truename.utils.PermissionsUtil;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -91,7 +94,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
 //                        intent.putExtra("sms_body", "Invite Text");
 //                        startActivity(intent);
 
-           ContactUtils.sendInvite(number,v.getContext());
+            ContactUtils.sendInvite(number, this);
 
         });
         btnSave.setOnClickListener(v -> {
@@ -101,7 +104,7 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
             intent.putExtra(ContactsContract.Intents.Insert.PHONE, number);
             startActivity(intent);
         });
-        btnLocation.setOnClickListener(v -> ContactUtils.shareLocationOnSms(number, txtName.getText().toString()));
+        btnLocation.setOnClickListener(v -> ContactUtils.shareLocationOnSms(this, number, txtName.getText().toString()));
 
     }
 
@@ -117,6 +120,11 @@ public class CallHistory extends AppCompatActivity implements OnLocationUpdatedL
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionsUtil.onPermissionsResult(requestCode, permissions, grantResults, null);
+    }
     /*private List<CallLogModel> getCallDetails(Context context, String numbers) {
         StringBuffer sb = new StringBuffer();
 

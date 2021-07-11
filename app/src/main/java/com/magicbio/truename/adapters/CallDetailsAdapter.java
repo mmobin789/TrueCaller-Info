@@ -10,22 +10,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.magicbio.truename.R;
+import com.magicbio.truename.activities.CallDetails;
 import com.magicbio.truename.utils.ContactUtils;
 
 import java.util.ArrayList;
 
-
-/**
- * Created by Bilal on 12/5/2017.
- */
-
 public class CallDetailsAdapter extends RecyclerView.Adapter<CallDetailsAdapter.MyViewHolder> {
 
-    private ArrayList<String> numbers;
+    private final ArrayList<String> numbers;
 
-    public CallDetailsAdapter(ArrayList<String> numbers) {
+    private final CallDetails callDetails;
+
+    public CallDetailsAdapter(CallDetails callDetails, ArrayList<String> numbers) {
         this.numbers = numbers;
-        //Toast.makeText(context,""+smsList.size(),Toast.LENGTH_LONG).show();
+        this.callDetails = callDetails;
     }
 
 
@@ -39,18 +37,8 @@ public class CallDetailsAdapter extends RecyclerView.Adapter<CallDetailsAdapter.
 
         final MyViewHolder holder = new MyViewHolder(itemView);
 
-        holder.btnCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.callNumber(numbers.get(holder.getAdapterPosition()));
-            }
-        });
-        holder.btnSms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContactUtils.openSmsApp(numbers.get(holder.getAdapterPosition()));
-            }
-        });
+        holder.btnCall.setOnClickListener(v -> ContactUtils.callNumber(callDetails, numbers.get(holder.getAdapterPosition())));
+        holder.btnSms.setOnClickListener(v -> ContactUtils.openSmsApp(numbers.get(holder.getAdapterPosition())));
 
 
         return holder;
@@ -73,14 +61,12 @@ public class CallDetailsAdapter extends RecyclerView.Adapter<CallDetailsAdapter.
     }
 
 
-
-
 //        Glide.with(context)
 //                .load(smsList.get(position).getImage())
 //                .centerCrop()
 //                .into(holder.img);
 
-        //holder.txtTimeAndN.setText(smsList.get(position).getNumber());
+    //holder.txtTimeAndN.setText(smsList.get(position).getNumber());
 
 //        if(position%2==0)
 //        {
@@ -90,7 +76,6 @@ public class CallDetailsAdapter extends RecyclerView.Adapter<CallDetailsAdapter.
 //        {
 //            holder.row_linearlayout.setBackgroundColor(Color.parseColor("#ffffff"));
 //        }
-
 
 
     @Override

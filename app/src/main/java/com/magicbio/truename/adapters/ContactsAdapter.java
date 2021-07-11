@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
+import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.db.contacts.Contact;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.CommonAnimationUtils;
@@ -36,9 +37,11 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
     private final ArrayList<Contact> contacts;
     private int previousPosition = -1;
+    private MainActivity mainActivity;
 
-    public ContactsAdapter(ArrayList<Contact> contacts) {
+    public ContactsAdapter(MainActivity mainActivity, ArrayList<Contact> contacts) {
         this.contacts = contacts;
+        this.mainActivity = mainActivity;
     }
 
     public void addContacts(List<Contact> contacts) {
@@ -71,7 +74,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
         final MyViewHolder holder = new MyViewHolder(itemView);
 
-        holder.btnCall.setOnClickListener(v -> ContactUtils.callNumber(contacts.get(holder.getAdapterPosition()).getNumbers().get(0)));
+        holder.btnCall.setOnClickListener(v -> ContactUtils.callNumber(mainActivity,contacts.get(holder.getAdapterPosition()).getNumbers().get(0)));
 
         holder.btnSms.setOnClickListener(v -> ContactUtils.openSmsApp(contacts.get(holder.getAdapterPosition()).getNumbers().get(0)));
 
@@ -79,7 +82,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
         holder.btnLocation.setOnClickListener(v -> {
             Contact model = contacts.get(holder.getAdapterPosition());
-            ContactUtils.shareLocationOnSms(model.getNumbers().get(0), model.getName());
+            ContactUtils.shareLocationOnSms(mainActivity, model.getNumbers().get(0), model.getName());
         });
 
         holder.btnwa.setOnClickListener(v -> {

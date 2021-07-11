@@ -221,7 +221,7 @@ class CallsListener : PhoneStateListener() {
 
 
         btnInvite.setOnClickListener { v ->
-            ContactUtils.sendSMSToNumber(number) {
+            ContactUtils.sendSMSToNumber(null,number) {
                 Toast.makeText(
                     v.context,
                     context.getString(R.string.invite_sms_sent, number),
@@ -249,7 +249,7 @@ class CallsListener : PhoneStateListener() {
         }
 
         ivLoc.setOnClickListener {
-            shareLocationOnSms(
+            shareLocationOnSms(null,
                 number,
                 txtName.text.toString()
             )

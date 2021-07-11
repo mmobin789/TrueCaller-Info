@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdView;
 import com.magicbio.truename.R;
+import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.models.CallLogModel;
 import com.magicbio.truename.utils.AdUtils;
@@ -41,6 +42,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
     private final List<CallLogModel> list;
     private int previousPosition = -1;
+    private MainActivity mainActivity;
     /*private SimpleCountDownTimer simpleCountDownTimer = new SimpleCountDownTimer(0, 1, new SimpleCountDownTimer.OnCountDownListener() {
         @Override
         public void onCountDownActive(@NotNull String time) {
@@ -62,10 +64,9 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         }
     }, 1);*/
 
-    public CallLogsAdapter(List<CallLogModel> list) {
+    public CallLogsAdapter(List<CallLogModel> list, MainActivity mainActivity) {
         this.list = list;
-
-
+        this.mainActivity = mainActivity;
     }
 
     public void addCallLogs(List<CallLogModel> callLogModels) {
@@ -121,7 +122,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
         myViewHolder.btnCall.setOnClickListener(v -> {
             CallLogModel model = list.get(myViewHolder.getAdapterPosition());
-            ContactUtils.callNumber(model.getPhNumber());
+            ContactUtils.callNumber(mainActivity,model.getPhNumber());
         });
 
         //  myViewHolder.rec.setOnClickListener(v -> {
@@ -152,7 +153,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
 
         myViewHolder.btnLocation.setOnClickListener(v -> {
             CallLogModel model = list.get(myViewHolder.getAdapterPosition());
-            ContactUtils.shareLocationOnSms(model.getPhNumber(), model.getName());
+            ContactUtils.shareLocationOnSms(mainActivity,model.getPhNumber(), model.getName());
         });
 
         myViewHolder.btnwa.setOnClickListener(v -> {

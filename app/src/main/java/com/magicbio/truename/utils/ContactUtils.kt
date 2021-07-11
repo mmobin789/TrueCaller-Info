@@ -1,8 +1,6 @@
 package com.magicbio.truename.utils
 
-import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,13 +8,14 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.net.Uri
-import android.provider.BlockedNumberContract.BlockedNumbers
 import android.telecom.TelecomManager
 import android.telephony.SmsManager
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.magicbio.truename.R
 import com.magicbio.truename.TrueName
 import com.magicbio.truename.activities.CallDetails
@@ -95,20 +94,20 @@ object ContactUtils {
         // return blocked
      }*/
 
-    @JvmStatic
-    fun unBlockNumber(number: String) {
-        val values = ContentValues()
-        values.put(BlockedNumbers.COLUMN_ORIGINAL_NUMBER, number)
-        val contentResolver = context.contentResolver
-        contentResolver.insert(BlockedNumbers.CONTENT_URI, values)?.let {
-            if (contentResolver.delete(it, null, null) > 0)
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.unblocked, number),
-                    Toast.LENGTH_SHORT
-                ).show()
-        }
-    }
+    /* @JvmStatic
+     fun unBlockNumber(number: String) {
+         val values = ContentValues()
+         values.put(BlockedNumbers.COLUMN_ORIGINAL_NUMBER, number)
+         val contentResolver = context.contentResolver
+         contentResolver.insert(BlockedNumbers.CONTENT_URI, values)?.let {
+             if (contentResolver.delete(it, null, null) > 0)
+                 Toast.makeText(
+                     context,
+                     context.getString(R.string.unblocked, number),
+                     Toast.LENGTH_SHORT
+                 ).show()
+         }
+     }*/
 
     @JvmStatic
     fun openCallDetailsActivity(contact: Contact) {
@@ -203,13 +202,14 @@ object ContactUtils {
       }*/
 
     @JvmStatic
-    @SuppressLint("MissingPermission")
-    fun callNumber(number: String) {
-        val intent = Intent(
-            Intent.ACTION_CALL,
-            Uri.parse("tel:$number")
-        ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+    fun callNumber(appCompatActivity: AppCompatActivity, number: String) {
+        PermissionsUtil.checkCallAndReadPhoneNumbersPermission(appCompatActivity) {
+            val intent = Intent(
+                Intent.ACTION_CALL,
+                Uri.parse("tel:$number")
+            ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }
 
     }
 
@@ -290,17 +290,23 @@ object ContactUtils {
     //  private var provider: LocationGooglePlayServicesProvider? = null
 
     @JvmStatic
-    fun shareLocationOnSms(phoneNumber: String?, name: String?) {
-        try {
-            startLocation {
+    fun shareLocationOnSms(
+        appCompatActivity: AppCompatActivity?,
+        phoneNumber: String?,
+        name: String?
+    ) {
+        PermissionsUtil.checkLocationAndSendSMSPermission(appCompatActivity) {
+            try {
+                startLocation {
 
-                //val lastLocation = SmartLocation.with(context).location().lastLocation
-                sendLocationSMS(phoneNumber, name, it)
+                    //val lastLocation = SmartLocation.with(context).location().lastLocation
+                    sendLocationSMS(phoneNumber, name, it)
+                }
+
+
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-
-
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
@@ -320,38 +326,40 @@ object ContactUtils {
     }
 
     @JvmStatic
-    fun sendSMSToNumber(number: String, onSent: () -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
-                val response = apiInterface.invite("self")
-                //   Log.d("InviteAPI", response.status.toString())
-                val msg = response.msg
-                if (!msg.isNullOrBlank())
-                    withContext(Dispatchers.Main.immediate) {
-                        val smsManager = SmsManager.getDefault()
-                        val smsBody = StringBuffer()
-                        smsBody.append(Uri.parse(msg))
-                        smsManager.sendTextMessage(
-                            number,
-                            null,
-                            smsBody.toString(),
-                            null,
-                            null
-                        )
-                        onSent()
-                    }
+    fun sendSMSToNumber(appCompatActivity: AppCompatActivity?, number: String, onSent: () -> Unit) {
+        PermissionsUtil.checkSendSmsPermission(appCompatActivity) {
+            GlobalScope.launch(Dispatchers.IO) {
+                try {
+                    val apiInterface = ApiClient.getClient().create(ApiInterface::class.java)
+                    val response = apiInterface.invite("self")
+                    //   Log.d("InviteAPI", response.status.toString())
+                    val msg = response.msg
+                    if (!msg.isNullOrBlank())
+                        withContext(Dispatchers.Main.immediate) {
+                            val smsManager = SmsManager.getDefault()
+                            val smsBody = StringBuffer()
+                            smsBody.append(Uri.parse(msg))
+                            smsManager.sendTextMessage(
+                                number,
+                                null,
+                                smsBody.toString(),
+                                null,
+                                null
+                            )
+                            onSent()
+                        }
 
-            } catch (e: Exception) {
-                e.printStackTrace()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
             }
-
         }
     }
 
     @JvmStatic
-    fun sendInvite(number: String, context: Context) {
-        val dialog = Dialog(context)
+    fun sendInvite(number: String, appCompatActivity: AppCompatActivity) {
+        val dialog = Dialog(appCompatActivity)
         dialog.window?.run {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
@@ -366,7 +374,7 @@ object ContactUtils {
             dialog.dismiss()
         }
         btnInvite.setOnClickListener {
-            sendSMSToNumber(number) {
+            sendSMSToNumber(appCompatActivity, number) {
                 Toast.makeText(
                     it.context,
                     context.getString(R.string.invite_sms_sent, number),
@@ -375,8 +383,11 @@ object ContactUtils {
                 dialog.dismiss()
             }
         }
-
-        dialog.show()
+        try {
+            dialog.show()
+        } catch (e: WindowManager.BadTokenException) {
+            e.printStackTrace()
+        }
     }
 
 

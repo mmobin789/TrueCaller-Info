@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -25,6 +27,9 @@ import com.magicbio.truename.fragments.ContactsFragment;
 import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.fragments.background.SaveCallLogsWorker;
 import com.magicbio.truename.fragments.background.SaveContactsWorker;
+import com.magicbio.truename.utils.PermissionsUtil;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,26 +120,44 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         //viewPager.setCurrentItem(1);
         createExitDialog();
 
-        WorkRequest saveContactsRequest = new OneTimeWorkRequest.Builder(SaveContactsWorker.class)
-                .addTag("c").build();
-        WorkRequest saveCallLogRequest = new OneTimeWorkRequest.Builder(SaveCallLogsWorker.class)
-                .addTag("cl").build();
-        WorkManager workManager = WorkManager.getInstance(this);
-        List<WorkRequest> workRequests = new ArrayList<>(2);
-        workRequests.add(saveContactsRequest);
-        workRequests.add(saveCallLogRequest);
-        workManager.enqueue(workRequests);
+
+        PermissionsUtil.checkPhoneStatePermission(this, () -> {
+            if (!Settings.canDrawOverlays(this)) {
+                startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
+            } else
+                takeCallLogsAndContactsPermissions();
+            return null;
+        });
 
 
         AppAsyncWorker.checkAppUpdate(() -> {
             showAppUpdateDialog();
-
             return null;
         });
 
 
         AppAsyncWorker.sendDailyInvite(false);
 
+    }
+
+    private void takeCallLogsAndContactsPermissions() {
+        PermissionsUtil.checkCallLogAndContactsPermission(this, () -> {
+            WorkManager workManager = WorkManager.getInstance(this);
+
+            List<WorkRequest> workRequests = new ArrayList<>(2);
+            WorkRequest saveContactsRequest = new OneTimeWorkRequest.Builder(SaveContactsWorker.class)
+                    .addTag("c").build();
+
+            WorkRequest saveCallLogRequest = new OneTimeWorkRequest.Builder(SaveCallLogsWorker.class)
+                    .addTag("cl").build();
+
+            workRequests.add(saveCallLogRequest);
+            workRequests.add(saveContactsRequest);
+
+            workManager.enqueue(workRequests);
+
+            return null;
+        });
     }
 
     private void showAppUpdateDialog() {
@@ -156,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     private void createExitDialog() {
-        alertDialog = new AlertDialog.Builder(this).setMessage("Are you sure you want to exit ?")
+        alertDialog = new AlertDialog.Builder(this).setMessage(R.string.exit_msg)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> MainActivity.super.onBackPressed()).setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel()).create();
     }
 
@@ -203,7 +226,22 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         //   getSupportFragmentManager().beginTransaction().replace(R.id.fL, contactsFragment).commitNow();
     }
 
-/*    private void getCallDetails() {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionsUtil.onPermissionsResult(requestCode, permissions, grantResults, rc -> {
+            if (rc == 1) {
+                callLogFragment.showPermissionView();
+                contactsFragment.showPermissionView();
+            } /*else if (rc == 5) {
+                super.onBackPressed();
+            }*/
+            return null;
+        });
+
+    }
+
+    /*    private void getCallDetails() {
 
         StringBuffer sb = new StringBuffer();
         Cursor managedCursor = managedQuery(CallLog.Calls.CONTENT_URI, null, null, null, null);

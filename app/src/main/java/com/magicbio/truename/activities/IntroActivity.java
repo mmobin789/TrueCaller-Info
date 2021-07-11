@@ -3,9 +3,7 @@ package com.magicbio.truename.activities;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,17 +41,6 @@ public class IntroActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabDots);
         tabLayout.setupWithViewPager(viewPager, true);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
-
-
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
-            // only for gingerbread and newer versions
-            if (!Settings.canDrawOverlays(this)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-                startActivityForResult(intent, 0);
-            }
-        }
-
-
     }
 
     public void showLoginPopUp() {
