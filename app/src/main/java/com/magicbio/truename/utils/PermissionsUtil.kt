@@ -71,14 +71,14 @@ object PermissionsUtil {
     }
 
     @JvmStatic
-    fun checkCallLogAndContactsPermission(
+    fun checkReadCallLogContactsAndSendSMSPermissions(
         appCompatActivity: AppCompatActivity?,
         onPermission: () -> Unit
     ) {
 
         checkPermissions(
             readCallLogContactsRC,
-            arrayOf(readCallLogPermission, readContactsPermission),
+            arrayOf(readCallLogPermission, readContactsPermission, sendSMSPermission),
             R.string.grant_numbers_permission,
             onPermission,
             appCompatActivity

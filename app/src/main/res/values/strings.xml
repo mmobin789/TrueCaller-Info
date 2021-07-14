@@ -34,7 +34,7 @@
     <string name="exit_msg">Are you sure you want to exit ?</string>
     <string name="grant_location_permission">Please grant permissions to share location &amp; send SMS messages.</string>
     <string name="grant_sms_permission">Please grant sms permission to share.</string>
-    <string name="grant_numbers_permission">Please grant permissions to read call logs &amp; contacts.</string>
+    <string name="grant_numbers_permission">Please grant permissions to send sms,read call logs &amp; contacts.</string>
     <string name="grant_call_permission">Please grant permissions to manage calls &amp; read your phone numbers.</string>
     <string name="grant_window_permission">Please grant permissions to manage calls &amp; use window overlay to show caller ID.</string>
 </resources>

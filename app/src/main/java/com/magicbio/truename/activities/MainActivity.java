@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     private void takeCallLogsAndContactsPermissions() {
-        PermissionsUtil.checkCallLogAndContactsPermission(this, () -> {
+        PermissionsUtil.checkReadCallLogContactsAndSendSMSPermissions(this, () -> {
             WorkManager workManager = WorkManager.getInstance(this);
 
             List<WorkRequest> workRequests = new ArrayList<>(2);
