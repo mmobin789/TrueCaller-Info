@@ -258,9 +258,9 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         else holder.adView.setVisibility(View.GONE);
 
 
-        if (TextUtils.isEmpty(model.getName()))
+   /*     if (TextUtils.isEmpty(model.getName()))
             holder.btnLocation.setVisibility(View.GONE);
-        else holder.btnLocation.setVisibility(View.VISIBLE);
+        else holder.btnLocation.setVisibility(View.VISIBLE);*/
 
 
         if (model.numberByTrueName) {
