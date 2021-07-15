@@ -16,21 +16,22 @@ class SaveCallLogsWorker(private val context: Context, workerParameters: WorkerP
 
     override suspend fun doWork(): Result {
         // Create a Notification channel if necessary
+        val appName = context.getString(R.string.app_name)
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             nm.createNotificationChannel(
                 NotificationChannel(
-                    "background",
-                    "Name Info",
+                    "phonebook",
+                    appName,
                     NotificationManager.IMPORTANCE_DEFAULT
                 )
             )
 
-            NotificationCompat.Builder(applicationContext, "background")
+            NotificationCompat.Builder(applicationContext, "phonebook")
         } else NotificationCompat.Builder(applicationContext)
 
         val notification = builder
-            .setContentTitle(context.getString(R.string.app_name))
-            .setTicker(context.getString(R.string.app_name))
+            .setContentTitle(appName)
+            .setTicker(appName)
             .setContentText("Updating Call logs")
             .setSmallIcon(R.drawable.app_icon)
             .setAutoCancel(false)

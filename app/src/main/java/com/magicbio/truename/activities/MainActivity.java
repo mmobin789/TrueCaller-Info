@@ -122,10 +122,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
         PermissionsUtil.checkPhoneStatePermission(this, () -> {
-            if (!Settings.canDrawOverlays(this)) {
-                startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
-            } else
-                takeCallLogsAndContactsPermissions();
+            takeCallLogsAndContactsPermissions();
             return null;
         });
 
@@ -155,6 +152,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             workRequests.add(saveContactsRequest);
 
             workManager.enqueue(workRequests);
+
+            if (!Settings.canDrawOverlays(this)) {
+                startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
+            }
 
             return null;
         });

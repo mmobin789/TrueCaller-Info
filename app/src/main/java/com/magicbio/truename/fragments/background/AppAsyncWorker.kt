@@ -271,8 +271,8 @@ object AppAsyncWorker {
             call.sim = "0"
             if (sm.activeSubscriptionInfoCount > 1) {
                 sm.activeSubscriptionInfoList.find {
-                    it.iccId == subscriptionId
-                }?.also {
+                    subscriptionId.substring(1, subscriptionId.lastIndex) == it.iccId
+                }?.let {
                     call.sim = it.simSlotIndex.toString()
                 }
             }
@@ -743,8 +743,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             call.sim = "0"
             if (sm.activeSubscriptionInfoCount > 1) {
                 sm.activeSubscriptionInfoList.find {
-                    it.iccId == subscriptionId
-                }?.also {
+                    subscriptionId.substring(1, subscriptionId.lastIndex) == it.iccId
+                }?.let {
                     call.sim = it.simSlotIndex.toString()
                 }
             }
@@ -897,8 +897,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             call.sim = "0"
             if (sm.activeSubscriptionInfoCount > 1) {
                 sm.activeSubscriptionInfoList.find {
-                    it.iccId == subscriptionId
-                }?.also {
+                    subscriptionId.substring(1, subscriptionId.lastIndex) == it.iccId
+                }?.let {
                     call.sim = it.simSlotIndex.toString()
                 }
             }

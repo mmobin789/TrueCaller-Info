@@ -271,7 +271,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
         switch (model.getCallType()) {
             case "OUTGOING":
                 holder.CallType.setImageResource(R.drawable.dialled_call);
-                holder.sim.setImageResource(R.drawable.sim1_dialed_call);
+              //  holder.sim.setImageResource(R.drawable.sim1_dialed_call);
                 if (model.getSim().equals("0")) {
                     holder.sim.setImageResource(R.drawable.sim1_dialed_call);
                 } else if (model.getSim().equals("1")) {
@@ -280,7 +280,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
                 break;
             case "INCOMING":
                 holder.CallType.setImageResource(R.drawable.recieve_call);
-                holder.sim.setImageResource(R.drawable.sim1_dialed_call);
+              //  holder.sim.setImageResource(R.drawable.sim1_dialed_call);
                 if (model.getSim().equals("0")) {
                     holder.sim.setImageResource(R.drawable.sim1_dialed_call);
                 } else if (model.getSim().equals("1")) {
@@ -289,7 +289,7 @@ public class CallLogsAdapter extends RecyclerView.Adapter<CallLogsAdapter.MyView
                 break;
             case "MISSED":
                 holder.CallType.setImageResource(R.drawable.missed_call);
-                holder.sim.setImageResource(R.drawable.sim1_missed_call);
+             //   holder.sim.setImageResource(R.drawable.sim1_missed_call);
                 if (model.getSim().equals("0")) {
                     holder.sim.setImageResource(R.drawable.sim1_missed_call);
                 } else if (model.getSim().equals("1")) {
