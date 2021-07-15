@@ -50,6 +50,7 @@ class CallsListener : PhoneStateListener() {
     private var beforeCallPopupView: View? = null
     private var afterCallPopupView: View? = null
     private val popUpDuration = 30L // seconds
+    private var callName: String? = null
     private val apiInterface by lazy {
         ApiClient.getClient().create(
             ApiInterface::
@@ -134,13 +135,11 @@ class CallsListener : PhoneStateListener() {
         val view = beforeCallPopupView!!
         val ivAd = view.findViewById<ImageView>(R.id.ivAd)
         val adView1 = view.findViewById<AdView>(R.id.adView)
-        val adView2 = view.findViewById<AdView>(R.id.adView2)
         val txtLastCall = view.findViewById<TextView>(R.id.txtLastCall)
         val txtName = view.findViewById<TextView>(R.id.txtName)
         val txtNumber = view.findViewById<TextView>(R.id.txtNumber)
         val cross = view.findViewById<ImageView>(R.id.cross)
         AdUtils.loadBannerAd(adView1)
-        AdUtils.loadBannerAd(adView2)
         cross.setOnClickListener {
             windowManager.removeView(view)
             beforeCallPopUpShown = false
@@ -148,7 +147,7 @@ class CallsListener : PhoneStateListener() {
 
         showInfo(number, txtName, txtNumber, txtLastCall)
 
-        getNumberDetails(number, txtName, txtNumber, ivAd, adView2)
+        getNumberDetails(number, txtName, txtNumber, ivAd)
 
     }
 
@@ -200,7 +199,6 @@ class CallsListener : PhoneStateListener() {
         val view = afterCallPopupView!!
         val ivAd = view.findViewById<ImageView>(R.id.ivAd)
         val adView1 = view.findViewById<AdView>(R.id.adView)
-        val adView2 = view.findViewById<AdView>(R.id.adView2)
         val txtNumber = view.findViewById<TextView>(R.id.txtNumber)
         val txtLastCall = view.findViewById<TextView>(R.id.txtLastCall)
         val txtName = view.findViewById<TextView>(R.id.txtName)
@@ -212,7 +210,6 @@ class CallsListener : PhoneStateListener() {
         val ivLoc = view.findViewById<Button>(R.id.ivLocation)
         val cross = view.findViewById<ImageView>(R.id.cross)
         AdUtils.loadBannerAd(adView1)
-        AdUtils.loadBannerAd(adView2)
 
         cross.setOnClickListener {
             windowManager.removeView(view)
@@ -264,11 +261,14 @@ class CallsListener : PhoneStateListener() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             intent.type = ContactsContract.Contacts.CONTENT_TYPE
             intent.putExtra(ContactsContract.Intents.Insert.PHONE, number)
-            intent.putExtra(ContactsContract.Intents.Insert.NAME, name)
+            intent.putExtra(
+                ContactsContract.Intents.Insert.NAME,
+                if (name.isNullOrBlank()) callName else name
+            )
             context.startActivity(intent)
         }
 
-        getNumberDetails(number, txtName, txtNumber, ivAd, adView2)
+        getNumberDetails(number, txtName, txtNumber, ivAd)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -324,8 +324,7 @@ class CallsListener : PhoneStateListener() {
         number: String,
         txtName: TextView,
         txtNumber: TextView,
-        ivAd: ImageView,
-        adView2: AdView
+        ivAd: ImageView
     ) {
         apiInterface.getNumberDetails(number, "92")
             .enqueue(object : Callback<GetNumberResponse?> {
@@ -335,7 +334,9 @@ class CallsListener : PhoneStateListener() {
                 ) {
                     if (response.body() != null && response.body()!!.status) {
                         val data = response.body()!!.data
-                        txtName.text = data.name
+                        val name = data.name
+                        callName = name
+                        txtName.text = name
                         setLoggingEnabled(true)
                         if (data.type == "yes") {
                             try {
@@ -354,7 +355,6 @@ class CallsListener : PhoneStateListener() {
                                 e.printStackTrace()
                             }
                         } else {
-                            adView2.visibility = View.VISIBLE
                             ivAd.setOnClickListener {
                                 openBrowser()
                             }
@@ -367,7 +367,6 @@ class CallsListener : PhoneStateListener() {
 
                 override fun onFailure(call: Call<GetNumberResponse?>, t: Throwable) {
                     t.printStackTrace()
-                    adView2.visibility = View.VISIBLE
                     ivAd.setOnClickListener {
                         openBrowser()
                     }
