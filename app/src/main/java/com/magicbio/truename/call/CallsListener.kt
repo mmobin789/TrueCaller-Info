@@ -221,7 +221,7 @@ class CallsListener : PhoneStateListener() {
 
 
         btnInvite.setOnClickListener { v ->
-            ContactUtils.sendSMSToNumber(null,number) {
+            ContactUtils.sendSMSToNumber(null, number) {
                 Toast.makeText(
                     v.context,
                     context.getString(R.string.invite_sms_sent, number),
@@ -249,7 +249,8 @@ class CallsListener : PhoneStateListener() {
         }
 
         ivLoc.setOnClickListener {
-            shareLocationOnSms(null,
+            shareLocationOnSms(
+                null,
                 number,
                 txtName.text.toString()
             )
@@ -382,23 +383,33 @@ class CallsListener : PhoneStateListener() {
     }
 
 
-/*    private fun removePopUpViews() {
-        beforeCallPopupView?.let {
-            if (beforeCallPopUpShown) {
-                windowManager.removeView(it)
-                beforeCallPopUpShown = false
+    private fun removeBeforeCallPopUp() {
+        try {
+            beforeCallPopupView?.let {
+                if (beforeCallPopUpShown) {
+                    windowManager.removeView(it)
+                    beforeCallPopUpShown = false
+                }
             }
+            beforeCallPopupView = null
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        afterCallPopupView?.let {
-            if (afterCallPopUpShown) {
-                windowManager.removeView(it)
-                afterCallPopUpShown = false
-            }
-        }
+    }
 
-        beforeCallPopupView = null
-        afterCallPopupView = null
-    }*/
+    private fun removeAfterCallPopUp() {
+        try {
+            afterCallPopupView?.let {
+                if (afterCallPopUpShown) {
+                    windowManager.removeView(it)
+                    afterCallPopUpShown = false
+                }
+            }
+            afterCallPopupView = null
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     override fun onCallStateChanged(state: Int, phoneNumber: String) {
 
@@ -410,15 +421,18 @@ class CallsListener : PhoneStateListener() {
             when (state) {
                 TelephonyManager.CALL_STATE_RINGING -> {
                     Log.d("IncomingCall", "Incoming")
+                    removeAfterCallPopUp()
                     showBeforeCallPopUpWindow(phoneNumber)
                 }
 
                 TelephonyManager.CALL_STATE_OFFHOOK -> {
                     Log.d("OutgoingCall", "Outgoing")
+                    removeAfterCallPopUp()
                     showBeforeCallPopUpWindow(phoneNumber)
 
                 }
                 TelephonyManager.CALL_STATE_IDLE -> {
+                    removeBeforeCallPopUp()
                     showAfterCallPopUpWindow(phoneNumber)
                 }
             }
