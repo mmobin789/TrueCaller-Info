@@ -20,9 +20,6 @@ interface CallLogDao : BaseDAO<CallLogModel> {
     @Query("select * from callLog order by callDate desc limit 50 offset :offset")
     fun getCallLogs(offset: Int = 0): List<CallLogModel>
 
-    @Query("select * from callLog limit 1")
-    fun get1stCallLog(): CallLogModel?
-
     @Query("SELECT * FROM callLog WHERE name LIKE :name or name = :name limit 50")
     fun findCallLogsByName(name: String): List<CallLogModel>
 
@@ -35,7 +32,7 @@ interface CallLogDao : BaseDAO<CallLogModel> {
     @Query("SELECT * FROM callLog WHERE phNumber = :number order by callDate desc limit 1")
     fun findLastCallLogByNumber(number: String): CallLogModel?
 
-    @Query("delete from callLog")
-    fun deleteAll()
+ /*   @Query("delete from callLog")
+    fun deleteAll()*/
 
 }

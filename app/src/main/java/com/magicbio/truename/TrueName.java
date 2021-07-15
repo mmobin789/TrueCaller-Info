@@ -85,6 +85,31 @@ public class TrueName extends Application {
         return sp.getBoolean("up", false);
     }
 
+   /* public static void setContactSaved(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("contacts_saved", true);
+        editor.apply();
+    }
+
+    public static boolean areContactsSaved(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getBoolean("contacts_saved", false);
+    }*/
+
+    public static void setCallLogSaved(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("logs_saved", true);
+        editor.apply();
+    }
+
+    public static boolean areCallLogsSaved(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getBoolean("logs_saved", false);
+    }
+
+
     @Override
     public void onCreate() {
         super.onCreate();

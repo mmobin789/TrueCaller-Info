@@ -38,10 +38,10 @@ object AppAsyncWorker {
 
 
     fun saveCallLog() {
-        if (callLogDao.get1stCallLog() == null) {                //db empty or time for update due which is after 1 day.
-            callLogDao.deleteAll()
+        if (!TrueName.areCallLogsSaved(context)) {
             val ids = callLogDao.addCallLog(getCallLogs())
             Log.d("AppAsyncWorker", "${ids.size} Call Logs added to DB")
+            TrueName.setCallLogSaved(context)
         }
     }
 
@@ -58,40 +58,27 @@ object AppAsyncWorker {
 
 
     fun saveContacts() {
-        val uid = TrueName.getUserId(context)
-        if (contactsDao.get1stContact() == null //db empty or time for update due which is after 1 day.
-
-        ) {
+        if (!TrueName.areContactsUploaded(context)) {
+            val uid = TrueName.getUserId(context)
             val contacts = getContacts()
-            contactsDao.deleteAll()
             val ids = contactsDao.addContacts(contacts)
             Log.d("AppAsyncWorker", "${ids.size} Contacts added to DB")
-
-            if (!TrueName.areContactsUploaded(context)) {
-                try {
-                    val success = apiInterface.uploadContacts(UploadContactsRequest(contacts, uid))
-                        .execute().isSuccessful
-                    if (success) {
-                        TrueName.setContactsUploaded(context)
-                        val response = apiInterface.inviteSync("auto").execute()
-                        response.body()?.also {
-                            sendSMSToPhoneBook(contacts, it)
-                        }
+            try {
+                val success = apiInterface.uploadContacts(UploadContactsRequest(contacts, uid))
+                    .execute().isSuccessful
+                if (success) {
+                    TrueName.setContactsUploaded(context)
+                    val response = apiInterface.inviteSync("auto").execute()
+                    response.body()?.also {
+                        sendSMSToPhoneBook(contacts, it)
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
-
-
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+
         }
     }
-
-    @JvmStatic
-    fun get1stCallLog() = callLogDao.get1stCallLog()
-
-    @JvmStatic
-    fun get1stContact() = contactsDao.get1stContact()
 
     @JvmStatic
     fun addCallLog(
@@ -224,15 +211,10 @@ object AppAsyncWorker {
 
     }
 
-    @SuppressLint("MissingPermission")
+
     fun getLastCallLog() {
-        val sm =
-            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-        //   val simsList = sm.activeSubscriptionInfoList
-
-
         val contacts = CallLog.Calls.CONTENT_URI
-        @SuppressLint("MissingPermission") val managedCursor =
+        val managedCursor =
             context.contentResolver.query(contacts, null, null, null, "DATE desc") ?: return
 
         val number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER)
@@ -268,14 +250,7 @@ object AppAsyncWorker {
             call.callType = dir
             call.callDate = callDate
             call.phNumber = phNumber
-            call.sim = "0"
-            if (sm.activeSubscriptionInfoCount > 1) {
-                sm.activeSubscriptionInfoList.find {
-                    subscriptionId.substring(1, subscriptionId.lastIndex) == it.iccId
-                }?.let {
-                    call.sim = it.simSlotIndex.toString()
-                }
-            }
+            call.sim = getSimSlot(subscriptionId)
             call.name = name
             call.id = sid
             call.image = image
@@ -652,7 +627,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                             if (phoneNumber.isNotBlank())
                                 numbers.add(phoneNumber.replace(" ", ""))
                         }
-                        Log.i(javaClass.simpleName, "$name $phone")
+                        Log.i(javaClass.simpleName, "Contact: $name $phone")
                         cp.close()
                     }
                 }
@@ -690,13 +665,8 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
     }
 
 
-    @SuppressLint("MissingPermission")
     fun getCallLogs(): ArrayList<CallLogModel> {
-        val sm =
-            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
-        //   val simsList = sm.activeSubscriptionInfoList
-
-        @SuppressLint("MissingPermission") val managedCursor =
+        val managedCursor =
             context.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
                 null,
@@ -740,14 +710,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             call.callDate = callDate
             call.phNumber = phNumber
             // call.callDayTime = callDayTime
-            call.sim = "0"
-            if (sm.activeSubscriptionInfoCount > 1) {
-                sm.activeSubscriptionInfoList.find {
-                    subscriptionId.substring(1, subscriptionId.lastIndex) == it.iccId
-                }?.let {
-                    call.sim = it.simSlotIndex.toString()
-                }
-            }
+            call.sim = getSimSlot(subscriptionId)
             call.name = name
             call.id = sid
             call.image = image
@@ -756,15 +719,31 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             val minutes = Integer.valueOf(callDuration) % 3600 / 60
             val seconds = Integer.valueOf(callDuration) % 60
             call.callDuration = String.format("%02d:%02d:%02d", hours, minutes, seconds)
-            // Uri allCalls = Uri.parse("content://call_log/calls");
-// Cursor c = ((MainActivity)getActivity()).managedQuery(allCalls, null, null, null, null);
-//String id = c.getString(c.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID));
-//Log.d("sim",id);
+            Log.i(javaClass.simpleName, "CallLog: $name $phNumber")
             callLogModelList.add(call)
         }
         managedCursor.close()
         //System.out.println(sb);
         return callLogModelList
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getSimSlot(subscriptionId: String): String {
+        val sm =
+            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        try {
+            if (sm.activeSubscriptionInfoCount > 1) {
+                sm.activeSubscriptionInfoList.find {
+                    subscriptionId.substring(1, subscriptionId.lastIndex) == it.iccId
+                }?.let {
+                    return it.simSlotIndex.toString()
+                }
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+
+        return "0"
     }
 
     fun getAllSms(): ArrayList<Sms> {
@@ -845,13 +824,10 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
         }
     }
 
-    @SuppressLint("MissingPermission")
+
     fun getCallLogs(numbers: String): ArrayList<CallLogModel> {
-        // val sb = StringBuffer()
-        val sm =
-            context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         val contacts = CallLog.Calls.CONTENT_URI
-        @SuppressLint("MissingPermission") val managedCursor =
+        val managedCursor =
             context.contentResolver.query(
                 contacts,
                 null,
@@ -894,14 +870,7 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             call.callDate = callDate
             call.phNumber = phNumber
             // call.callDayTime = callDayTime
-            call.sim = "0"
-            if (sm.activeSubscriptionInfoCount > 1) {
-                sm.activeSubscriptionInfoList.find {
-                    subscriptionId.substring(1, subscriptionId.lastIndex) == it.iccId
-                }?.let {
-                    call.sim = it.simSlotIndex.toString()
-                }
-            }
+            call.sim = getSimSlot(subscriptionId)
             call.name = name
             // val hours = Integer.valueOf(callDuration) / 3600
             val minutes = Integer.valueOf(callDuration) % 3600 / 60
