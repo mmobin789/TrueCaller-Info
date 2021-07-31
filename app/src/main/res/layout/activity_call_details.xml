@@ -107,13 +107,24 @@
                 tools:text="Pakistan" />
         </LinearLayout>
 
-        <!--  <ImageView
-              android:layout_width="50dp"
-              android:layout_height="50dp"
-              android:layout_marginTop="10dp"
-              android:background="@drawable/wta_btn_back"
-              android:onClick="openWhatsAppChat"
-              android:visibility="gone" />-->
+        <Button
+            android:id="@+id/btnSpamCall"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/red"
+            android:contentDescription="@string/app_name"
+            android:drawableStart="@drawable/ic_baseline_error_outline_white"
+            android:drawablePadding="4dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="@string/spam_caller"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </LinearLayout>
 
     <View

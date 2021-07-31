@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.ads.AdView
 import com.magicbio.truename.R
+import com.magicbio.truename.fragments.background.AppAsyncWorker
 import com.magicbio.truename.fragments.background.AppAsyncWorker.findContactByNumber
 import com.magicbio.truename.fragments.background.AppAsyncWorker.loadLastCallLogByNumber
 import com.magicbio.truename.models.GetNumberResponse
@@ -51,6 +52,7 @@ class CallsListener : PhoneStateListener() {
     private var afterCallPopupView: View? = null
     private val popUpDuration = 30L // seconds
     private var callName: String? = null
+    private var numberFromDetails: String? = null
     private val apiInterface by lazy {
         ApiClient.getClient().create(
             ApiInterface::
@@ -198,6 +200,8 @@ class CallsListener : PhoneStateListener() {
     private fun showInfoOnPopUpAfterCall(number: String) {
         val view = afterCallPopupView!!
         val ivAd = view.findViewById<ImageView>(R.id.ivAd)
+        val btnSpam = view.findViewById<Button>(R.id.btnSpam)
+        val btnSpamCall = view.findViewById<Button>(R.id.btnSpamCall)
         val adView1 = view.findViewById<AdView>(R.id.adView)
         val txtNumber = view.findViewById<TextView>(R.id.txtNumber)
         val txtLastCall = view.findViewById<TextView>(R.id.txtLastCall)
@@ -214,6 +218,23 @@ class CallsListener : PhoneStateListener() {
         cross.setOnClickListener {
             windowManager.removeView(view)
             afterCallPopUpShown = false
+        }
+
+        btnSpam.setOnClickListener {
+            Toast.makeText(it.context, R.string.adding_to_spam, Toast.LENGTH_SHORT).show()
+
+            val data = if (numberFromDetails.isNullOrBlank())
+                number else numberFromDetails!!
+
+            AppAsyncWorker.addNumberToSpam(data) { s ->
+                if (s.isNullOrBlank()) {
+                    btnSpam.setText(R.string.spam_noted)
+                } else Toast.makeText(
+                    it.context,
+                    "$s Failed.Try again later.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
 
@@ -268,7 +289,7 @@ class CallsListener : PhoneStateListener() {
             context.startActivity(intent)
         }
 
-        getNumberDetails(number, txtName, txtNumber, ivAd)
+        getNumberDetails(number, txtName, txtNumber, ivAd, btnSpam, btnSpamCall)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -324,7 +345,9 @@ class CallsListener : PhoneStateListener() {
         number: String,
         txtName: TextView,
         txtNumber: TextView,
-        ivAd: ImageView
+        ivAd: ImageView,
+        btnSpam: Button? = null,
+        btnSpamCall: Button? = null
     ) {
         apiInterface.getNumberDetails(number, "92")
             .enqueue(object : Callback<GetNumberResponse?> {
@@ -359,9 +382,20 @@ class CallsListener : PhoneStateListener() {
                                 openBrowser()
                             }
                         }
+                        numberFromDetails = data.number
+                        txtNumber.text = numberFromDetails
 
-
-                        txtNumber.text = data.number
+                        if (!data.spamCount.isNullOrBlank() && data.spamCount != "0") {
+                            btnSpam?.visibility = View.GONE
+                            btnSpamCall?.run {
+                                visibility = View.VISIBLE
+                                text = context.getString(R.string.spam_calls, data.spamCount)
+                            }
+                        } else {
+                            btnSpam?.visibility = View.VISIBLE
+                        }
+                    } else {
+                        btnSpam?.visibility = View.VISIBLE
                     }
                 }
 

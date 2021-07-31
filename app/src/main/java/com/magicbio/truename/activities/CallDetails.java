@@ -20,6 +20,7 @@ import com.hbb20.CCPCountry;
 import com.hbb20.CountryCodePicker;
 import com.magicbio.truename.R;
 import com.magicbio.truename.adapters.CallDetailsAdapter;
+import com.magicbio.truename.fragments.background.AppAsyncWorker;
 import com.magicbio.truename.utils.AdUtils;
 import com.magicbio.truename.utils.ContactUtils;
 import com.magicbio.truename.utils.PermissionsUtil;
@@ -164,7 +165,10 @@ public class CallDetails extends AppCompatActivity {
         //  recyclerView.setAdapter(new CallHistoryAdapter(getCallDetails(CallDetails.this, getIntent().getStringExtra("number"))));
         recyclerView.setAdapter(new CallDetailsAdapter(this, numbers));
 
-
+        AppAsyncWorker.getNumberDetails(numbers.get(0), () -> {
+            findViewById(R.id.btnSpamCall).setVisibility(View.VISIBLE);
+            return null;
+        });
     }
 
     @Override

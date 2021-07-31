@@ -18,7 +18,7 @@ interface ApiInterface {
     fun getNumberDetails(
         @Query("number") number: String,
         @Query("code") countryId: String
-    ): Call<GetNumberResponse?>
+    ): Call<GetNumberResponse>
 
     @POST("upload-numbers")
     fun uploadContacts(@Body uploadContactsRequest: UploadContactsRequest): Call<UploadContactsResponse>
@@ -37,5 +37,8 @@ interface ApiInterface {
 
     @GET("update-app-status?status=no")
     suspend fun notifyAppUpToDate(@Query("user_id") userId: Int): AppUpdateResponse
+
+    @GET("update-spam?code=92")
+    suspend fun addNumberToSpam(@Query("number") number: String): UploadContactsResponse
 
 }

@@ -23,6 +23,9 @@ import com.magicbio.truename.models.*
 import com.magicbio.truename.retrofit.ApiClient
 import com.magicbio.truename.retrofit.ApiInterface
 import kotlinx.coroutines.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
@@ -56,6 +59,40 @@ object AppAsyncWorker {
         }
     }
 
+    @JvmStatic
+    fun addNumberToSpam(number: String, onResponse: (String?) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val status = apiInterface.addNumberToSpam(number).status
+            withContext(Dispatchers.Main.immediate)
+            {
+                if (status)
+                    onResponse(null)
+                else onResponse(number)
+            }
+        }
+    }
+
+    @JvmStatic
+    fun getNumberDetails(number: String, onSpam: () -> Unit) {
+        apiInterface.getNumberDetails(number, "92").enqueue(object : Callback<GetNumberResponse> {
+            override fun onResponse(
+                call: Call<GetNumberResponse>,
+                response: Response<GetNumberResponse>
+            ) {
+                if (response.isSuccessful) {
+                    response.body()?.run {
+                        if (!data.spamCount.isNullOrBlank() && data.spamCount != "0")
+                            onSpam()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<GetNumberResponse>, t: Throwable) {
+                t.printStackTrace()
+            }
+        }
+        )
+    }
 
     fun saveContacts() {
         if (!TrueName.areContactsUploaded(context)) {

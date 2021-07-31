@@ -8,8 +8,6 @@
 
 
     <string name="invite">Invite %1$s to True Caller Info to \n send instant message.</string>
-    <string name="blocked">The phone number %1$s is now blocked.</string>
-    <string name="unblocked">The phone number %1$s is now unblocked.</string>
     <string name="share_my_location">Share My\nLocation</string>
     <string name="facebook">Facebook</string>
     <string name="instagram">Instagram</string>
@@ -37,4 +35,10 @@
     <string name="grant_numbers_permission">Please grant permissions to send sms,read call logs &amp; contacts.</string>
     <string name="grant_call_permission">Please grant permissions to manage calls &amp; read your phone numbers.</string>
     <string name="grant_window_permission">Please grant permissions to manage calls &amp; use window overlay to show caller ID.</string>
+    <string name="report_spam">Make Spam</string>
+    <string name="spam_call">Spam Call</string>
+    <string name="spam_calls">Total Spam Calls = %1$s</string>
+    <string name="spam_noted">Spam Noted</string>
+    <string name="adding_to_spam">Adding to Spam…</string>
+    <string name="spam_caller">Spam Caller</string>
 </resources>

@@ -2,6 +2,7 @@
 package com.magicbio.truename.models;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 public class GetNumberResponse {
 
@@ -20,18 +21,12 @@ public class GetNumberResponse {
         return data;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public void setData(Data data) {
-        this.data = data;
-    }
-
-
     public static class Data {
         @Expose
-        public String number, name, image,type,link;
+        public String number, name, image, type, link;
+        @SerializedName("is_spam")
+        @Expose
+        public String spamCount;
     }
 
 }

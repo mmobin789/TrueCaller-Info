@@ -1,3 +1,5 @@
 package com.magicbio.truename.models
 
-class UploadContactsResponse(val status: Boolean)
+import com.google.gson.annotations.Expose
+
+class UploadContactsResponse(@Expose val status: Boolean)
