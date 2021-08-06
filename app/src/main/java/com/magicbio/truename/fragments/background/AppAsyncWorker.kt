@@ -851,10 +851,10 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             phoneNumber
         } else {
             var name = phoneNumber
-            cursor.use { c ->
-                if (c.moveToFirst()) {
+            cursor.use {
+                if (it.moveToFirst()) {
                     name =
-                        c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME))
+                        it.getString(it.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME))
                 }
             }
             name

@@ -229,6 +229,7 @@ class CallsListener : PhoneStateListener() {
             AppAsyncWorker.addNumberToSpam(data) { s ->
                 if (s.isNullOrBlank()) {
                     btnSpam.setText(R.string.spam_noted)
+                    btnSpam.isEnabled = false
                 } else Toast.makeText(
                     it.context,
                     "$s Failed.Try again later.",
@@ -289,7 +290,7 @@ class CallsListener : PhoneStateListener() {
             context.startActivity(intent)
         }
 
-        getNumberDetails(number, txtName, txtNumber, ivAd, btnSpam, btnSpamCall)
+        getNumberDetails(number, txtName, txtNumber, ivAd, btnSpamCall)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -346,7 +347,6 @@ class CallsListener : PhoneStateListener() {
         txtName: TextView,
         txtNumber: TextView,
         ivAd: ImageView,
-        btnSpam: Button? = null,
         btnSpamCall: Button? = null
     ) {
         apiInterface.getNumberDetails(number, "92")
@@ -386,16 +386,11 @@ class CallsListener : PhoneStateListener() {
                         txtNumber.text = numberFromDetails
 
                         if (!data.spamCount.isNullOrBlank() && data.spamCount != "0") {
-                            btnSpam?.visibility = View.GONE
                             btnSpamCall?.run {
                                 visibility = View.VISIBLE
                                 text = context.getString(R.string.spam_calls, data.spamCount)
                             }
-                        } else {
-                            btnSpam?.visibility = View.VISIBLE
                         }
-                    } else {
-                        btnSpam?.visibility = View.VISIBLE
                     }
                 }
 
