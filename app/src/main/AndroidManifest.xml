@@ -72,8 +72,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.PhoneConfirmActivity" />
-
 
         <receiver
             android:name=".call.CallsReceiver"
