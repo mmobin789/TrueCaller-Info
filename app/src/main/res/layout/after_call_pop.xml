@@ -88,7 +88,6 @@
                             android:id="@+id/btnSpamCall"
                             android:layout_width="wrap_content"
                             android:layout_height="30dp"
-                            android:layout_below="@id/btnSpam"
                             android:layout_alignParentStart="true"
                             android:layout_marginEnd="8dp"
                             android:background="@color/red"
@@ -100,8 +99,9 @@
                             android:text="@string/spam_call"
                             android:textAllCaps="false"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="10sp"
                             android:visibility="gone"
+                            tools:text="@string/spam_calls"
                             tools:visibility="visible" />
 
                         <Button
@@ -120,7 +120,7 @@
                             android:text="@string/report_spam"
                             android:textAllCaps="false"
                             android:textColor="@color/red"
-                            android:textSize="12sp" />
+                            android:textSize="10sp" />
 
 
                     </RelativeLayout>

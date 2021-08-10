@@ -4,7 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.WorkManager;
 
+import com.bumptech.glide.Glide;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.adapters.ContactsAdapter;
@@ -31,7 +33,7 @@ import java.util.ArrayList;
 public class ContactsFragment extends Fragment {
     private RecyclerView recyclerView;
     private ContactsAdapter contactsAdapter;
-    private TextView tvLoading;
+    private ImageView ivLoading;
     private boolean search, init;
     private int offset;
 
@@ -46,7 +48,8 @@ public class ContactsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
         recyclerView = view.findViewById(R.id.recycler_View);
-        tvLoading = view.findViewById(R.id.tvLoading);
+        ivLoading = view.findViewById(R.id.ivLoading);
+        Glide.with(this).load(R.raw.loading).into(ivLoading);
         return view;
     }
 
@@ -54,7 +57,7 @@ public class ContactsFragment extends Fragment {
         if (getView() == null)
             return;
 
-        tvLoading.setText(R.string.grant_numbers_permission);
+        Toast.makeText(getContext(),R.string.grant_numbers_permission,Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -93,11 +96,11 @@ public class ContactsFragment extends Fragment {
     }
 
     private void loadContacts() {
-        tvLoading.setVisibility(View.VISIBLE);
+        ivLoading.setVisibility(View.VISIBLE);
         AppAsyncWorker.loadContacts(offset, (contacts) -> {
             if (!contacts.isEmpty()) {
                 offset += 50;
-                tvLoading.setVisibility(View.GONE);
+                ivLoading.setVisibility(View.GONE);
                 contactsAdapter.addContacts(contacts);
                 init = true;
             }

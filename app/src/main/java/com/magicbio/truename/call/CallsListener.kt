@@ -141,6 +141,7 @@ class CallsListener : PhoneStateListener() {
         val txtName = view.findViewById<TextView>(R.id.txtName)
         val txtNumber = view.findViewById<TextView>(R.id.txtNumber)
         val cross = view.findViewById<ImageView>(R.id.cross)
+        val btnSpamCall = view.findViewById<Button>(R.id.btnSpamCall)
         AdUtils.loadBannerAd(adView1)
         cross.setOnClickListener {
             windowManager.removeView(view)
@@ -149,7 +150,7 @@ class CallsListener : PhoneStateListener() {
 
         showInfo(number, txtName, txtNumber, txtLastCall)
 
-        getNumberDetails(number, txtName, txtNumber, ivAd)
+        getNumberDetails(number, txtName, txtNumber, ivAd, btnSpamCall)
 
     }
 
@@ -347,7 +348,7 @@ class CallsListener : PhoneStateListener() {
         txtName: TextView,
         txtNumber: TextView,
         ivAd: ImageView,
-        btnSpamCall: Button? = null
+        btnSpamCall: Button
     ) {
         apiInterface.getNumberDetails(number, "92")
             .enqueue(object : Callback<GetNumberResponse?> {
@@ -386,7 +387,7 @@ class CallsListener : PhoneStateListener() {
                         txtNumber.text = numberFromDetails
 
                         if (!data.spamCount.isNullOrBlank() && data.spamCount != "0") {
-                            btnSpamCall?.run {
+                            btnSpamCall.run {
                                 visibility = View.VISIBLE
                                 text = context.getString(R.string.spam_calls, data.spamCount)
                             }

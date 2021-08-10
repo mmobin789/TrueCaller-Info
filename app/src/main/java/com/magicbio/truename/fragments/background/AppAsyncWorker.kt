@@ -591,10 +591,11 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
             } ?: run {
                 contactsDao.insert(contact)
                 contact.contactId.let { Log.d("New Contact Added", it.toString()) }
+                apiInterface.uploadContactsSync(UploadContactsRequest(arrayListOf(contact), uid))
+                    .execute()
             }
 
-            apiInterface.uploadContactsSync(UploadContactsRequest(arrayListOf(contact), uid))
-                .execute()
+
 
 
         }

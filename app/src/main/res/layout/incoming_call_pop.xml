@@ -79,6 +79,24 @@
 
                     </LinearLayout>
 
+                    <Button
+                        android:id="@+id/btnSpamCall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@color/red"
+                        android:contentDescription="@string/app_name"
+                        android:drawableStart="@drawable/ic_baseline_error_outline_white"
+                        android:drawablePadding="4dp"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        android:text="@string/spam_call"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
                     <ImageView
                         android:layout_width="100dp"
                         android:layout_height="30dp"

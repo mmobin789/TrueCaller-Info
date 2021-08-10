@@ -4,7 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.WorkManager;
 
+import com.bumptech.glide.Glide;
 import com.magicbio.truename.R;
 import com.magicbio.truename.activities.MainActivity;
 import com.magicbio.truename.adapters.CallLogsAdapter;
@@ -33,7 +35,7 @@ public class CallLogFragment extends Fragment {
     private RecyclerView recyclerView;
     private CallLogsAdapter callLogsAdapter;
     private LinearLayoutManager layoutManager;
-    private TextView tvLoading;
+    private ImageView ivLoading;
     private boolean search, init;
     private int offset;
 
@@ -53,7 +55,8 @@ public class CallLogFragment extends Fragment {
 
     private void init(View v) {
         recyclerView = v.findViewById(R.id.recycler_View);
-        tvLoading = v.findViewById(R.id.tvLoading);
+        ivLoading = v.findViewById(R.id.ivLoading);
+        Glide.with(this).load(R.raw.loading).into(ivLoading);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getActivity());
         // reverseLayout();
@@ -91,16 +94,16 @@ public class CallLogFragment extends Fragment {
         if (getView() == null)
             return;
 
-        tvLoading.setText(R.string.grant_numbers_permission);
+        Toast.makeText(getContext(), R.string.grant_numbers_permission, Toast.LENGTH_LONG).show();
     }
 
 
     private void loadCallLog() {
-        tvLoading.setVisibility(View.VISIBLE);
+        ivLoading.setVisibility(View.VISIBLE);
         AppAsyncWorker.loadCallLog(offset, (callLog) -> {
             if (!callLog.isEmpty()) {
                 offset += 50;
-                tvLoading.setVisibility(View.GONE);
+                ivLoading.setVisibility(View.GONE);
                 callLogsAdapter.addCallLogs(callLog);
                 init = true;
             }

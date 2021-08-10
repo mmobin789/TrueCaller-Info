@@ -5,17 +5,12 @@
     android:background="@color/white"
     tools:context="com.magicbio.truename.fragments.ContactsFragment">
 
-    <TextView
-        android:id="@+id/tvLoading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageView
+        android:id="@+id/ivLoading"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_centerInParent="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:gravity="center"
-        android:text="@string/loading"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/dark_gray" />
+        android:contentDescription="@string/app_name" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_View"

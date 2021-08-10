@@ -1,21 +1,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context="com.magicbio.truename.fragments.ContactsFragment">
 
-    <TextView
-        android:id="@+id/tvLoading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <ImageView
+        android:id="@+id/ivLoading"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_centerInParent="true"
-        android:gravity="center"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/loading"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/dark_gray" />
+        android:contentDescription="@string/app_name" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/hotNumbers"
