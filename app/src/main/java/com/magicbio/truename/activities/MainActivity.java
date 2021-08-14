@@ -157,19 +157,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Toast.makeText(this, id, Toast.LENGTH_LONG).show();
     }
 
-    @Override
+   /* @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_ID) {
             if (resultCode == android.app.Activity.RESULT_OK) {
                 // Your app is now the call screening app
                 showToast(R.string.caller_id);
-            } else {
+            } else if(resultCode == RESULT_CANCELED) {
                 // Your app is not the call screening app
                 showToast(R.string.not_caller_id);
             }
         }
-    }
+    }*/
 
     private void takeCallLogsAndContactsPermissions() {
         PermissionsUtil.checkReadCallLogContactsAndSendSMSPermissions(this, () -> {
