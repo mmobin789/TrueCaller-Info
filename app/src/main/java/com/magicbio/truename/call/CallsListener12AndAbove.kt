@@ -166,20 +166,18 @@ class CallsListener12AndAbove(private val context: Context) : TelephonyCallback(
             val contact = findContactByNumber(number)
             name = when {
                 isContactName(callLog.name) -> {
-                    txtLastCall.text = getDateFormatted(callLog.callDate)
                     callLog.name
                 }
                 contact != null -> {
-                    txtLastCall.text = getDateFormatted(callLog.callDate)
                     contact.name
                 }
                 else -> {
-                    txtLastCall.text = newCaller
                     callLog.phNumber
                 }
             }
             txtName.text = name
             txtNumber.text = number
+            txtLastCall.text = getDateFormatted(callLog.callDate)
 
         } ?: findContactByNumber(number)?.let {
             name = it.name

@@ -153,9 +153,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
     }
 
-    private void showToast(@StringRes int id) {
+  /*  private void showToast(@StringRes int id) {
         Toast.makeText(this, id, Toast.LENGTH_LONG).show();
-    }
+    }*/
 
    /* @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
