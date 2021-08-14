@@ -8,7 +8,7 @@ import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Build
 import android.provider.ContactsContract
-import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.*
@@ -17,6 +17,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.google.android.gms.ads.AdView
 import com.magicbio.truename.R
 import com.magicbio.truename.fragments.background.AppAsyncWorker
@@ -42,8 +43,8 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class CallsListener(private val context: Context) : PhoneStateListener() {
-
+@RequiresApi(Build.VERSION_CODES.S)
+class CallsListener12AndAbove(private val context: Context) : TelephonyCallback(), TelephonyCallback.CallStateListener {
     private val layoutInflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val windowManager: WindowManager = context.getSystemService(Service.WINDOW_SERVICE) as WindowManager
     private lateinit var windowParams: WindowManager.LayoutParams
@@ -66,7 +67,7 @@ class CallsListener(private val context: Context) : PhoneStateListener() {
         private var afterCallPopUpShown = false
     }
 
-    init  {
+    init {
         createWindowParams()
     }
 
@@ -436,29 +437,26 @@ class CallsListener(private val context: Context) : PhoneStateListener() {
         }
     }
 
-    override fun onCallStateChanged(state: Int, phoneNumber: String) {
+    override fun onCallStateChanged(state: Int) {
 
         try {
-            //  removePopUpViews()
-            if (phoneNumber.isBlank())
-                return
 
             when (state) {
                 TelephonyManager.CALL_STATE_RINGING -> {
                     Log.d("IncomingCall", "Incoming")
                     removeAfterCallPopUp()
-                    showBeforeCallPopUpWindow(phoneNumber)
+                    showBeforeCallPopUpWindow("")
                 }
 
                 TelephonyManager.CALL_STATE_OFFHOOK -> {
                     Log.d("OutgoingCall", "Outgoing")
                     removeAfterCallPopUp()
-                    showBeforeCallPopUpWindow(phoneNumber)
+                    showBeforeCallPopUpWindow("phoneNumber")
 
                 }
                 TelephonyManager.CALL_STATE_IDLE -> {
                     removeBeforeCallPopUp()
-                    showAfterCallPopUpWindow(phoneNumber)
+                    showAfterCallPopUpWindow("phoneNumber")
                 }
             }
         } catch (e: Exception) {

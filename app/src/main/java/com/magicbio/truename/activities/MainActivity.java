@@ -1,5 +1,6 @@
 package com.magicbio.truename.activities;
 
+import android.app.role.RoleManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
@@ -10,8 +11,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -135,6 +139,36 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         AppAsyncWorker.sendDailyInvite(false);
 
+        requestCallerIDRole();
+
+    }
+
+    private static final int REQUEST_ID = 1;
+
+    private void requestCallerIDRole() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
+            Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING);
+            startActivityForResult(intent, REQUEST_ID);
+        }
+    }
+
+    private void showToast(@StringRes int id) {
+        Toast.makeText(this, id, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_ID) {
+            if (resultCode == android.app.Activity.RESULT_OK) {
+                // Your app is now the call screening app
+                showToast(R.string.caller_id);
+            } else {
+                // Your app is not the call screening app
+                showToast(R.string.not_caller_id);
+            }
+        }
     }
 
     private void takeCallLogsAndContactsPermissions() {

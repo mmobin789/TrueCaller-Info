@@ -41,4 +41,6 @@
     <string name="spam_noted">Spam Noted</string>
     <string name="adding_to_spam">Adding to Spam…</string>
     <string name="spam_caller">Spam Caller</string>
+    <string name="caller_id">Success! This app is now set as your default call screening provider.</string>
+    <string name="not_caller_id">Note: This app is not set as your default call screening provider and will not offer any such services.</string>
 </resources>
