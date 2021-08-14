@@ -44,9 +44,12 @@ import java.util.concurrent.TimeUnit
 
 
 @RequiresApi(Build.VERSION_CODES.S)
-class CallsListener12AndAbove(private val context: Context) : TelephonyCallback(), TelephonyCallback.CallStateListener {
-    private val layoutInflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    private val windowManager: WindowManager = context.getSystemService(Service.WINDOW_SERVICE) as WindowManager
+class CallsListener12AndAbove(private val context: Context, private val phoneNumber: String) :
+    TelephonyCallback(), TelephonyCallback.CallStateListener {
+    private val layoutInflater: LayoutInflater =
+        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val windowManager: WindowManager =
+        context.getSystemService(Service.WINDOW_SERVICE) as WindowManager
     private lateinit var windowParams: WindowManager.LayoutParams
     private var beforeCallPopupView: View? = null
     private var afterCallPopupView: View? = null
@@ -438,23 +441,24 @@ class CallsListener12AndAbove(private val context: Context) : TelephonyCallback(
     override fun onCallStateChanged(state: Int) {
 
         try {
+             val phoneNumber = this.phoneNumber
 
             when (state) {
                 TelephonyManager.CALL_STATE_RINGING -> {
                     Log.d("IncomingCall", "Incoming")
                     removeAfterCallPopUp()
-                    showBeforeCallPopUpWindow("")
+                    showBeforeCallPopUpWindow(phoneNumber)
                 }
 
                 TelephonyManager.CALL_STATE_OFFHOOK -> {
                     Log.d("OutgoingCall", "Outgoing")
                     removeAfterCallPopUp()
-                    showBeforeCallPopUpWindow("phoneNumber")
+                    showBeforeCallPopUpWindow(phoneNumber)
 
                 }
                 TelephonyManager.CALL_STATE_IDLE -> {
                     removeBeforeCallPopUp()
-                    showAfterCallPopUpWindow("phoneNumber")
+                    showAfterCallPopUpWindow(phoneNumber)
                 }
             }
         } catch (e: Exception) {

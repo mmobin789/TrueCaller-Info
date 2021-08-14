@@ -42,10 +42,13 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class CallsListener(private val context: Context) : PhoneStateListener() {
+class CallsListener(private val context: Context, private val phoneNumber: String) :
+    PhoneStateListener() {
 
-    private val layoutInflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    private val windowManager: WindowManager = context.getSystemService(Service.WINDOW_SERVICE) as WindowManager
+    private val layoutInflater: LayoutInflater =
+        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val windowManager: WindowManager =
+        context.getSystemService(Service.WINDOW_SERVICE) as WindowManager
     private lateinit var windowParams: WindowManager.LayoutParams
     private var beforeCallPopupView: View? = null
     private var afterCallPopupView: View? = null
@@ -66,7 +69,7 @@ class CallsListener(private val context: Context) : PhoneStateListener() {
         private var afterCallPopUpShown = false
     }
 
-    init  {
+    init {
         createWindowParams()
     }
 
@@ -434,12 +437,10 @@ class CallsListener(private val context: Context) : PhoneStateListener() {
         }
     }
 
-    override fun onCallStateChanged(state: Int, phoneNumber: String) {
+    override fun onCallStateChanged(state: Int, number: String) {
 
         try {
-            //  removePopUpViews()
-            if (phoneNumber.isBlank())
-                return
+            val phoneNumber = if (number.isBlank()) this.phoneNumber else number
 
             when (state) {
                 TelephonyManager.CALL_STATE_RINGING -> {
@@ -463,7 +464,6 @@ class CallsListener(private val context: Context) : PhoneStateListener() {
             e.printStackTrace()
         }
 
-        // lastState = state
     }
 
     private fun getDateFormatted(milliSeconds: Long): String {

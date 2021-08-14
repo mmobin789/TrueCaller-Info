@@ -71,13 +71,13 @@
         </activity>
 
 
-        <receiver
+       <!-- <receiver
             android:name=".call.CallsReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
         <service
             android:name=".call.CallScreenService"
