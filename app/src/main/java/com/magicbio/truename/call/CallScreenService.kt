@@ -25,7 +25,7 @@ class CallScreenService : CallScreeningService() {
             telephonyManager.registerTelephonyCallback(mainExecutor, callsListener12AndAbove)
         } else {
             telephonyManager.listen(
-                CallsListener(this, phoneNumber),
+                CallsListener(this),
                 PhoneStateListener.LISTEN_CALL_STATE
             )
         }

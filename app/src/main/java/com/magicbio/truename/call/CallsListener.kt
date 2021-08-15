@@ -42,7 +42,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class CallsListener(private val context: Context, private val phoneNumber: String) :
+class CallsListener(private val context: Context) :
     PhoneStateListener() {
 
     private val layoutInflater: LayoutInflater =
@@ -437,10 +437,10 @@ class CallsListener(private val context: Context, private val phoneNumber: Strin
         }
     }
 
-    override fun onCallStateChanged(state: Int, number: String) {
+    override fun onCallStateChanged(state: Int, phoneNumber: String) {
 
         try {
-            val phoneNumber = if (number.isBlank()) this.phoneNumber else number
+            if (phoneNumber.isBlank()) return
 
             when (state) {
                 TelephonyManager.CALL_STATE_RINGING -> {
