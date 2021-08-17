@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         //viewPager.setCurrentItem(1);
         createExitDialog();
 
+        drawOverAppsPermission();
 
         PermissionsUtil.checkPhoneStatePermission(this, () -> {
             takeCallLogsAndContactsPermissions();
@@ -187,12 +188,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             workManager.enqueue(workRequests);
 
-            if (!Settings.canDrawOverlays(this)) {
-                startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
-            }
-
             return null;
         });
+    }
+
+    private void drawOverAppsPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
+        }
     }
 
     private void showAppUpdateDialog() {

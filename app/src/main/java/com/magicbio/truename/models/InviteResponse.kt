@@ -7,5 +7,6 @@ class InviteResponse(
     @Expose val status: Boolean,
     @Expose val msg: String?,
     @SerializedName("typea")
-    @Expose val type: String?
+    @Expose val type: String?,
+    @Expose val smsCount:Int
 )

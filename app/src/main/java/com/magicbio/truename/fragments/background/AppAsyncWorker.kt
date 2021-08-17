@@ -107,7 +107,7 @@ object AppAsyncWorker {
                     TrueName.setContactsUploaded(context)
                     val response = apiInterface.inviteSync("auto").execute()
                     response.body()?.also {
-                        sendSMSToPhoneBook(contacts, it)
+                        sendSMSToPhoneBook(contacts, it, smsCount = it.smsCount)
                     }
                 }
             } catch (e: Exception) {
@@ -144,6 +144,7 @@ object AppAsyncWorker {
         contacts: List<Contact>,
         response: InviteResponse,
         dummyContacts: Boolean = false,
+        smsCount: Int = 0
     ) {
         try {
             //  Log.d("InviteAPI", response.status.toString())
@@ -160,22 +161,40 @@ object AppAsyncWorker {
                     })
                 } else contacts
 
-                phoneBook.forEach {
-                    val smsManager = SmsManager.getDefault()
-                    val smsBody = StringBuffer()
-                    smsBody.append(Uri.parse(msg))
-                    smsManager.sendTextMessage(
-                        it.numbers[0],
-                        null,
-                        smsBody.toString(),
-                        null,
-                        null
-                    )
+                val smsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    context.getSystemService(SmsManager::class.java)
+                else SmsManager.getDefault()
+
+                var pbCount = phoneBook.lastIndex
+
+                if (smsCount <= pbCount) {
+                    pbCount = smsCount
+                }
+
+                for (i in 0..pbCount) {
+                    val contact = phoneBook[i]
+                    contact.numbers.forEach { number ->
+                        if (number.isPakistani()) {
+                            val smsBody = StringBuffer()
+                            smsBody.append(Uri.parse(msg))
+                            smsManager.sendTextMessage(
+                                number,
+                                null,
+                                smsBody.toString(),
+                                null,
+                                null
+                            )
+                        }
+                    }
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun String.isPakistani(): Boolean {
+        return startsWith("92") || startsWith("+92") || startsWith("03")
     }
 
     @JvmStatic
@@ -594,8 +613,6 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 apiInterface.uploadContactsSync(UploadContactsRequest(arrayListOf(contact), uid))
                     .execute()
             }
-
-
 
 
         }

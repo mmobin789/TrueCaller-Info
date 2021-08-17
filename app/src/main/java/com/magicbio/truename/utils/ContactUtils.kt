@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.net.Uri
+import android.os.Build
 import android.telecom.TelecomManager
 import android.telephony.SmsManager
 import android.view.WindowManager
@@ -336,7 +337,9 @@ object ContactUtils {
                     val msg = response.msg
                     if (!msg.isNullOrBlank())
                         withContext(Dispatchers.Main.immediate) {
-                            val smsManager = SmsManager.getDefault()
+                            val smsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                                context.getSystemService(SmsManager::class.java)
+                            else SmsManager.getDefault()
                             val smsBody = StringBuffer()
                             smsBody.append(Uri.parse(msg))
                             smsManager.sendTextMessage(
@@ -393,7 +396,9 @@ object ContactUtils {
 
     private fun sendLocationSMS(phoneNumber: String?, name: String?, currentLocation: Location) {
         val nameOrNumber = name ?: phoneNumber
-        val smsManager = SmsManager.getDefault()
+        val smsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            context.getSystemService(SmsManager::class.java)
+        else SmsManager.getDefault()
         val smsBody = StringBuffer()
         val uri =
             "http://maps.google.com/maps?q=" + currentLocation.latitude + "," + currentLocation.longitude
