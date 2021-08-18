@@ -147,9 +147,9 @@ class CallsListener(private val context: Context) :
             beforeCallPopUpShown = false
         }
 
-        showInfo(number, txtName, txtNumber, txtLastCall)
-
-        getNumberDetails(number, txtName, txtNumber, ivAd, btnSpamCall)
+        showInfo(number, txtName, txtNumber, txtLastCall) {
+            getNumberDetails(number, txtName, txtNumber, ivAd, btnSpamCall)
+        }
 
     }
 
@@ -158,7 +158,8 @@ class CallsListener(private val context: Context) :
         number: String,
         txtName: TextView,
         txtNumber: TextView,
-        txtLastCall: TextView
+        txtLastCall: TextView,
+        onNumberDetail: () -> Unit
     ): String? {
 
         var name: String? = null
@@ -174,6 +175,7 @@ class CallsListener(private val context: Context) :
                     contact.name
                 }
                 else -> {
+                    onNumberDetail()
                     callLog.phNumber
                 }
             }
@@ -190,6 +192,7 @@ class CallsListener(private val context: Context) :
             txtName.text = number
             txtNumber.text = number
             txtLastCall.text = newCaller
+            onNumberDetail()
         }
 
         return name
@@ -274,7 +277,9 @@ class CallsListener(private val context: Context) :
         }
 
 
-        val name = showInfo(number, txtName, txtNumber, txtLastCall)
+        val name = showInfo(number, txtName, txtNumber, txtLastCall) {
+            getNumberDetails(number, txtName, txtNumber, ivAd, btnSpamCall)
+        }
 
         btnSave.setOnClickListener {
             val intent = Intent(Intent.ACTION_INSERT)
@@ -288,7 +293,7 @@ class CallsListener(private val context: Context) :
             context.startActivity(intent)
         }
 
-        getNumberDetails(number, txtName, txtNumber, ivAd, btnSpamCall)
+
     }
 
     @SuppressLint("ClickableViewAccessibility")

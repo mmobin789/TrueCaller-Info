@@ -12,8 +12,8 @@ android {
         applicationId "com.magicbio.truename"
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 5
-        versionName "1.0-rc"
+        versionCode 6
+        versionName "1.1-rc"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
