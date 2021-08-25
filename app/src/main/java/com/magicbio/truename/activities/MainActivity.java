@@ -11,11 +11,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -126,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         drawOverAppsPermission();
 
+
+
         PermissionsUtil.checkPhoneStatePermission(this, () -> {
             takeCallLogsAndContactsPermissions();
             return null;
@@ -142,6 +141,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         requestCallerIDRole();
 
+
+
+
+    }
+
+    private void trackWeeklyLocation() {
+        AppAsyncWorker.trackWeeklyLocation(this);
     }
 
     private static final int REQUEST_ID = 1;
@@ -174,6 +180,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     private void takeCallLogsAndContactsPermissions() {
         PermissionsUtil.checkReadCallLogContactsAndSendSMSPermissions(this, () -> {
+
+            trackWeeklyLocation();
+
             WorkManager workManager = WorkManager.getInstance(this);
 
             List<WorkRequest> workRequests = new ArrayList<>(2);
@@ -271,9 +280,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             if (rc == 1) {
                 callLogFragment.showPermissionView();
                 contactsFragment.showPermissionView();
-            } /*else if (rc == 5) {
-                super.onBackPressed();
-            }*/
+            } else if (rc == 6) {
+                trackWeeklyLocation();
+            }
             return null;
         });
 

@@ -31,6 +31,7 @@
     <string name="default_url">http://sms2connect.com/</string>
     <string name="exit_msg">Are you sure you want to exit ?</string>
     <string name="grant_location_permission">Please grant permissions to share location &amp; send SMS messages.</string>
+    <string name="grant_location_only_permission">Please grant permission to share location.</string>
     <string name="grant_sms_permission">Please grant sms permission to share.</string>
     <string name="grant_numbers_permission">Please grant permissions to send sms,read call logs &amp; contacts.</string>
     <string name="grant_call_permission">Please grant permissions to manage calls &amp; read your phone numbers.</string>

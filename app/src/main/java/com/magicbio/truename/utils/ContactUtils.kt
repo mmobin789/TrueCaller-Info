@@ -311,6 +311,24 @@ object ContactUtils {
         }
     }
 
+    @JvmStatic
+    fun shareLocation(
+        appCompatActivity: AppCompatActivity?,
+        onSuccess: (Location) -> Unit
+    ) {
+        PermissionsUtil.checkLocationPermission(appCompatActivity) {
+            try {
+                startLocation {
+                    onSuccess(it)
+                }
+
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun startLocation(onSuccess: (Location) -> Unit) {
 
         val provider = LocationGooglePlayServicesProvider()

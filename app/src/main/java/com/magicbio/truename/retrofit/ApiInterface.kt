@@ -41,4 +41,13 @@ interface ApiInterface {
     @GET("update-spam?code=92")
     suspend fun addNumberToSpam(@Query("number") number: String): UploadContactsResponse
 
+
+    @GET("api/update-lat-long")
+    suspend fun uploadLocation(
+        @Query("id") userId: Int,
+        @Query("lat") lat: Double,
+        @Query("long") lng: Double
+    ): UploadContactsResponse
+
+
 }

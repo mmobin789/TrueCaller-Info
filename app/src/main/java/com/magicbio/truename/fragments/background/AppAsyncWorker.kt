@@ -17,11 +17,13 @@ import android.text.TextUtils
 import android.util.Log
 import android.util.Patterns
 import com.magicbio.truename.TrueName
+import com.magicbio.truename.activities.MainActivity
 import com.magicbio.truename.adapters.CallLogsAdapter
 import com.magicbio.truename.db.contacts.Contact
 import com.magicbio.truename.models.*
 import com.magicbio.truename.retrofit.ApiClient
 import com.magicbio.truename.retrofit.ApiInterface
+import com.magicbio.truename.utils.ContactUtils
 import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -986,6 +988,23 @@ fun fetchContacts(onContactsListener: FetchContacts.OnContactsListener) {
                 val response = apiInterface.invite("add")
                 val contacts = contactsDao.getAllContacts()
                 sendSMSToPhoneBook(contacts, response)
+            }
+        }
+    }
+
+    @JvmStatic
+    fun trackWeeklyLocation(mainActivity: MainActivity) {
+        ContactUtils.shareLocation(mainActivity) {
+            GlobalScope.launch(Dispatchers.IO) {
+                try {
+                    val day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+                    val userId = TrueName.getUserId(context)
+                    if (day == Calendar.WEDNESDAY) {
+                        apiInterface.uploadLocation(userId, it.latitude, it.longitude)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }

@@ -20,12 +20,14 @@ object PermissionsUtil {
     private const val smsRC = 3
     private const val callAndReadPhoneNumbersRC = 4
     private const val readPhoneStateAndSystemWindowRC = 5
+    private const val locationRC = 6
 
     private const val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
     private const val sendSMSPermission = Manifest.permission.SEND_SMS
     private const val readCallLogPermission = Manifest.permission.READ_CALL_LOG
     private const val readContactsPermission = Manifest.permission.READ_CONTACTS
-  //  private const val systemWindowPermission = Manifest.permission.SYSTEM_ALERT_WINDOW
+
+    //  private const val systemWindowPermission = Manifest.permission.SYSTEM_ALERT_WINDOW
     private const val readPhoneStatePermission = Manifest.permission.READ_PHONE_STATE
     private const val makeCallsPermissions = Manifest.permission.CALL_PHONE
 
@@ -99,6 +101,19 @@ object PermissionsUtil {
             appCompatActivity
         )
 
+    }
+
+    fun checkLocationPermission(
+        appCompatActivity: AppCompatActivity?,
+        onPermission: () -> Unit
+    ) {
+        checkPermissions(
+            locationRC,
+            arrayOf(locationPermission),
+            R.string.grant_location_only_permission,
+            onPermission,
+            appCompatActivity
+        )
     }
 
     fun checkSendSmsPermission(
